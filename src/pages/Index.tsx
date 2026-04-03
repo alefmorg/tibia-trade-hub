@@ -188,7 +188,11 @@ const Index = () => {
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
         <p className="font-pixel text-[10px]">RUBIN <span className="text-accent">TRADE</span></p>
-        <p className="mt-2">© 2026 — Plataforma não oficial. RubinOT.</p>
+        <p className="mt-2">
+  © 2026 — Rubin TRADE.<br />
+  Este projeto é independente e não possui qualquer vínculo oficial, direto ou indireto, com a empresa RubinOT.<br />
+  Todas as imagens e conteúdos relacionados aos itens do jogo Tibia são de propriedade da CipSoft GmbH.
+</p>
       </footer>
     </div>
   );
