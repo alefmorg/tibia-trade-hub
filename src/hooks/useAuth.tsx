@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
+  profile: { username: string; avatar_url: string | null } | null;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -19,17 +21,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [profile, setProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);
+
+  const fetchUserData = async (userId: string) => {
+    // Fetch profile
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("user_id", userId)
+      .single();
+    if (profileData) setProfile(profileData);
+
+    // Fetch admin role
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    setIsAdmin(!!roleData);
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setTimeout(() => fetchUserData(session.user.id), 0);
+      } else {
+        setProfile(null);
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserData(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -43,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       options: { data: { username }, emailRedirectTo: window.location.origin },
     });
     if (error) throw error;
-    toast.success("Conta criada! Verifique seu email.");
+    toast.success("Conta criada com sucesso!");
   };
 
   const signIn = async (email: string, password: string) => {
@@ -54,11 +86,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setProfile(null);
+    setIsAdmin(false);
     toast.info("Você saiu da conta.");
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, profile, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
