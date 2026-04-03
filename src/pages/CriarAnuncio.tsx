@@ -8,15 +8,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateAd } from "@/hooks/useAds";
-import { tibiaWorlds, pvpTypes, tibiaItems } from "@/lib/tibia-worlds";
+import { useItems } from "@/hooks/useItems";
+import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Switch } from "@/components/ui/switch";
 
 const CriarAnuncio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const createAd = useCreateAd();
+  const { data: items } = useItems();
   const [form, setForm] = useState({
-    title: "",
+    itemId: "",
     type: "selling",
     price: "",
     world: "",
@@ -31,18 +33,28 @@ const CriarAnuncio = () => {
     return null;
   }
 
+  const selectedItem = items?.find(i => i.id === form.itemId);
+
+  // Auto-fill pvp_type when world is selected
+  const handleWorldChange = (worldName: string) => {
+    const world = rubinotWorlds.find(w => w.name === worldName);
+    setForm({ ...form, world: worldName, pvp_type: world?.pvp || form.pvp_type });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedItem) return;
     await createAd.mutateAsync({
-      title: form.title,
+      title: selectedItem.name,
       type: form.type,
       price: form.acceptOffers ? "Aceita ofertas" : form.price,
       world: form.world,
       pvp_type: form.pvp_type,
       category: form.category,
       description: form.description || undefined,
+      image_url: selectedItem.image_url || undefined,
     });
-    navigate("/anuncios");
+    navigate("/");
   };
 
   return (
@@ -51,19 +63,32 @@ const CriarAnuncio = () => {
       <div className="container py-8 max-w-lg">
         <h1 className="text-xl mb-6">Criar Anúncio</h1>
         <form onSubmit={handleSubmit} className="card-gaming p-6 space-y-4">
+          {/* Item selection */}
           <div className="space-y-2">
             <Label className="text-sm text-foreground">Item</Label>
-            <Input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Ex: Golden Armor"
-              required
-              className="bg-secondary border-border"
-              list="tibia-items"
-            />
-            <datalist id="tibia-items">
-              {tibiaItems.map(item => <option key={item} value={item} />)}
-            </datalist>
+            <Select value={form.itemId} onValueChange={(v) => setForm({ ...form, itemId: v })}>
+              <SelectTrigger className="bg-secondary border-border">
+                <SelectValue placeholder="Selecione o item" />
+              </SelectTrigger>
+              <SelectContent>
+                {items?.map(item => (
+                  <SelectItem key={item.id} value={item.id}>
+                    <div className="flex items-center gap-2">
+                      {item.image_url && <img src={item.image_url} alt={item.name} className="h-5 w-5 object-contain" />}
+                      <span>{item.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedItem?.image_url && (
+              <div className="flex justify-center pt-2">
+                <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
+              </div>
+            )}
+            {items?.length === 0 && (
+              <p className="text-xs text-muted-foreground">Nenhum item cadastrado. O admin precisa cadastrar itens primeiro.</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -89,12 +114,16 @@ const CriarAnuncio = () => {
 
           <div className="space-y-2">
             <Label className="text-sm text-foreground">Mundo</Label>
-            <Select value={form.world} onValueChange={(v) => setForm({ ...form, world: v })}>
+            <Select value={form.world} onValueChange={handleWorldChange}>
               <SelectTrigger className="bg-secondary border-border">
                 <SelectValue placeholder="Selecione o mundo" />
               </SelectTrigger>
               <SelectContent>
-                {tibiaWorlds.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
+                {rubinotWorlds.map(w => (
+                  <SelectItem key={w.name} value={w.name}>
+                    {w.name} ({w.pvp})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -116,7 +145,7 @@ const CriarAnuncio = () => {
             <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes sobre o item..." className="bg-secondary border-border min-h-[80px]" />
           </div>
 
-          <Button type="submit" disabled={createAd.isPending} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
             {createAd.isPending ? "Publicando..." : "Publicar Anúncio"}
           </Button>
         </form>

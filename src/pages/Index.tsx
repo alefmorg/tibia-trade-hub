@@ -8,10 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAds } from "@/hooks/useAds";
-import { tibiaWorlds } from "@/lib/tibia-worlds";
+import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const pvpTypes = ["Optional PvP", "Open PvP", "Retro Open PvP", "Hardcore PvP", "Retro Hardcore PvP"];
 const adTypes = ["Vendendo", "Comprando"];
 
 const FilterChip = ({ label, active, color, onClick }: { label: string; active: boolean; color?: string; onClick: () => void }) => (
@@ -62,17 +61,11 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
 
-      {/* Search Bar */}
       <div className="border-b border-border bg-card/50">
         <div className="container py-4 flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Busque por itens ou casas"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-secondary border-border h-11"
-            />
+            <Input placeholder="Busque por itens..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border h-11" />
           </div>
           <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6" onClick={() => navigate("/criar-anuncio")}>
             <Plus className="h-4 w-4 mr-2" />
@@ -83,7 +76,6 @@ const Index = () => {
 
       <div className="container py-6">
         <div className="flex gap-6">
-          {/* Sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -108,8 +100,8 @@ const Index = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos servidores</SelectItem>
-                  {tibiaWorlds.map(w => (
-                    <SelectItem key={w} value={w}>{w}</SelectItem>
+                  {rubinotWorlds.map(w => (
+                    <SelectItem key={w.name} value={w.name}>{w.name} ({w.pvp})</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -134,7 +126,6 @@ const Index = () => {
             </div>
           </aside>
 
-          {/* Main Content */}
           <main className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
@@ -172,49 +163,21 @@ const Index = () => {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {featuredAds.map((ad) => (
-                        <TradeCard
-                          key={ad.id}
-                          id={ad.id}
-                          title={ad.title}
-                          type={ad.type as "selling" | "buying"}
-                          price={ad.price}
-                          world={ad.world}
-                          pvpType={ad.pvp_type}
-                          date={ad.created_at}
-                          imageUrl={ad.image_url}
-                          likes={ad.likes_count}
-                          featured
-                          profiles={ad.profiles}
-                        />
+                        <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured profiles={ad.profiles} />
                       ))}
                     </div>
                   </div>
                 )}
-
                 {regularAds.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {regularAds.map((ad) => (
-                      <TradeCard
-                        key={ad.id}
-                        id={ad.id}
-                        title={ad.title}
-                        type={ad.type as "selling" | "buying"}
-                        price={ad.price}
-                        world={ad.world}
-                        pvpType={ad.pvp_type}
-                        date={ad.created_at}
-                        imageUrl={ad.image_url}
-                        likes={ad.likes_count}
-                        profiles={ad.profiles}
-                      />
+                      <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} profiles={ad.profiles} />
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-muted-foreground text-sm">Nenhum anúncio encontrado</p>
-                    <Button className="mt-4 bg-primary text-primary-foreground" onClick={() => navigate("/criar-anuncio")}>
-                      Criar primeiro anúncio
-                    </Button>
+                    <Button className="mt-4 bg-primary text-primary-foreground" onClick={() => navigate("/criar-anuncio")}>Criar primeiro anúncio</Button>
                   </div>
                 )}
               </>
@@ -225,7 +188,7 @@ const Index = () => {
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
         <p className="font-pixel text-[10px]">Lootix <span className="text-accent">TRADE</span></p>
-        <p className="mt-2">© 2026 — Plataforma não oficial. Tibia é marca registrada da CipSoft.</p>
+        <p className="mt-2">© 2026 — Plataforma não oficial. RubinOT é marca da D'FATO GAMES.</p>
       </footer>
     </div>
   );
