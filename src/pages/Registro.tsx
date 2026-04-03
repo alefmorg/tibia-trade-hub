@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flame } from "lucide-react";
+import { toast } from "sonner";
 
 const Registro = () => {
   const [email, setEmail] = useState("");
@@ -19,9 +20,9 @@ const Registro = () => {
     setLoading(true);
     try {
       await signUp(email, password, username);
-      navigate("/login");
+      navigate("/");
     } catch (err: any) {
-      // handled
+      toast.error(err.message || "Erro ao criar conta");
     } finally {
       setLoading(false);
     }
