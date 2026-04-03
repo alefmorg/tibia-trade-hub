@@ -187,7 +187,7 @@ const Index = () => {
       </div>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        <p className="font-pixel text-[10px]">Rubin <span className="text-accent">TRADE</span></p>
+        <p className="font-pixel text-[10px]">RUBIN <span className="text-accent">TRADE</span></p>
         <p className="mt-2">© 2026 — Plataforma não oficial. RubinOT é marca da D'FATO GAMES.</p>
       </footer>
     </div>
