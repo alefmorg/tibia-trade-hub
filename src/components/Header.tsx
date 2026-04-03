@@ -17,11 +17,6 @@ const Header = () => {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
-          <Link to="/anuncios" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">ANÚNCIOS</Link>
-          <Link to="/como-funciona" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">COMO FUNCIONA</Link>
-        </nav>
-
         <div className="flex items-center gap-3">
           {user ? (
             <>
