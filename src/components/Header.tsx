@@ -13,7 +13,7 @@ const Header = () => {
         <Link to="/" className="flex items-center gap-2">
           <Flame className="h-5 w-5 text-primary" />
           <span className="font-pixel text-sm text-foreground">
-            Lootix <span className="text-accent">TRADE</span>
+            Rubin <span className="text-accent">TRADE</span>
           </span>
         </Link>
 
