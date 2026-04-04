@@ -10,6 +10,7 @@ interface TradeCardProps {
   world: string;
   pvpType: string;
   username?: string;
+  userId?: string;
   date: string;
   imageUrl?: string | null;
   likes?: number;
