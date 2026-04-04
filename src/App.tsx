@@ -27,6 +27,8 @@ const App = () => (
             <Route path="/registro" element={<Registro />} />
             <Route path="/criar-anuncio" element={<CriarAnuncio />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil/:userId" element={<Perfil />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
