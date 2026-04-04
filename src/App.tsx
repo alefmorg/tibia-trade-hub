@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import CriarAnuncio from "./pages/CriarAnuncio";
 import Admin from "./pages/Admin";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,8 @@ const App = () => (
             <Route path="/registro" element={<Registro />} />
             <Route path="/criar-anuncio" element={<CriarAnuncio />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil/:userId" element={<Perfil />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

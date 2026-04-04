@@ -30,10 +30,10 @@ const Header = () => {
                 <Plus className="h-4 w-4 mr-1" />
                 Criar Anúncio
               </Button>
-              <div className="flex items-center gap-2 border border-border rounded-md px-3 py-1.5">
+              <button onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-md px-3 py-1.5 hover:border-primary/30 transition-colors">
                 <User className="h-4 w-4 text-primary" />
                 <span className="text-xs font-medium text-foreground">{profile?.username || user.email?.split("@")[0]}</span>
-              </div>
+              </button>
               <button onClick={signOut} className="text-muted-foreground hover:text-foreground">
                 <LogOut className="h-4 w-4" />
               </button>

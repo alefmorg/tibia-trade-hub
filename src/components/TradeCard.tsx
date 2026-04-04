@@ -1,4 +1,5 @@
 import { Heart, Calendar, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites } from "@/hooks/useAds";
 
 interface TradeCardProps {
@@ -9,6 +10,7 @@ interface TradeCardProps {
   world: string;
   pvpType: string;
   username?: string;
+  userId?: string;
   date: string;
   imageUrl?: string | null;
   likes?: number;
@@ -16,7 +18,7 @@ interface TradeCardProps {
   profiles?: { username: string; avatar_url: string | null };
 }
 
-const TradeCard = ({ id, title, type, price, world, pvpType, username, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
+const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const isFavorited = id ? userFavorites?.includes(id) : false;
@@ -65,10 +67,10 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, date, ima
           <span className="text-muted-foreground">({pvpType})</span>
         </div>
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
+          <Link to={userId ? `/perfil/${userId}` : "#"} className="flex items-center gap-1.5 hover:text-primary transition-colors">
             <User className="h-3 w-3 text-primary" />
             <span className="text-foreground">{displayName}</span>
-          </span>
+          </Link>
           <button
             onClick={() => id && toggleFavorite.mutate(id)}
             className={`flex items-center gap-1 transition-colors ${isFavorited ? "text-destructive" : "hover:text-destructive"}`}
