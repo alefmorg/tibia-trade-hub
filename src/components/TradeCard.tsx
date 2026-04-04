@@ -67,10 +67,10 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
           <span className="text-muted-foreground">({pvpType})</span>
         </div>
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
+          <Link to={userId ? `/perfil/${userId}` : "#"} className="flex items-center gap-1.5 hover:text-primary transition-colors">
             <User className="h-3 w-3 text-primary" />
             <span className="text-foreground">{displayName}</span>
-          </span>
+          </Link>
           <button
             onClick={() => id && toggleFavorite.mutate(id)}
             className={`flex items-center gap-1 transition-colors ${isFavorited ? "text-destructive" : "hover:text-destructive"}`}
