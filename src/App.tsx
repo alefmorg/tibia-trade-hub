@@ -30,6 +30,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/perfil/:userId" element={<Perfil />} />
+            <Route path="/mensagens" element={<Mensagens />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
