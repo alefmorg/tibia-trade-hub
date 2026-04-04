@@ -18,7 +18,7 @@ interface TradeCardProps {
   profiles?: { username: string; avatar_url: string | null };
 }
 
-const TradeCard = ({ id, title, type, price, world, pvpType, username, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
+const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const isFavorited = id ? userFavorites?.includes(id) : false;
