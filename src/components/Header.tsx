@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Flame, LogOut, User, Plus, Shield } from "lucide-react";
+import { Flame, LogOut, User, Plus, Shield, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useMessages";
 
 const Header = () => {
   const { user, signOut, isAdmin, profile } = useAuth();
   const navigate = useNavigate();
+  const { data: unreadCount } = useUnreadCount();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -30,6 +32,14 @@ const Header = () => {
                 <Plus className="h-4 w-4 mr-1" />
                 Criar Anúncio
               </Button>
+              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-1.5">
+                <MessageCircle className="h-5 w-5" />
+                {(unreadCount ?? 0) > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
               <button onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-md px-3 py-1.5 hover:border-primary/30 transition-colors">
                 <User className="h-4 w-4 text-primary" />
                 <span className="text-xs font-medium text-foreground">{profile?.username || user.email?.split("@")[0]}</span>
