@@ -66,7 +66,15 @@ export type Database = {
           user_id?: string
           world?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       favorites: {
         Row: {
