@@ -10,6 +10,7 @@ import Registro from "./pages/Registro";
 import CriarAnuncio from "./pages/CriarAnuncio";
 import Admin from "./pages/Admin";
 import Perfil from "./pages/Perfil";
+import Mensagens from "./pages/Mensagens";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/perfil/:userId" element={<Perfil />} />
+            <Route path="/mensagens" element={<Mensagens />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

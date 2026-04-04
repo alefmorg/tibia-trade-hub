@@ -1,6 +1,8 @@
-import { Heart, Calendar, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Heart, Calendar, User, MessageCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites } from "@/hooks/useAds";
+import { useStartConversation } from "@/hooks/useMessages";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TradeCardProps {
   id?: string;
@@ -21,10 +23,21 @@ interface TradeCardProps {
 const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
+  const startConversation = useStartConversation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const isFavorited = id ? userFavorites?.includes(id) : false;
   const displayName = profiles?.username || username || "Anônimo";
   const displayDate = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const displayPrice = price || "Aceita ofertas";
+  const isOwnAd = user && userId === user.id;
+
+  const handleMessage = async () => {
+    if (!user) { navigate("/login"); return; }
+    if (!id || !userId || isOwnAd) return;
+    const convId = await startConversation.mutateAsync({ adId: id, sellerId: userId });
+    navigate(`/mensagens?conv=${convId}`);
+  };
 
   return (
     <div className={`card-gaming p-0 overflow-hidden hover:border-primary/30 transition-all group ${featured ? "border-warning/30" : ""}`}>
@@ -71,13 +84,24 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
             <User className="h-3 w-3 text-primary" />
             <span className="text-foreground">{displayName}</span>
           </Link>
-          <button
-            onClick={() => id && toggleFavorite.mutate(id)}
-            className={`flex items-center gap-1 transition-colors ${isFavorited ? "text-destructive" : "hover:text-destructive"}`}
-          >
-            <Heart className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`} />
-            <span>{likes}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {!isOwnAd && (
+              <button
+                onClick={handleMessage}
+                className="hover:text-primary transition-colors"
+                title="Enviar mensagem"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <button
+              onClick={() => id && toggleFavorite.mutate(id)}
+              className={`flex items-center gap-1 transition-colors ${isFavorited ? "text-destructive" : "hover:text-destructive"}`}
+            >
+              <Heart className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`} />
+              <span>{likes}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
