@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import CriarAnuncio from "./pages/CriarAnuncio";
 import Admin from "./pages/Admin";
+import Perfil from "./pages/Perfil";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
