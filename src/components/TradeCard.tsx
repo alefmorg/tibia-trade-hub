@@ -1,4 +1,5 @@
 import { Heart, Calendar, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites } from "@/hooks/useAds";
 
 interface TradeCardProps {
