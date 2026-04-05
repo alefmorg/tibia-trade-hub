@@ -33,10 +33,10 @@ const Login = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
             <Flame className="h-5 w-5 text-primary" />
-            <span className="font-pixel text-sm">Lootix <span className="text-accent">TRADE</span></span>
+            <span className="font-pixel text-sm">Rubin <span className="text-accent">TRADE</span></span>
           </Link>
           <h1 className="text-lg">Entrar</h1>
-          <p className="text-muted-foreground text-sm mt-1">Acesse sua conta</p>
+          <p className="text-muted-foreground text-sm mt-1 font-body">Acesse sua conta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -1,6 +1,6 @@
-import { Heart, Calendar, User, MessageCircle } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useToggleFavorite, useUserFavorites } from "@/hooks/useAds";
+import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
 import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -24,6 +24,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const startConversation = useStartConversation();
+  const deleteAd = useDeleteAd();
   const { user } = useAuth();
   const navigate = useNavigate();
   const isFavorited = id ? userFavorites?.includes(id) : false;
@@ -37,6 +38,12 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
     if (!id || !userId || isOwnAd) return;
     const convId = await startConversation.mutateAsync({ adId: id, sellerId: userId });
     navigate(`/mensagens?conv=${convId}`);
+  };
+
+  const handleDelete = () => {
+    if (!id || !isOwnAd) return;
+    if (!confirm("Tem certeza que deseja remover este anúncio?")) return;
+    deleteAd.mutate(id);
   };
 
   return (
@@ -85,6 +92,15 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
             <span className="text-foreground">{displayName}</span>
           </Link>
           <div className="flex items-center gap-2">
+            {isOwnAd && (
+              <button
+                onClick={handleDelete}
+                className="hover:text-destructive transition-colors"
+                title="Remover anúncio"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
             {!isOwnAd && (
               <button
                 onClick={handleMessage}
