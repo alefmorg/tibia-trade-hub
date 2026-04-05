@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, Camera, Save, Package, Heart, Calendar } from "lucide-react";
+import { User, Camera, Save, Package, Heart, Calendar, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useDeleteAd } from "@/hooks/useAds";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -18,6 +19,7 @@ const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, profile: myProfile } = useAuth();
   const queryClient = useQueryClient();
+  const deleteAd = useDeleteAd();
   const isOwnProfile = !userId || userId === user?.id;
   const profileUserId = isOwnProfile ? user?.id : userId;
 
@@ -25,6 +27,7 @@ const Perfil = () => {
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites">("ads");
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Fetch profile
@@ -55,6 +58,28 @@ const Perfil = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // Fetch favorited ads (own profile only)
+  const { data: favoriteAds, isLoading: favsLoading } = useQuery({
+    queryKey: ["favorite-ads", profileUserId],
+    enabled: !!profileUserId && isOwnProfile,
+    queryFn: async () => {
+      const { data: favs, error: favError } = await supabase
+        .from("favorites")
+        .select("ad_id")
+        .eq("user_id", profileUserId!);
+      if (favError) throw favError;
+      if (!favs || favs.length === 0) return [];
+      const adIds = favs.map((f: any) => f.ad_id);
+      const { data: adsData, error: adsError } = await supabase
+        .from("ads")
+        .select("*, profiles!ads_user_id_fkey(username, avatar_url)")
+        .in("id", adIds)
+        .eq("status", "active");
+      if (adsError) throw adsError;
+      return adsData || [];
     },
   });
 
@@ -104,6 +129,12 @@ const Perfil = () => {
 
   const handleSaveProfile = () => {
     updateProfile.mutate({ username: editUsername.trim(), bio: editBio.trim() });
+  };
+
+  const handleDeleteAd = async (adId: string) => {
+    if (!confirm("Tem certeza que deseja remover este anúncio?")) return;
+    await deleteAd.mutateAsync(adId);
+    queryClient.invalidateQueries({ queryKey: ["user-ads"] });
   };
 
   const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : "";
@@ -183,8 +214,8 @@ const Perfil = () => {
                 ) : (
                   <>
                     <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
-                    {profile.bio && <p className="text-sm text-muted-foreground mt-1">{profile.bio}</p>}
-                    <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
+                    {profile.bio && <p className="text-sm text-muted-foreground mt-1 font-body">{profile.bio}</p>}
+                    <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground font-body">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
                         Membro desde {memberSince}
@@ -210,39 +241,112 @@ const Perfil = () => {
           </div>
         )}
 
-        {/* User's ads */}
+        {/* Tabs */}
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Package className="h-4 w-4 text-primary" />
-            Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
-          </h2>
-          {adsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
-            </div>
-          ) : userAds && userAds.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {userAds.map((ad: any) => (
-                <TradeCard
-                  key={ad.id}
-                  id={ad.id}
-                  title={ad.title}
-                  type={ad.type}
-                  price={ad.price}
-                  world={ad.world}
-                  pvpType={ad.pvp_type}
-                  date={ad.created_at}
-                  imageUrl={ad.image_url}
-                  likes={ad.likes_count}
-                  featured={ad.featured}
-                  profiles={ad.profiles}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="card-gaming p-8 text-center">
-              <p className="text-muted-foreground text-sm">Nenhum anúncio ativo.</p>
-            </div>
+          <div className="flex gap-2 mb-4">
+            <Button
+              size="sm"
+              variant={activeTab === "ads" ? "default" : "outline"}
+              onClick={() => setActiveTab("ads")}
+              className={activeTab === "ads" ? "bg-primary text-primary-foreground" : "border-border"}
+            >
+              <Package className="h-3.5 w-3.5 mr-1" />
+              Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
+            </Button>
+            {isOwnProfile && (
+              <Button
+                size="sm"
+                variant={activeTab === "favorites" ? "default" : "outline"}
+                onClick={() => setActiveTab("favorites")}
+                className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}
+              >
+                <Heart className="h-3.5 w-3.5 mr-1" />
+                Favoritos
+              </Button>
+            )}
+          </div>
+
+          {activeTab === "ads" && (
+            <>
+              {adsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                </div>
+              ) : userAds && userAds.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {userAds.map((ad: any) => (
+                    <div key={ad.id} className="relative group">
+                      <TradeCard
+                        id={ad.id}
+                        title={ad.title}
+                        type={ad.type}
+                        price={ad.price}
+                        world={ad.world}
+                        pvpType={ad.pvp_type}
+                        date={ad.created_at}
+                        imageUrl={ad.image_url}
+                        likes={ad.likes_count}
+                        featured={ad.featured}
+                        profiles={ad.profiles}
+                        userId={ad.user_id}
+                      />
+                      {isOwnProfile && (
+                        <button
+                          onClick={() => handleDeleteAd(ad.id)}
+                          className="absolute top-2 right-2 bg-destructive/90 text-destructive-foreground p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          title="Remover anúncio"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="card-gaming p-8 text-center">
+                  <p className="text-muted-foreground text-sm">Nenhum anúncio ativo.</p>
+                  {isOwnProfile && (
+                    <Link to="/criar-anuncio">
+                      <Button size="sm" className="mt-3 bg-primary text-primary-foreground">Criar anúncio</Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "favorites" && isOwnProfile && (
+            <>
+              {favsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                </div>
+              ) : favoriteAds && favoriteAds.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {favoriteAds.map((ad: any) => (
+                    <TradeCard
+                      key={ad.id}
+                      id={ad.id}
+                      title={ad.title}
+                      type={ad.type}
+                      price={ad.price}
+                      world={ad.world}
+                      pvpType={ad.pvp_type}
+                      date={ad.created_at}
+                      imageUrl={ad.image_url}
+                      likes={ad.likes_count}
+                      featured={ad.featured}
+                      profiles={ad.profiles}
+                      userId={ad.user_id}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="card-gaming p-8 text-center">
+                  <p className="text-muted-foreground text-sm">Nenhum favorito ainda.</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

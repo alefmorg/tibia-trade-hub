@@ -20,7 +20,8 @@ const Registro = () => {
     setLoading(true);
     try {
       await signUp(email, password, username);
-      navigate("/");
+      toast.info("Verifique seu email para confirmar a conta!");
+      navigate("/login");
     } catch (err: any) {
       toast.error(err.message || "Erro ao criar conta");
     } finally {
@@ -34,10 +35,10 @@ const Registro = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-2 mb-4">
             <Flame className="h-5 w-5 text-primary" />
-            <span className="font-pixel text-sm">Lootix <span className="text-accent">TRADE</span></span>
+            <span className="font-pixel text-sm">Rubin <span className="text-accent">TRADE</span></span>
           </Link>
           <h1 className="text-lg">Criar Conta</h1>
-          <p className="text-muted-foreground text-sm mt-1">Registre-se para anunciar</p>
+          <p className="text-muted-foreground text-sm mt-1 font-body">Registre-se para anunciar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
