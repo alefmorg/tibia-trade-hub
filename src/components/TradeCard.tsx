@@ -1,4 +1,5 @@
 import { Heart, Calendar, User, MessageCircle, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
 import { useStartConversation } from "@/hooks/useMessages";
@@ -47,49 +48,54 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
   };
 
   return (
-    <div className={`card-gaming p-0 overflow-hidden hover:border-primary/30 transition-all group ${featured ? "border-warning/30" : ""}`}>
-      <div className="flex items-center justify-between px-4 pt-3">
-        <span className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded ${
-          type === "selling" ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+    <article className={cn(
+      "trade-card trade-card-grid group",
+      featured && "trade-card-featured"
+    )}>
+      <div className="flex items-start justify-between gap-3 px-3 pt-3">
+        <span className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md ${
+          type === "selling" ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground"
         }`}>
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
-        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
           <Calendar className="h-3 w-3" />
           {displayDate}
         </span>
       </div>
 
-      <div className="px-4 py-4 text-center">
-        <h3 className="font-semibold text-sm text-foreground mb-3 group-hover:text-primary transition-colors font-body">
+      <div className="px-4 pt-10 pb-4 text-center flex flex-col items-center justify-center min-h-[230px]">
+        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[220px] min-h-[48px] flex items-center justify-center">
           {title}
         </h3>
 
         {imageUrl && (
-          <div className="flex justify-center mb-3">
-            <img src={imageUrl} alt={title} className="h-16 w-16 object-contain" />
+          <div className="flex justify-center items-center mb-4 h-20">
+            <img src={imageUrl} alt={title} className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]" />
           </div>
         )}
 
-        <p className={`font-pixel text-xs ${displayPrice === "Aceita ofertas" ? "text-warning" : "text-primary"}`}>
+        <p className={`font-body text-sm font-bold ${displayPrice === "Aceita ofertas" ? "text-foreground" : "text-foreground"}`}>
           {displayPrice === "Aceita ofertas" ? (
-            <span>Aceitando ofertas 🔥</span>
+            <span className="inline-flex items-center gap-1">Aceitando ofertas <span className="text-warning">🪙</span></span>
           ) : (
-            <span>{displayPrice} 💰</span>
+            <span className="inline-flex items-center gap-1">{displayPrice} <span className="text-primary">🪙</span></span>
           )}
         </p>
       </div>
 
-      <div className="px-4 pb-3 space-y-2">
+      <div className="px-3 pb-3 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="text-accent">●</span>
-          <span className="text-foreground">{world}</span>
-          <span className="text-muted-foreground">({pvpType})</span>
+          <span className="trade-card-world-badge">
+            <span className="text-warning">🛡️</span>
+            <span className="text-foreground">{world}</span>
+            <span className="text-warning/90">({pvpType})</span>
+          </span>
         </div>
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <Link to={userId ? `/perfil/${userId}` : "#"} className="flex items-center gap-1.5 hover:text-primary transition-colors">
-            <User className="h-3 w-3 text-primary" />
-            <span className="text-foreground">{displayName}</span>
+        <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <Link to={userId ? `/perfil/${userId}` : "#"} className="trade-card-user-link min-w-0">
+            <User className="h-3 w-3 text-destructive shrink-0" />
+            <span className="text-foreground truncate">{displayName}</span>
           </Link>
           <div className="flex items-center gap-2">
             {isOwnAd && (
@@ -112,7 +118,10 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
             )}
             <button
               onClick={() => id && toggleFavorite.mutate(id)}
-              className={`flex items-center gap-1 transition-colors ${isFavorited ? "text-destructive" : "hover:text-destructive"}`}
+              className={cn(
+                "trade-card-like-badge transition-colors",
+                isFavorited ? "text-destructive" : "hover:text-destructive"
+              )}
             >
               <Heart className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`} />
               <span>{likes}</span>
@@ -120,7 +129,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

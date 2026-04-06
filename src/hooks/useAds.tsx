@@ -118,12 +118,20 @@ export const useDeleteAd = () => {
 
   return useMutation({
     mutationFn: async (adId: string) => {
-      const { error } = await supabase.from("ads").delete().eq("id", adId);
+      const { error } = await supabase.from("ads").delete().eq("id", adId).select().single();
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ads"] });
+      queryClient.invalidateQueries({ queryKey: ["ads", "admin"] });
+      queryClient.invalidateQueries({ queryKey: ["user-ads"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-ads"] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
       toast.success("Anúncio removido!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erro ao remover anúncio");
     },
   });
 };
@@ -201,7 +209,12 @@ export const useUpdateAdStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ads"] });
+      queryClient.invalidateQueries({ queryKey: ["ads", "admin"] });
+      queryClient.invalidateQueries({ queryKey: ["user-ads"] });
       toast.success("Status atualizado!");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Erro ao atualizar status");
     },
   });
 };

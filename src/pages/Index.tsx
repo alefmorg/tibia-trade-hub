@@ -61,13 +61,13 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
 
-      <div className="border-b border-border bg-card/50">
-        <div className="container py-4 flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative flex-1 w-full">
+      <div className="border-b border-border bg-card/40">
+        <div className="container py-5 flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full max-w-2xl">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Busque por itens..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border h-11" />
+            <Input placeholder="Busque por itens..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary/90 border-border h-12 rounded-full text-base" />
           </div>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6" onClick={() => navigate("/criar-anuncio")}>
+          <Button className="bg-accent text-accent-foreground hover:bg-accent/90 h-12 px-7 rounded-full font-semibold" onClick={() => navigate("/criar-anuncio")}>
             <Plus className="h-4 w-4 mr-2" />
             Criar anúncio
           </Button>
@@ -75,8 +75,8 @@ const Index = () => {
       </div>
 
       <div className="container py-6">
-        <div className="flex gap-6">
-          <aside className="hidden lg:block w-64 shrink-0 space-y-6">
+        <div className="flex gap-6 items-start">
+          <aside className="hidden lg:block w-64 shrink-0 space-y-6 sticky top-20">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Filter className="h-4 w-4" />
@@ -126,7 +126,9 @@ const Index = () => {
             </div>
           </aside>
 
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 max-w-4xl">
+            <div className="panel-divider mb-4" />
+
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-foreground flex items-center gap-1.5">
                 Filtros
@@ -135,7 +137,7 @@ const Index = () => {
                 )}
               </span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-44 bg-secondary border-border">
+                <SelectTrigger className="w-48 bg-secondary border-border rounded-full h-12 px-5">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -147,7 +149,9 @@ const Index = () => {
               </Select>
             </div>
 
-            <p className="text-sm text-muted-foreground mb-6">{ads?.length || 0} resultados</p>
+            <div className="panel-divider mb-4" />
+            <p className="text-sm text-foreground mb-6 font-semibold">{ads?.length || 0} resultados</p>
+            <div className="panel-divider mb-6" />
 
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -159,7 +163,7 @@ const Index = () => {
                   <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-sm font-semibold text-foreground font-body">Anúncios destacados</h2>
-                      <span className="text-xs text-warning flex items-center gap-1">🔥 Destaque seu anúncio!</span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-warning/70 text-warning-foreground text-xs px-4 py-1.5 font-semibold">✨ Destaque seu anúncio!</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {featuredAds.map((ad) => (
@@ -177,7 +181,7 @@ const Index = () => {
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-muted-foreground text-sm">Nenhum anúncio encontrado</p>
-                    <Button className="mt-4 bg-primary text-primary-foreground" onClick={() => navigate("/criar-anuncio")}>Criar primeiro anúncio</Button>
+                    <Button className="mt-4 bg-accent text-accent-foreground rounded-full" onClick={() => navigate("/criar-anuncio")}>Criar primeiro anúncio</Button>
                   </div>
                 )}
               </>
