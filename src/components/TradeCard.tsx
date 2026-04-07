@@ -134,7 +134,7 @@ const TradeCard = ({
               <img
                 src={`/icons/${currency}.png`}
                 alt={currency}
-                className="w-[1.4em] h-[1.4em] object-contain shrink-0"
+                 className="w-8 h-8 object-contain shrink-0"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
                 }}
