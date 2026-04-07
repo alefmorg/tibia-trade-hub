@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          currency: string
           description: string | null
           featured: boolean
           id: string
@@ -35,6 +36,7 @@ export type Database = {
         Insert: {
           category?: string
           created_at?: string
+          currency?: string
           description?: string | null
           featured?: boolean
           id?: string
@@ -52,6 +54,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          currency?: string
           description?: string | null
           featured?: boolean
           id?: string
@@ -192,6 +195,50 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          ad_id: string
+          amount: string
+          created_at: string
+          currency: string
+          id: string
+          message: string | null
+          sender_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ad_id: string
+          amount: string
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          sender_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string
+          amount?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          sender_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
             referencedColumns: ["id"]
           },
         ]
