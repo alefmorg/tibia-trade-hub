@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
+import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Filter } from "lucide-react";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAds } from "@/hooks/useAds";
+import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -34,6 +36,7 @@ const Index = () => {
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const { data: ads, isLoading } = useAds({
