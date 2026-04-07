@@ -89,10 +89,10 @@ const TradeCard = ({
         featured && "trade-card-featured"
       )}
     >
-      <div className="flex items-start justify-between gap-2 px-3 pt-3">
+      <div className="flex items-start justify-between gap-3 px-3 pt-3">
         <span
           className={cn(
-            "rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide leading-none",
+            "text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md",
             type === "selling"
               ? "bg-destructive text-destructive-foreground"
               : "bg-primary text-primary-foreground"
@@ -101,19 +101,19 @@ const TradeCard = ({
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
 
-        <span className="flex items-center gap-1 whitespace-nowrap text-[10px] leading-none text-foreground/80">
+        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
           <Calendar className="h-3 w-3 shrink-0" />
           {displayDate}
         </span>
       </div>
 
-      <div className="flex min-h-[188px] flex-col items-center justify-center px-4 pt-7 pb-4 text-center">
-        <h3 className="mb-4 flex min-h-[44px] max-w-[180px] items-center justify-center text-center font-body text-[15px] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+      <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
+        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center">
           {title}
         </h3>
 
         {imageUrl && (
-          <div className="mb-4 flex h-16 items-center justify-center">
+          <div className="flex justify-center items-center mb-4 h-16">
             <img
               src={imageUrl}
               alt={title}
@@ -123,32 +123,29 @@ const TradeCard = ({
           </div>
         )}
 
-        <div className="mt-1 flex min-h-[36px] items-center justify-center">
+        <p className="font-body font-bold text-foreground">
           {isAcceptingOffers ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-sm font-bold text-warning">
+            <span className="inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5 text-sm font-bold text-warning">
               <HandCoins className="h-4 w-4 shrink-0" />
               Aceitando ofertas
             </span>
           ) : (
-            <div className="inline-flex items-center justify-center gap-1.5">
-              <span className="text-[16px] sm:text-[17px] font-extrabold leading-none tracking-tight whitespace-nowrap text-foreground">
-                {price}
-              </span>
-
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-bold text-foreground">
               <img
                 src={`/icons/${currency}.png`}
                 alt={currency}
-                className="w-[22px] h-[22px] sm:w-6 sm:h-6 object-contain shrink-0"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
                 }}
               />
-            </div>
+              <span className="leading-none">{price}</span>
+            </span>
           )}
-        </div>
+        </p>
       </div>
 
-      <div className="mt-auto space-y-2 px-3 pb-0">
+      <div className="px-3 pb-0 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
           <span className="trade-card-world-badge">
             <span className="text-warning">🛡️</span>
@@ -162,15 +159,15 @@ const TradeCard = ({
             to={userId ? `/perfil/${userId}` : "#"}
             className="trade-card-user-link min-w-0"
           >
-            <User className="h-3 w-3 shrink-0 text-destructive" />
-            <span className="truncate text-foreground">{displayName}</span>
+            <User className="h-3 w-3 text-destructive shrink-0" />
+            <span className="text-foreground truncate">{displayName}</span>
           </Link>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {isOwnAd && (
               <button
                 onClick={handleDelete}
-                className="transition-colors hover:text-destructive"
+                className="hover:text-destructive transition-colors"
                 title="Remover anúncio"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -184,7 +181,7 @@ const TradeCard = ({
             {!isOwnAd && (
               <button
                 onClick={handleMessage}
-                className="transition-colors hover:text-primary"
+                className="hover:text-primary transition-colors"
                 title="Enviar mensagem"
               >
                 <MessageCircle className="h-3.5 w-3.5" />
