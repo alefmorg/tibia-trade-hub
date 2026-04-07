@@ -21,6 +21,7 @@ const CriarAnuncio = () => {
     itemId: "",
     type: "selling",
     price: "",
+    currency: "kk",
     world: "",
     pvp_type: "Optional PvP",
     category: "item",
@@ -35,7 +36,6 @@ const CriarAnuncio = () => {
 
   const selectedItem = items?.find(i => i.id === form.itemId);
 
-  // Auto-fill pvp_type when world is selected
   const handleWorldChange = (worldName: string) => {
     const world = rubinotWorlds.find(w => w.name === worldName);
     setForm({ ...form, world: worldName, pvp_type: world?.pvp || form.pvp_type });
@@ -48,6 +48,7 @@ const CriarAnuncio = () => {
       title: selectedItem.name,
       type: form.type,
       price: form.acceptOffers ? "Aceita ofertas" : form.price,
+      currency: form.currency,
       world: form.world,
       pvp_type: form.pvp_type,
       category: form.category,
@@ -101,14 +102,30 @@ const CriarAnuncio = () => {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-sm text-foreground">Preço (gp)</Label>
+              <Label className="text-sm text-foreground">Preço</Label>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">Aceita ofertas</span>
                 <Switch checked={form.acceptOffers} onCheckedChange={(v) => setForm({ ...form, acceptOffers: v })} />
               </div>
             </div>
             {!form.acceptOffers && (
-              <Input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Ex: 15.000.000" className="bg-secondary border-border" />
+              <div className="flex gap-2">
+                <Input
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  placeholder="Ex: 15"
+                  className="bg-secondary border-border flex-1"
+                />
+                <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
+                  <SelectTrigger className="w-24 bg-secondary border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="kk">kk</SelectItem>
+                    <SelectItem value="coins">coins</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
 

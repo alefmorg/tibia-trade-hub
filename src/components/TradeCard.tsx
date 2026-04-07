@@ -1,15 +1,17 @@
-import { Heart, Calendar, User, MessageCircle, Trash2 } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
 import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
+import OfferDialog from "@/components/OfferDialog";
 
 interface TradeCardProps {
   id?: string;
   title: string;
   type: "selling" | "buying";
   price: string | null;
+  currency?: string;
   world: string;
   pvpType: string;
   username?: string;
@@ -21,7 +23,7 @@ interface TradeCardProps {
   profiles?: { username: string; avatar_url: string | null };
 }
 
-const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
+const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const startConversation = useStartConversation();
@@ -31,7 +33,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
   const isFavorited = id ? userFavorites?.includes(id) : false;
   const displayName = profiles?.username || username || "Anônimo";
   const displayDate = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-  const displayPrice = price || "Aceita ofertas";
+  const isAcceptingOffers = !price || price === "Aceita ofertas";
   const isOwnAd = user && userId === user.id;
 
   const handleMessage = async () => {
@@ -75,11 +77,16 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
           </div>
         )}
 
-        <p className={`font-body text-sm font-bold ${displayPrice === "Aceita ofertas" ? "text-foreground" : "text-foreground"}`}>
-          {displayPrice === "Aceita ofertas" ? (
-            <span className="inline-flex items-center gap-1">Aceitando ofertas <span className="text-warning">🪙</span></span>
+        <p className="font-body text-sm font-bold text-foreground">
+          {isAcceptingOffers ? (
+            <span className="inline-flex items-center gap-1 text-warning">
+              <HandCoins className="h-4 w-4" />
+              Aceitando ofertas
+            </span>
           ) : (
-            <span className="inline-flex items-center gap-1">{displayPrice} <span className="text-primary">🪙</span></span>
+            <span className="inline-flex items-center gap-1">
+              {price} <span className="text-warning">{currency}</span> 🪙
+            </span>
           )}
         </p>
       </div>
@@ -99,20 +106,15 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
           </Link>
           <div className="flex items-center gap-2">
             {isOwnAd && (
-              <button
-                onClick={handleDelete}
-                className="hover:text-destructive transition-colors"
-                title="Remover anúncio"
-              >
+              <button onClick={handleDelete} className="hover:text-destructive transition-colors" title="Remover anúncio">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
+            {!isOwnAd && isAcceptingOffers && id && (
+              <OfferDialog adId={id} adTitle={title} />
+            )}
             {!isOwnAd && (
-              <button
-                onClick={handleMessage}
-                className="hover:text-primary transition-colors"
-                title="Enviar mensagem"
-              >
+              <button onClick={handleMessage} className="hover:text-primary transition-colors" title="Enviar mensagem">
                 <MessageCircle className="h-3.5 w-3.5" />
               </button>
             )}

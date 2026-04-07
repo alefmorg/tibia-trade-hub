@@ -9,6 +9,7 @@ export interface Ad {
   title: string;
   type: "selling" | "buying";
   price: string | null;
+  currency: string;
   world: string;
   pvp_type: string;
   category: string;
@@ -88,6 +89,7 @@ export const useCreateAd = () => {
       title: string;
       type: string;
       price?: string;
+      currency?: string;
       world: string;
       pvp_type: string;
       category: string;
