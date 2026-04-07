@@ -118,13 +118,15 @@ export const useDeleteAd = () => {
 
   return useMutation({
     mutationFn: async (adId: string) => {
-      const { error } = await supabase.from("ads").delete().eq("id", adId).select().single();
+      const { error } = await (supabase as any).rpc("delete_ad_cascade", { _ad_id: adId });
       if (error) throw error;
+      return adId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ads"] });
       queryClient.invalidateQueries({ queryKey: ["ads", "admin"] });
       queryClient.invalidateQueries({ queryKey: ["user-ads"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["favorite-ads"] });
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });

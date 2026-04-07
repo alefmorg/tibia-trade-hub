@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, Camera, Save, Package, Heart, Calendar, Trash2 } from "lucide-react";
+import { User, Camera, Save, Package, Heart, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useDeleteAd } from "@/hooks/useAds";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -19,7 +18,6 @@ const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, profile: myProfile } = useAuth();
   const queryClient = useQueryClient();
-  const deleteAd = useDeleteAd();
   const isOwnProfile = !userId || userId === user?.id;
   const profileUserId = isOwnProfile ? user?.id : userId;
 
@@ -129,12 +127,6 @@ const Perfil = () => {
 
   const handleSaveProfile = () => {
     updateProfile.mutate({ username: editUsername.trim(), bio: editBio.trim() });
-  };
-
-  const handleDeleteAd = async (adId: string) => {
-    if (!confirm("Tem certeza que deseja remover este anúncio?")) return;
-    await deleteAd.mutateAsync(adId);
-    queryClient.invalidateQueries({ queryKey: ["user-ads"] });
   };
 
   const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : "";
@@ -269,37 +261,27 @@ const Perfil = () => {
           {activeTab === "ads" && (
             <>
               {adsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="trade-card-list">
                   {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
                 </div>
               ) : userAds && userAds.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="trade-card-list">
                   {userAds.map((ad: any) => (
-                    <div key={ad.id} className="relative group">
-                      <TradeCard
-                        id={ad.id}
-                        title={ad.title}
-                        type={ad.type}
-                        price={ad.price}
-                        world={ad.world}
-                        pvpType={ad.pvp_type}
-                        date={ad.created_at}
-                        imageUrl={ad.image_url}
-                        likes={ad.likes_count}
-                        featured={ad.featured}
-                        profiles={ad.profiles}
-                        userId={ad.user_id}
-                      />
-                      {isOwnProfile && (
-                        <button
-                          onClick={() => handleDeleteAd(ad.id)}
-                          className="absolute top-2 right-2 bg-destructive/90 text-destructive-foreground p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                          title="Remover anúncio"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
+                    <TradeCard
+                      key={ad.id}
+                      id={ad.id}
+                      title={ad.title}
+                      type={ad.type}
+                      price={ad.price}
+                      world={ad.world}
+                      pvpType={ad.pvp_type}
+                      date={ad.created_at}
+                      imageUrl={ad.image_url}
+                      likes={ad.likes_count}
+                      featured={ad.featured}
+                      profiles={ad.profiles}
+                      userId={ad.user_id}
+                    />
                   ))}
                 </div>
               ) : (
@@ -318,11 +300,11 @@ const Perfil = () => {
           {activeTab === "favorites" && isOwnProfile && (
             <>
               {favsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="trade-card-list">
                   {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
                 </div>
               ) : favoriteAds && favoriteAds.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="trade-card-list">
                   {favoriteAds.map((ad: any) => (
                     <TradeCard
                       key={ad.id}

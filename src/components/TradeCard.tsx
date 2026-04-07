@@ -49,7 +49,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
 
   return (
     <article className={cn(
-      "trade-card trade-card-grid group",
+      "trade-card trade-card-grid group flex flex-col",
       featured && "trade-card-featured"
     )}>
       <div className="flex items-start justify-between gap-3 px-3 pt-3">
@@ -64,14 +64,14 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
         </span>
       </div>
 
-      <div className="px-4 pt-10 pb-4 text-center flex flex-col items-center justify-center min-h-[230px]">
-        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[220px] min-h-[48px] flex items-center justify-center">
+      <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
+        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center">
           {title}
         </h3>
 
         {imageUrl && (
-          <div className="flex justify-center items-center mb-4 h-20">
-            <img src={imageUrl} alt={title} className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]" />
+          <div className="flex justify-center items-center mb-4 h-16">
+            <img src={imageUrl} alt={title} className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]" loading="lazy" />
           </div>
         )}
 
@@ -84,7 +84,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
         </p>
       </div>
 
-      <div className="px-3 pb-3 mt-auto space-y-2">
+      <div className="px-3 pb-0 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
           <span className="trade-card-world-badge">
             <span className="text-warning">🛡️</span>
@@ -92,7 +92,7 @@ const TradeCard = ({ id, title, type, price, world, pvpType, username, userId, d
             <span className="text-warning/90">({pvpType})</span>
           </span>
         </div>
-        <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-end justify-between gap-2 text-[11px] text-muted-foreground">
           <Link to={userId ? `/perfil/${userId}` : "#"} className="trade-card-user-link min-w-0">
             <User className="h-3 w-3 text-destructive shrink-0" />
             <span className="text-foreground truncate">{displayName}</span>
