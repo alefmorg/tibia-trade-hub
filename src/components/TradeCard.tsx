@@ -130,17 +130,17 @@ const TradeCard = ({
               Aceitando ofertas
             </span>
           ) : (
-<span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-bold text-foreground whitespace-nowrap">
-  <img
-    src={`/icons/${currency}.png`}
-    alt={currency}
-    className="block w-7 h-7 object-contain flex-none"
-    onError={(e) => {
-      (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
-    }}
-  />
-  <span className="leading-none">{price}</span>
-</span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-bold text-foreground">
+              <img
+                src={`/icons/${currency}.png`}
+                alt={currency}
+                className="w-5 h-5 sm:w-5 sm:h-5 object-contain shrink-0"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
+                }}
+              />
+              <span className="leading-none">{price}</span>
+            </span>
           )}
         </p>
       </div>
