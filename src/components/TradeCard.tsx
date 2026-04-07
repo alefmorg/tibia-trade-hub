@@ -39,7 +39,6 @@ const TradeCard = ({
   featured,
   profiles
 }: TradeCardProps) => {
-
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const startConversation = useStartConversation();
@@ -90,8 +89,7 @@ const TradeCard = ({
         featured && "trade-card-featured"
       )}
     >
-      {/* HEADER */}
-      <div className="flex items-start justify-between gap-3 px-3 pt-3">
+      <div className="flex items-start justify-between gap-2 px-3 pt-3">
         <span
           className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md ${
             type === "selling"
@@ -103,42 +101,40 @@ const TradeCard = ({
         </span>
 
         <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
-          <Calendar className="h-3 w-3" />
+          <Calendar className="h-3 w-3 shrink-0" />
           {displayDate}
         </span>
       </div>
 
-      {/* BODY */}
-      <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
-        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center">
+      <div className="px-4 pt-6 sm:pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
+        <h3 className="font-semibold text-[14px] sm:text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center text-center break-words">
           {title}
         </h3>
 
         {imageUrl && (
-          <div className="flex justify-center items-center mb-4 h-16">
+          <div className="flex justify-center items-center mb-4 h-14 sm:h-16">
             <img
               src={imageUrl}
               alt={title}
-              className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
+              className="h-14 w-14 sm:h-16 sm:w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
               loading="lazy"
             />
           </div>
         )}
 
-        {/* PREÇO COM ÍCONE */}
-        <p className="font-body text-sm font-bold text-foreground">
+        <p className="font-body text-sm sm:text-base font-bold text-foreground">
           {isAcceptingOffers ? (
-            <span className="inline-flex items-center gap-1 text-warning">
-              <HandCoins className="h-4 w-4" />
+            <span className="inline-flex items-center gap-1.5 text-warning">
+              <HandCoins className="h-4 w-4 shrink-0" />
               Aceitando ofertas
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1">
-              {price}
+            <span className="inline-flex items-center justify-center gap-1.5 sm:gap-2 leading-none">
+              <span className="whitespace-nowrap">{price}</span>
               <img
                 src={`/icons/${currency}.png`}
                 alt={currency}
-                className="w-8 h-8"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
                 }}
@@ -148,7 +144,6 @@ const TradeCard = ({
         </p>
       </div>
 
-      {/* FOOTER */}
       <div className="px-3 pb-0 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
           <span className="trade-card-world-badge">
@@ -167,7 +162,7 @@ const TradeCard = ({
             <span className="text-foreground truncate">{displayName}</span>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {isOwnAd && (
               <button
                 onClick={handleDelete}
@@ -200,9 +195,7 @@ const TradeCard = ({
               )}
             >
               <Heart
-                className={`h-3.5 w-3.5 ${
-                  isFavorited ? "fill-destructive" : ""
-                }`}
+                className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`}
               />
               <span>{likes}</span>
             </button>
