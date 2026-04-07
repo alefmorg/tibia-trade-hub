@@ -165,7 +165,7 @@ const Index = () => {
                       <h2 className="text-sm font-semibold text-foreground font-body">Anúncios destacados</h2>
                       <span className="inline-flex items-center gap-1 rounded-full bg-warning/70 text-warning-foreground text-xs px-4 py-1.5 font-semibold">✨ Destaque seu anúncio!</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="trade-card-list-featured">
                       {featuredAds.map((ad) => (
                         <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured profiles={ad.profiles} userId={ad.user_id} />
                       ))}
@@ -173,7 +173,7 @@ const Index = () => {
                   </div>
                 )}
                 {regularAds.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className="trade-card-list">
                     {regularAds.map((ad) => (
                       <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} profiles={ad.profiles} userId={ad.user_id} />
                     ))}

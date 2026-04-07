@@ -49,6 +49,8 @@ const Admin = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ads"] });
+      queryClient.invalidateQueries({ queryKey: ["ads", "admin"] });
+      queryClient.invalidateQueries({ queryKey: ["user-ads"] });
       toast.success("Destaque atualizado!");
     },
   });
@@ -177,7 +179,10 @@ const Admin = () => {
                       </button>
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => deleteAd.mutate(ad.id)}>
+                      <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {
+                        if (!confirm("Tem certeza que deseja remover este anúncio?")) return;
+                        deleteAd.mutate(ad.id);
+                      }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

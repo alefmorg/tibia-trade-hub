@@ -105,33 +105,60 @@
   }
 
   .trade-card {
-    @apply rounded-[20px] border overflow-hidden;
-    background: linear-gradient(180deg, hsl(45 14% 46%) 0%, hsl(45 14% 43%) 100%);
-    border-color: hsl(var(--warning) / 0.9);
-    box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.08);
+    @apply rounded-[20px] border overflow-hidden relative;
+    background: linear-gradient(180deg, hsl(var(--card) / 0.98) 0%, hsl(var(--secondary) / 0.96) 100%);
+    border-color: hsl(var(--border));
+    box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.05), 0 14px 34px hsl(var(--background) / 0.22);
   }
 
   .trade-card-grid {
     min-height: 286px;
+    width: 100%;
+    max-width: 224px;
+    margin-inline: auto;
   }
 
   .trade-card-featured {
-    box-shadow: 0 0 0 1px hsl(var(--warning) / 0.6), 0 18px 50px hsl(var(--background) / 0.22);
+    border-color: hsl(var(--warning) / 0.75);
+    box-shadow: 0 0 0 1px hsl(var(--warning) / 0.35), 0 18px 50px hsl(var(--background) / 0.24);
   }
 
   .trade-card-world-badge {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold;
-    background: hsl(45 50% 74% / 0.85);
+    background: hsl(var(--secondary) / 0.92);
+    border: 1px solid hsl(var(--border));
   }
 
   .trade-card-user-link {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 max-w-[145px];
-    background: hsl(222 21% 24% / 0.92);
+    background: hsl(var(--secondary) / 0.96);
+    border: 1px solid hsl(var(--border));
   }
 
   .trade-card-like-badge {
     @apply inline-flex items-center gap-1 rounded-tl-[20px] rounded-br-[16px] px-3 py-1.5 text-foreground;
-    background: hsl(222 21% 24% / 0.96);
+    background: hsl(var(--secondary) / 0.98);
+    border-top: 1px solid hsl(var(--border));
+    border-left: 1px solid hsl(var(--border));
+  }
+
+  .trade-card-list,
+  .trade-card-list-featured {
+    display: grid;
+    gap: 1rem;
+    justify-content: start;
+    grid-template-columns: repeat(auto-fill, minmax(224px, 224px));
+  }
+
+  @media (max-width: 639px) {
+    .trade-card-grid {
+      max-width: none;
+    }
+
+    .trade-card-list,
+    .trade-card-list-featured {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .pixelated {
