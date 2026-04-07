@@ -85,56 +85,59 @@ const TradeCard = ({
   return (
     <article
       className={cn(
-        "trade-card trade-card-grid group flex flex-col",
+        "trade-card trade-card-grid group flex flex-col overflow-hidden",
         featured && "trade-card-featured"
       )}
     >
       <div className="flex items-start justify-between gap-2 px-3 pt-3">
         <span
-          className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md ${
+          className={cn(
+            "text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md leading-none",
             type === "selling"
               ? "bg-destructive text-destructive-foreground"
               : "bg-primary text-primary-foreground"
-          }`}
+          )}
         >
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
 
-        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
+        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap leading-none">
           <Calendar className="h-3 w-3 shrink-0" />
           {displayDate}
         </span>
       </div>
 
-      <div className="px-4 pt-6 sm:pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
-        <h3 className="font-semibold text-[14px] sm:text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center text-center break-words">
+      <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
+        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center text-center">
           {title}
         </h3>
 
         {imageUrl && (
-          <div className="flex justify-center items-center mb-4 h-14 sm:h-16">
+          <div className="flex justify-center items-center mb-4 h-16">
             <img
               src={imageUrl}
               alt={title}
-              className="h-14 w-14 sm:h-16 sm:w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
+              className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
               loading="lazy"
             />
           </div>
         )}
 
-        <p className="font-body text-sm sm:text-base font-bold text-foreground">
+        <p className="font-body font-bold text-foreground">
           {isAcceptingOffers ? (
-            <span className="inline-flex items-center gap-1.5 text-warning">
+            <span className="inline-flex items-center gap-1.5 text-warning text-sm sm:text-base">
               <HandCoins className="h-4 w-4 shrink-0" />
               Aceitando ofertas
             </span>
           ) : (
-            <span className="inline-flex items-center justify-center gap-1.5 sm:gap-2 leading-none">
-              <span className="whitespace-nowrap">{price}</span>
+            <span className="inline-flex items-center justify-center gap-2">
+              <span className="text-[20px] sm:text-[22px] leading-none whitespace-nowrap">
+                {price}
+              </span>
               <img
                 src={`/icons/${currency}.png`}
                 alt={currency}
-                className="w-4 h-4 sm:w-5 sm:h-5 object-contain shrink-0"
+                className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0 translate-y-[1px]"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
                 }}
@@ -195,7 +198,10 @@ const TradeCard = ({
               )}
             >
               <Heart
-                className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`}
+                className={cn(
+                  "h-3.5 w-3.5",
+                  isFavorited && "fill-destructive"
+                )}
               />
               <span>{likes}</span>
             </button>
