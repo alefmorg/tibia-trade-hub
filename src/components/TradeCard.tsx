@@ -23,23 +23,57 @@ interface TradeCardProps {
   profiles?: { username: string; avatar_url: string | null };
 }
 
-const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, username, userId, date, imageUrl, likes = 0, featured, profiles }: TradeCardProps) => {
+const TradeCard = ({
+  id,
+  title,
+  type,
+  price,
+  currency = "kk",
+  world,
+  pvpType,
+  username,
+  userId,
+  date,
+  imageUrl,
+  likes = 0,
+  featured,
+  profiles
+}: TradeCardProps) => {
+
   const toggleFavorite = useToggleFavorite();
   const { data: userFavorites } = useUserFavorites();
   const startConversation = useStartConversation();
   const deleteAd = useDeleteAd();
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const isFavorited = id ? userFavorites?.includes(id) : false;
   const displayName = profiles?.username || username || "Anônimo";
-  const displayDate = new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const displayDate = new Date(date).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
   const isAcceptingOffers = !price || price === "Aceita ofertas";
   const isOwnAd = user && userId === user.id;
 
   const handleMessage = async () => {
-    if (!user) { navigate("/login"); return; }
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     if (!id || !userId || isOwnAd) return;
-    const convId = await startConversation.mutateAsync({ adId: id, sellerId: userId });
+
+    const convId = await startConversation.mutateAsync({
+      adId: id,
+      sellerId: userId
+    });
+
     navigate(`/mensagens?conv=${convId}`);
   };
 
@@ -50,22 +84,31 @@ const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, us
   };
 
   return (
-    <article className={cn(
-      "trade-card trade-card-grid group flex flex-col",
-      featured && "trade-card-featured"
-    )}>
+    <article
+      className={cn(
+        "trade-card trade-card-grid group flex flex-col",
+        featured && "trade-card-featured"
+      )}
+    >
+      {/* HEADER */}
       <div className="flex items-start justify-between gap-3 px-3 pt-3">
-        <span className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md ${
-          type === "selling" ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground"
-        }`}>
+        <span
+          className={`text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-md ${
+            type === "selling"
+              ? "bg-destructive text-destructive-foreground"
+              : "bg-primary text-primary-foreground"
+          }`}
+        >
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
+
         <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
           <Calendar className="h-3 w-3" />
           {displayDate}
         </span>
       </div>
 
+      {/* BODY */}
       <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
         <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center">
           {title}
@@ -73,10 +116,16 @@ const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, us
 
         {imageUrl && (
           <div className="flex justify-center items-center mb-4 h-16">
-            <img src={imageUrl} alt={title} className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]" loading="lazy" />
+            <img
+              src={imageUrl}
+              alt={title}
+              className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
+              loading="lazy"
+            />
           </div>
         )}
 
+        {/* PREÇO COM ÍCONE */}
         <p className="font-body text-sm font-bold text-foreground">
           {isAcceptingOffers ? (
             <span className="inline-flex items-center gap-1 text-warning">
@@ -85,12 +134,21 @@ const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, us
             </span>
           ) : (
             <span className="inline-flex items-center gap-1">
-              {price} <span className="text-warning">{currency}</span> 🪙
+              {price}
+              <img
+                src={`/icons/${currency}.png`}
+                alt={currency}
+                className="w-4 h-4"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
+                }}
+              />
             </span>
           )}
         </p>
       </div>
 
+      {/* FOOTER */}
       <div className="px-3 pb-0 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
           <span className="trade-card-world-badge">
@@ -99,25 +157,41 @@ const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, us
             <span className="text-warning/90">({pvpType})</span>
           </span>
         </div>
+
         <div className="flex items-end justify-between gap-2 text-[11px] text-muted-foreground">
-          <Link to={userId ? `/perfil/${userId}` : "#"} className="trade-card-user-link min-w-0">
+          <Link
+            to={userId ? `/perfil/${userId}` : "#"}
+            className="trade-card-user-link min-w-0"
+          >
             <User className="h-3 w-3 text-destructive shrink-0" />
             <span className="text-foreground truncate">{displayName}</span>
           </Link>
+
           <div className="flex items-center gap-2">
             {isOwnAd && (
-              <button onClick={handleDelete} className="hover:text-destructive transition-colors" title="Remover anúncio">
+              <button
+                onClick={handleDelete}
+                className="hover:text-destructive transition-colors"
+                title="Remover anúncio"
+              >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
+
             {!isOwnAd && isAcceptingOffers && id && (
               <OfferDialog adId={id} adTitle={title} />
             )}
+
             {!isOwnAd && (
-              <button onClick={handleMessage} className="hover:text-primary transition-colors" title="Enviar mensagem">
+              <button
+                onClick={handleMessage}
+                className="hover:text-primary transition-colors"
+                title="Enviar mensagem"
+              >
                 <MessageCircle className="h-3.5 w-3.5" />
               </button>
             )}
+
             <button
               onClick={() => id && toggleFavorite.mutate(id)}
               className={cn(
@@ -125,7 +199,11 @@ const TradeCard = ({ id, title, type, price, currency = "kk", world, pvpType, us
                 isFavorited ? "text-destructive" : "hover:text-destructive"
               )}
             >
-              <Heart className={`h-3.5 w-3.5 ${isFavorited ? "fill-destructive" : ""}`} />
+              <Heart
+                className={`h-3.5 w-3.5 ${
+                  isFavorited ? "fill-destructive" : ""
+                }`}
+              />
               <span>{likes}</span>
             </button>
           </div>
