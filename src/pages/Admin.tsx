@@ -9,10 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Trash2, Shield, Users, BarChart3, Package, Plus, Upload, Image, Star, Ban, CheckCircle } from "lucide-react";
+import { Search, Trash2, Shield, Users, BarChart3, Package, Plus, Upload, Image, Star, ShieldCheck, ShieldAlert, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -40,6 +43,114 @@ const Admin = () => {
       return data || [];
     },
   });
+
+  // Fetch user roles
+  const { data: userRoles } = useQuery({
+    queryKey: ["admin-user-roles"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("user_roles").select("*");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Count ads per user
+  const { data: adsCountByUser } = useQuery({
+    queryKey: ["admin-ads-count"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("ads").select("user_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      data?.forEach((ad) => {
+        counts[ad.user_id] = (counts[ad.user_id] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
+  // Update user role
+  const updateUserRole = useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
+      // Check if user already has a role entry
+      const { data: existing } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", userId)
+        .single();
+
+      if (existing) {
+        // Update existing role
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ role })
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        // Insert new role
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-user-roles"] });
+      toast.success("Cargo atualizado!");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar cargo");
+    },
+  });
+
+  // Delete user (profile and their ads)
+  const deleteUser = useMutation({
+    mutationFn: async (userId: string) => {
+      // Delete user's ads first
+      const { error: adsError } = await supabase
+        .from("ads")
+        .delete()
+        .eq("user_id", userId);
+      if (adsError) throw adsError;
+
+      // Delete user's favorites
+      const { error: favsError } = await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", userId);
+      if (favsError) throw favsError;
+
+      // Delete user's role
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
+      if (roleError) throw roleError;
+
+      // Delete profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("user_id", userId);
+      if (profileError) throw profileError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-ads-count"] });
+      queryClient.invalidateQueries({ queryKey: ["ads"] });
+      toast.success("Usuário removido!");
+    },
+    onError: () => {
+      toast.error("Erro ao remover usuário");
+    },
+  });
+
+  // Helper to get user's role
+  const getUserRole = (userId: string): AppRole => {
+    const role = userRoles?.find((r) => r.user_id === userId);
+    return role?.role || "user";
+  };
 
   // Toggle featured
   const toggleFeatured = useMutation({
@@ -201,38 +312,105 @@ const Admin = () => {
                 <TableRow className="border-border">
                   <TableHead className="text-muted-foreground">Avatar</TableHead>
                   <TableHead className="text-muted-foreground">Username</TableHead>
-                  <TableHead className="text-muted-foreground">Bio</TableHead>
+                  <TableHead className="text-muted-foreground">Anúncios</TableHead>
+                  <TableHead className="text-muted-foreground">Cargo</TableHead>
                   <TableHead className="text-muted-foreground">Cadastro</TableHead>
                   <TableHead className="text-muted-foreground">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.map((p: any) => (
-                  <TableRow key={p.id} className="border-border">
-                    <TableCell>
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                        {p.avatar_url ? (
-                          <img src={p.avatar_url} alt={p.username} className="h-8 w-8 object-cover rounded-full" />
-                        ) : (
-                          <span className="text-primary text-xs font-bold">{p.username?.charAt(0).toUpperCase()}</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-foreground font-medium">{p.username}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs max-w-[200px] truncate">{p.bio || "-"}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{new Date(p.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-muted-foreground hover:text-foreground"
-                        onClick={() => navigate(`/perfil/${p.user_id}`)}
-                      >
-                        Ver perfil
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredProfiles.map((p: any) => {
+                  const currentRole = getUserRole(p.user_id);
+                  const adsCount = adsCountByUser?.[p.user_id] || 0;
+                  const isCurrentUser = p.user_id === user?.id;
+
+                  return (
+                    <TableRow key={p.id} className="border-border">
+                      <TableCell>
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                          {p.avatar_url ? (
+                            <img src={p.avatar_url} alt={p.username} className="h-8 w-8 object-cover rounded-full" />
+                          ) : (
+                            <span className="text-primary text-xs font-bold">{p.username?.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-foreground font-medium">
+                        <div className="flex items-center gap-2">
+                          {p.username}
+                          {currentRole === "admin" && (
+                            <ShieldCheck className="h-4 w-4 text-primary" title="Admin" />
+                          )}
+                          {currentRole === "moderator" && (
+                            <ShieldAlert className="h-4 w-4 text-warning" title="Moderador" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`text-xs px-2 py-0.5 rounded ${adsCount > 0 ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                          {adsCount} anúncio{adsCount !== 1 ? "s" : ""}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={currentRole}
+                          onValueChange={(v) => updateUserRole.mutate({ userId: p.user_id, role: v as AppRole })}
+                          disabled={isCurrentUser}
+                        >
+                          <SelectTrigger className="w-28 h-7 text-xs bg-secondary border-border">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">
+                              <span className="flex items-center gap-1">
+                                <UserCog className="h-3 w-3" />
+                                Usuário
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="moderator">
+                              <span className="flex items-center gap-1">
+                                <ShieldAlert className="h-3 w-3 text-warning" />
+                                Moderador
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="admin">
+                              <span className="flex items-center gap-1">
+                                <ShieldCheck className="h-3 w-3 text-primary" />
+                                Admin
+                              </span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">{new Date(p.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => navigate(`/perfil/${p.user_id}`)}
+                          >
+                            Ver perfil
+                          </Button>
+                          {!isCurrentUser && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                if (!confirm(`Tem certeza que deseja remover o usuário "${p.username}" e todos os seus anúncios?`)) return;
+                                deleteUser.mutate(p.user_id);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
             {filteredProfiles.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm">Nenhum usuário encontrado</p>}
