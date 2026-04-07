@@ -127,6 +127,8 @@ const Index = () => {
                 ))}
               </div>
             </div>
+
+            {user && <OffersPanel />}
           </aside>
 
           <main className="flex-1 min-w-0 max-w-4xl">
@@ -170,7 +172,7 @@ const Index = () => {
                     </div>
                     <div className="trade-card-list-featured">
                       {featuredAds.map((ad) => (
-                        <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured profiles={ad.profiles} userId={ad.user_id} />
+                        <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured profiles={ad.profiles} userId={ad.user_id} />
                       ))}
                     </div>
                   </div>
@@ -178,7 +180,7 @@ const Index = () => {
                 {regularAds.length > 0 ? (
                   <div className="trade-card-list">
                     {regularAds.map((ad) => (
-                      <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} profiles={ad.profiles} userId={ad.user_id} />
+                      <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} profiles={ad.profiles} userId={ad.user_id} />
                     ))}
                   </div>
                 ) : (
