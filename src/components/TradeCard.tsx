@@ -123,22 +123,22 @@ const TradeCard = ({
           </div>
         )}
 
-        <div className="mt-1 flex min-h-[40px] items-center justify-center">
+        <div className="mt-1 flex min-h-[36px] items-center justify-center">
           {isAcceptingOffers ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-sm font-bold text-warning">
               <HandCoins className="h-4 w-4 shrink-0" />
               Aceitando ofertas
             </span>
           ) : (
-            <div className="inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5">
-              <span className="text-[18px] font-extrabold leading-none tracking-tight text-foreground sm:text-[20px]">
+            <div className="inline-flex items-center justify-center gap-1.5">
+              <span className="text-[16px] sm:text-[17px] font-extrabold leading-none tracking-tight whitespace-nowrap text-foreground">
                 {price}
               </span>
 
               <img
                 src={`/icons/${currency}.png`}
                 alt={currency}
-                className="h-[18px] w-[18px] shrink-0 object-contain sm:h-5 sm:w-5"
+                className="w-[22px] h-[22px] sm:w-6 sm:h-6 object-contain shrink-0"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
                 }}
