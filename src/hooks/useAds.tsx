@@ -156,16 +156,27 @@ export const useToggleFavorite = () => {
         .maybeSingle();
 
       if (existing) {
+        // Remove favorite and decrement likes_count
         await supabase.from("favorites").delete().eq("id", existing.id);
+        await supabase.rpc("decrement_likes", { ad_id: adId }).catch(() => {
+          // Fallback: update directly if RPC doesn't exist
+          return supabase.from("ads").update({ likes_count: supabase.sql`likes_count - 1` }).eq("id", adId);
+        });
         return { action: "removed" };
       } else {
+        // Add favorite and increment likes_count
         await supabase.from("favorites").insert({ user_id: user.id, ad_id: adId });
+        await supabase.rpc("increment_likes", { ad_id: adId }).catch(() => {
+          // Fallback: update directly if RPC doesn't exist
+          return supabase.from("ads").update({ likes_count: supabase.sql`likes_count + 1` }).eq("id", adId);
+        });
         return { action: "added" };
       }
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["ads"] });
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-ads"] });
       toast.success(result.action === "added" ? "Adicionado aos favoritos!" : "Removido dos favoritos!");
     },
     onError: (err: any) => {
