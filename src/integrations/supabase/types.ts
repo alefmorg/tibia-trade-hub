@@ -249,6 +249,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
