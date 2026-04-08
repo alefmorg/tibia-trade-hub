@@ -11,6 +11,7 @@ import { useCreateAd } from "@/hooks/useAds";
 import { useItems } from "@/hooks/useItems";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Switch } from "@/components/ui/switch";
+import ItemCombobox from "@/components/ItemCombobox";
 
 const CriarAnuncio = () => {
   const { user } = useAuth();
@@ -64,24 +65,14 @@ const CriarAnuncio = () => {
       <div className="container py-8 max-w-lg">
         <h1 className="text-xl mb-6">Criar Anúncio</h1>
         <form onSubmit={handleSubmit} className="card-gaming p-6 space-y-4">
-          {/* Item selection */}
+          {/* Item selection with search */}
           <div className="space-y-2">
             <Label className="text-sm text-foreground">Item</Label>
-            <Select value={form.itemId} onValueChange={(v) => setForm({ ...form, itemId: v })}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue placeholder="Selecione o item" />
-              </SelectTrigger>
-              <SelectContent>
-                {items?.map(item => (
-                  <SelectItem key={item.id} value={item.id}>
-                    <div className="flex items-center gap-2">
-                      {item.image_url && <img src={item.image_url} alt={item.name} className="h-5 w-5 object-contain" />}
-                      <span>{item.name}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ItemCombobox
+              items={items || []}
+              value={form.itemId}
+              onSelect={(id) => setForm({ ...form, itemId: id })}
+            />
             {selectedItem?.image_url && (
               <div className="flex justify-center pt-2">
                 <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
@@ -117,12 +108,22 @@ const CriarAnuncio = () => {
                   className="bg-secondary border-border flex-1"
                 />
                 <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
-                  <SelectTrigger className="w-24 bg-secondary border-border">
+                  <SelectTrigger className="w-28 bg-secondary border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="kk">kk</SelectItem>
-                    <SelectItem value="coins">coins</SelectItem>
+                    <SelectItem value="kk">
+                      <span className="flex items-center gap-2">
+                        <img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />
+                        kk
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="coins">
+                      <span className="flex items-center gap-2">
+                        <img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />
+                        coins
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
