@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
+import { useFilterOptions } from "@/hooks/useFilterOptions";
 
 const adTypes = ["Vendendo", "Comprando"];
 
@@ -35,28 +36,41 @@ const Index = () => {
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
+  const [customFilters, setCustomFilters] = useState<Record<string, string | undefined>>({});
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
+  const { data: filterOptions } = useFilterOptions(undefined, true);
 
   const { data: ads, isLoading } = useAds({
     search,
     type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
     pvpType: pvpFilter,
     world: worldFilter,
+    category: categoryFilter,
     onlyWithPrice,
     sortBy,
   });
 
-  const activeFilterCount = [typeFilter, pvpFilter, worldFilter].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
+  // Group dynamic filters by filter_group
+  const filterGroups = (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
+    if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
+    acc[fo.filter_group]!.push(fo);
+    return acc;
+  }, {});
+
+  const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilter, ...Object.values(customFilters)].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
   const clearFilters = () => {
     setTypeFilter(undefined);
     setPvpFilter(undefined);
     setWorldFilter(undefined);
+    setCategoryFilter(undefined);
+    setCustomFilters({});
     setOnlyWithPrice(false);
   };
 
@@ -181,6 +195,32 @@ const Index = () => {
                 ))}
               </div>
             </div>
+
+            {/* Dynamic filter groups from admin */}
+            {Object.entries(filterGroups).map(([group, options]) => (
+              <div key={group} className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground capitalize">{group === "category" ? "Categoria" : group}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {(options || []).map((opt) => (
+                    <FilterChip
+                      key={opt.id}
+                      label={opt.label}
+                      active={group === "category" ? categoryFilter === opt.value : customFilters[group] === opt.value}
+                      onClick={() => {
+                        if (group === "category") {
+                          setCategoryFilter(categoryFilter === opt.value ? undefined : opt.value);
+                        } else {
+                          setCustomFilters((prev) => ({
+                            ...prev,
+                            [group]: prev[group] === opt.value ? undefined : opt.value,
+                          }));
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
 
             {user && <OffersPanel />}
           </aside>

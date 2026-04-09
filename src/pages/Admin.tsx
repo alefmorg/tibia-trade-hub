@@ -6,6 +6,7 @@ import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
+import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
 } from "lucide-react";
 
@@ -30,7 +31,7 @@ const Admin = () => {
   const deleteItem = useDeleteItem();
 
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners">("ads");
+  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [adDurationDays, setAdDurationDays] = useState("7");
@@ -59,6 +60,12 @@ const Admin = () => {
   const { data: siteBanners } = useSiteBanners();
   const navLinksMut = useNavLinksMutations();
   const bannerMut = useBannerMutations();
+
+  // Filter options
+  const { data: filterOptions } = useFilterOptions();
+  const filterMut = useFilterOptionsMutations();
+  const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
+  const [editingFo, setEditingFo] = useState<string | null>(null);
 
   // Nav link form
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
@@ -152,6 +159,7 @@ const Admin = () => {
     { key: "items", label: "Itens", icon: Image },
     { key: "offers", label: "Ofertas", icon: HandCoins },
     { key: "conversations", label: "Conversas", icon: MessageCircle },
+    { key: "filters", label: "Filtros", icon: Filter },
     { key: "nav-links", label: "Links Nav", icon: Link2 },
     { key: "banners", label: "Banners", icon: Megaphone },
     { key: "create-ad", label: "Criar Anúncio", icon: Plus },
@@ -821,6 +829,108 @@ const Admin = () => {
               </Table>
               {(!siteBanners || siteBanners.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm">Nenhum banner cadastrado</p>}
             </div>
+          </div>
+        )}
+
+        {/* FILTERS TAB */}
+        {tab === "filters" && (
+          <div className="space-y-6">
+            <div className="card-gaming p-6">
+              <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Plus className="h-4 w-4 text-primary" /> {editingFo ? "Editar Opção de Filtro" : "Adicionar Opção de Filtro"}
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Crie grupos de filtros (ex: "category", "tier_filter", "custom") e as opções aparecerão como chips na página inicial.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Grupo do filtro</Label>
+                  <Input value={foForm.filter_group} onChange={(e) => setFoForm({ ...foForm, filter_group: e.target.value })} placeholder="Ex: category" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Label (exibição)</Label>
+                  <Input value={foForm.label} onChange={(e) => setFoForm({ ...foForm, label: e.target.value })} placeholder="Ex: Equipamentos" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Valor (filtro interno)</Label>
+                  <Input value={foForm.value} onChange={(e) => setFoForm({ ...foForm, value: e.target.value })} placeholder="Ex: equipment" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Ordem</Label>
+                  <Input type="number" value={foForm.sort_order} onChange={(e) => setFoForm({ ...foForm, sort_order: e.target.value })} className="bg-secondary border-border w-24" />
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  onClick={() => {
+                    if (editingFo) {
+                      filterMut.update.mutate({ id: editingFo, filter_group: foForm.filter_group, label: foForm.label, value: foForm.value, sort_order: Number(foForm.sort_order) });
+                      setEditingFo(null);
+                    } else {
+                      filterMut.create.mutate({ filter_group: foForm.filter_group, label: foForm.label, value: foForm.value, sort_order: Number(foForm.sort_order), active: true });
+                    }
+                    setFoForm({ filter_group: "", label: "", value: "", sort_order: "0" });
+                  }}
+                  disabled={!foForm.filter_group || !foForm.label || !foForm.value}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  {editingFo ? "Salvar" : "Adicionar"}
+                </Button>
+                {editingFo && (
+                  <Button variant="outline" onClick={() => { setEditingFo(null); setFoForm({ filter_group: "", label: "", value: "", sort_order: "0" }); }}>
+                    Cancelar
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Group filter options by filter_group */}
+            {(() => {
+              const groups = [...new Set((filterOptions || []).map((fo) => fo.filter_group))];
+              return groups.map((group) => (
+                <div key={group} className="card-gaming overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border bg-secondary/30">
+                    <h4 className="text-sm font-semibold text-foreground">Grupo: <span className="text-primary">{group}</span></h4>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border">
+                        <TableHead className="text-muted-foreground">Label</TableHead>
+                        <TableHead className="text-muted-foreground">Valor</TableHead>
+                        <TableHead className="text-muted-foreground">Ordem</TableHead>
+                        <TableHead className="text-muted-foreground">Ativo</TableHead>
+                        <TableHead className="text-muted-foreground">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(filterOptions || []).filter((fo) => fo.filter_group === group).map((fo) => (
+                        <TableRow key={fo.id} className="border-border">
+                          <TableCell className="text-foreground text-sm">{fo.label}</TableCell>
+                          <TableCell className="text-muted-foreground text-xs">{fo.value}</TableCell>
+                          <TableCell className="text-muted-foreground text-sm">{fo.sort_order}</TableCell>
+                          <TableCell>
+                            <Switch checked={fo.active} onCheckedChange={(v) => filterMut.update.mutate({ id: fo.id, active: v })} />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/10"
+                                onClick={() => { setEditingFo(fo.id); setFoForm({ filter_group: fo.filter_group, label: fo.label, value: fo.value, sort_order: String(fo.sort_order) }); }}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10"
+                                onClick={() => { if (confirm(`Remover filtro "${fo.label}"?`)) filterMut.remove.mutate(fo.id); }}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ));
+            })()}
+            {(!filterOptions || filterOptions.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm">Nenhuma opção de filtro cadastrada</p>}
           </div>
         )}
 
