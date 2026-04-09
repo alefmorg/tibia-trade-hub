@@ -48,7 +48,7 @@ const Perfil = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("ads")
-        .select("*, profiles!ads_user_id_fkey(username, avatar_url)")
+        .select("*, profiles!ads_user_id_fkey(username, avatar_url), items!ads_item_id_fkey(tier)")
         .eq("user_id", profileUserId!)
         .eq("status", "active")
         .order("created_at", { ascending: false });
@@ -71,7 +71,7 @@ const Perfil = () => {
       const adIds = favs.map((f: any) => f.ad_id);
       const { data: adsData, error: adsError } = await supabase
         .from("ads")
-        .select("*, profiles!ads_user_id_fkey(username, avatar_url)")
+        .select("*, profiles!ads_user_id_fkey(username, avatar_url), items!ads_item_id_fkey(tier)")
         .in("id", adIds)
         .eq("status", "active");
       if (adsError) throw adsError;
@@ -243,6 +243,7 @@ const Perfil = () => {
                       imageUrl={ad.image_url}
                       likes={ad.likes_count}
                       featured={ad.featured}
+                      tier={ad.items?.tier}
                       profiles={ad.profiles}
                       userId={ad.user_id}
                     />
@@ -282,6 +283,7 @@ const Perfil = () => {
                       imageUrl={ad.image_url}
                       likes={ad.likes_count}
                       featured={ad.featured}
+                      tier={ad.items?.tier}
                       profiles={ad.profiles}
                       userId={ad.user_id}
                     />

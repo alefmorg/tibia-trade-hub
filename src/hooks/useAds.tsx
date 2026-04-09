@@ -23,6 +23,7 @@ export interface Ad {
   created_at: string;
   updated_at: string;
   profiles?: { username: string; avatar_url: string | null };
+  items?: { tier: number | null } | null;
 }
 
 export const useAds = (filters?: {
@@ -39,7 +40,7 @@ export const useAds = (filters?: {
     queryFn: async () => {
       let query = supabase
         .from("ads")
-        .select("*, profiles!ads_user_id_fkey(username, avatar_url)")
+        .select("*, profiles!ads_user_id_fkey(username, avatar_url), items!ads_item_id_fkey(tier)")
         .eq("status", "active");
 
       if (filters?.search) {
@@ -221,7 +222,7 @@ export const useAllAdsAdmin = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("ads")
-        .select("*, profiles!ads_user_id_fkey(username)")
+        .select("*, profiles!ads_user_id_fkey(username), items!ads_item_id_fkey(tier)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data as unknown as Ad[]) || [];
