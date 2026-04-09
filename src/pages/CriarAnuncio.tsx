@@ -164,17 +164,6 @@ const CriarAnuncio = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Tipo de PvP</Label>
-            <Select value={form.pvp_type} onValueChange={(v) => setForm({ ...form, pvp_type: v })}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {pvpTypes.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-2">
             <Label className="text-sm text-foreground">Descrição</Label>
