@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = requireEnv("SUPABASE_URL");
-    const publishableKey = requireEnv("SUPABASE_PUBLISHABLE_KEY");
+    const publishableKey = requireEnv("SUPABASE_ANON_KEY");
     const serviceRoleKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
     const authHeader = req.headers.get("Authorization");
 
