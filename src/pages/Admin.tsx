@@ -61,6 +61,12 @@ const Admin = () => {
   const navLinksMut = useNavLinksMutations();
   const bannerMut = useBannerMutations();
 
+  // Filter options
+  const { data: filterOptions } = useFilterOptions();
+  const filterMut = useFilterOptionsMutations();
+  const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
+  const [editingFo, setEditingFo] = useState<string | null>(null);
+
   // Nav link form
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
   const [editingNl, setEditingNl] = useState<string | null>(null);
