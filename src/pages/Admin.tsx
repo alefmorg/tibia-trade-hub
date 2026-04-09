@@ -515,10 +515,6 @@ const Admin = () => {
                   <Label className="text-xs text-muted-foreground">Nome do item</Label>
                   <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
                 </div>
-                  <div className="space-y-2 sm:w-28">
-                    <Label className="text-xs text-muted-foreground">Tier</Label>
-                    <Input type="number" min="0" max="10" value={newItemTier} onChange={(e) => setNewItemTier(e.target.value)} placeholder="0-10" className="bg-secondary border-border" />
-                  </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Imagem</Label>
                   <div className="flex items-center gap-3">
@@ -543,7 +539,6 @@ const Admin = () => {
                   <TableRow className="border-border">
                     <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
                     <TableHead className="text-muted-foreground">Nome</TableHead>
-                      <TableHead className="text-muted-foreground">Tier</TableHead>
                     <TableHead className="text-muted-foreground">Cadastro</TableHead>
                     <TableHead className="text-muted-foreground w-20">Ações</TableHead>
                   </TableRow>
@@ -561,7 +556,6 @@ const Admin = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-foreground font-medium">{item.name}</TableCell>
-                       <TableCell className="text-muted-foreground">{item.tier != null ? `T${item.tier}` : "-"}</TableCell>
                       <TableCell className="text-muted-foreground">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {

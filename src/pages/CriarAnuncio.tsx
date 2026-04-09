@@ -28,6 +28,7 @@ const CriarAnuncio = () => {
     category: "item",
     description: "",
     acceptOffers: false,
+    tier: "",
   });
 
   if (!user) {
@@ -56,6 +57,7 @@ const CriarAnuncio = () => {
       category: form.category,
       description: form.description || undefined,
       image_url: selectedItem.image_url || undefined,
+      tier: form.tier && form.tier !== "none" ? Number(form.tier) : null,
     });
     navigate("/");
   };
@@ -76,19 +78,27 @@ const CriarAnuncio = () => {
             />
             {selectedItem?.image_url && (
               <div className="flex justify-center pt-2">
-                <div className="flex flex-col items-center gap-2">
-                  <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
-                  {selectedItem.tier != null && (
-                    <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] text-muted-foreground">
-                      Tier {selectedItem.tier}
-                    </span>
-                  )}
-                </div>
+                <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
               </div>
             )}
             {items?.length === 0 && (
               <p className="text-xs text-muted-foreground">Nenhum item cadastrado. O admin precisa cadastrar itens primeiro.</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm text-foreground">Tier do Item</Label>
+            <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
+              <SelectTrigger className="bg-secondary border-border">
+                <SelectValue placeholder="Selecione o tier (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem tier</SelectItem>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
+                  <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

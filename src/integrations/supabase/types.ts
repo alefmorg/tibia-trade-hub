@@ -29,6 +29,7 @@ export type Database = {
           price: string | null
           pvp_type: string
           status: string
+          tier: number | null
           title: string
           type: string
           updated_at: string
@@ -49,6 +50,7 @@ export type Database = {
           price?: string | null
           pvp_type?: string
           status?: string
+          tier?: number | null
           title: string
           type: string
           updated_at?: string
@@ -69,6 +71,7 @@ export type Database = {
           price?: string | null
           pvp_type?: string
           status?: string
+          tier?: number | null
           title?: string
           type?: string
           updated_at?: string

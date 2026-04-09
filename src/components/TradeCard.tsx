@@ -125,10 +125,8 @@ const TradeCard = ({
           </div>
         )}
 
-        {tier != null && (
-          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary mb-3">
-            Tier {tier}
-          </span>
+        {tier != null && tier !== undefined && (
+          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary mb-3">Tier {tier}</span>
         )}
 
         <p className="font-body font-bold text-foreground">
