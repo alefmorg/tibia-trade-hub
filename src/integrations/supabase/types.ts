@@ -218,6 +218,39 @@ export type Database = {
           },
         ]
       }
+      nav_links: {
+        Row: {
+          active: boolean
+          color: string
+          created_at: string
+          icon_url: string | null
+          id: string
+          label: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          icon_url?: string | null
+          id?: string
+          label: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          icon_url?: string | null
+          id?: string
+          label?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           ad_id: string
@@ -292,6 +325,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      site_banners: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          link_url: string | null
+          sort_order: number
+          title: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          sort_order?: number
+          title?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          sort_order?: number
+          title?: string | null
         }
         Relationships: []
       }
