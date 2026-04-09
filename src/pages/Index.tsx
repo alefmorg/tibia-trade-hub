@@ -39,6 +39,8 @@ const Index = () => {
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { data: navLinks } = useNavLinks(true);
+  const { data: banners } = useSiteBanners(true);
 
   const { data: ads, isLoading } = useAds({
     search,
