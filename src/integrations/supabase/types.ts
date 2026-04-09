@@ -159,6 +159,36 @@ export type Database = {
           },
         ]
       }
+      filter_options: {
+        Row: {
+          active: boolean
+          created_at: string
+          filter_group: string
+          id: string
+          label: string
+          sort_order: number
+          value: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          filter_group: string
+          id?: string
+          label: string
+          sort_order?: number
+          value: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          filter_group?: string
+          id?: string
+          label?: string
+          sort_order?: number
+          value?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           created_at: string
