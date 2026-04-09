@@ -37,10 +37,8 @@ const callAdminAction = async <T = unknown>(action: string, payload?: Record<str
   const { data, error } = await supabase.functions.invoke<AdminActionResponse<T>>("admin-actions", {
     body: { action, payload },
   });
-
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
-
   return data?.data as T;
 };
 
@@ -83,12 +81,8 @@ export const useAdminData = (enabled: boolean) => {
     queryFn: async () => {
       const { data, error } = await supabase.from("ads").select("user_id");
       if (error) throw error;
-
       const counts: Record<string, number> = {};
-      data?.forEach((ad) => {
-        counts[ad.user_id] = (counts[ad.user_id] || 0) + 1;
-      });
-
+      data?.forEach((ad) => { counts[ad.user_id] = (counts[ad.user_id] || 0) + 1; });
       return counts;
     },
   });
@@ -125,74 +119,66 @@ export const useAdminData = (enabled: boolean) => {
 
   const updateAdStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: AdStatus }) => callAdminAction("updateAdStatus", { id, status }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Status atualizado!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Status atualizado!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar status"),
   });
 
   const toggleFeatured = useMutation({
     mutationFn: ({ id, featured }: { id: string; featured: boolean }) => callAdminAction("toggleAdFeatured", { id, featured }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Destaque atualizado!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Destaque atualizado!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar destaque"),
   });
 
   const updateUserRole = useMutation({
     mutationFn: ({ userId, role }: { userId: string; role: AppRole }) => callAdminAction("updateUserRole", { userId, role }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Cargo atualizado!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Cargo atualizado!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar cargo"),
+  });
+
+  const banUser = useMutation({
+    mutationFn: ({ userId, banned }: { userId: string; banned: boolean }) => callAdminAction("banUser", { userId, banned }),
+    onSuccess: async (_, vars) => { await invalidateAdminQueries(queryClient); toast.success(vars.banned ? "Usuário banido!" : "Usuário desbanido!"); },
+    onError: (err: any) => toast.error(err.message || "Erro ao banir usuário"),
   });
 
   const deleteUser = useMutation({
     mutationFn: (userId: string) => callAdminAction("deleteUser", { userId }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Usuário removido!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Usuário removido!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao remover usuário"),
   });
 
   const updateTradeSettings = useMutation({
     mutationFn: (days: number) => callAdminAction("updateTradeSettings", { days }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Tempo padrão dos anúncios atualizado!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Configuração salva!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao salvar configuração"),
   });
 
   const updateOfferStatus = useMutation({
     mutationFn: ({ offerId, status }: { offerId: string; status: OfferStatus }) => callAdminAction("updateOfferStatus", { offerId, status }),
-    onSuccess: async (_, vars) => {
-      await invalidateAdminQueries(queryClient);
-      toast.success(vars.status === "accepted" ? "Oferta aceita!" : vars.status === "rejected" ? "Oferta recusada!" : "Oferta atualizada!");
-    },
+    onSuccess: async (_, vars) => { await invalidateAdminQueries(queryClient); toast.success(vars.status === "accepted" ? "Oferta aceita!" : vars.status === "rejected" ? "Oferta recusada!" : "Oferta atualizada!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao atualizar oferta"),
   });
 
   const deleteOffer = useMutation({
     mutationFn: (offerId: string) => callAdminAction("deleteOffer", { offerId }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Oferta removida!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Oferta removida!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao remover oferta"),
   });
 
   const deleteConversation = useMutation({
     mutationFn: (conversationId: string) => callAdminAction("deleteConversation", { conversationId }),
-    onSuccess: async () => {
-      await invalidateAdminQueries(queryClient);
-      toast.success("Conversa removida!");
-    },
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Conversa removida!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao remover conversa"),
+  });
+
+  const getConversationMessages = async (conversationId: string) => {
+    return callAdminAction<any[]>("getConversationMessages", { conversationId });
+  };
+
+  const createAdAdmin = useMutation({
+    mutationFn: (adData: Record<string, unknown>) => callAdminAction("createAd", adData),
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Anúncio criado!"); },
+    onError: (err: any) => toast.error(err.message || "Erro ao criar anúncio"),
   });
 
   return {
@@ -204,20 +190,10 @@ export const useAdminData = (enabled: boolean) => {
     allConversations: conversationsQuery.data || [],
     allFavorites: favoritesQuery.data || 0,
     isLoading:
-      profilesQuery.isLoading ||
-      userRolesQuery.isLoading ||
-      tradeSettingsQuery.isLoading ||
-      adsCountQuery.isLoading ||
-      offersQuery.isLoading ||
-      conversationsQuery.isLoading ||
-      favoritesQuery.isLoading,
-    updateAdStatus,
-    toggleFeatured,
-    updateUserRole,
-    deleteUser,
-    updateTradeSettings,
-    updateOfferStatus,
-    deleteOffer,
-    deleteConversation,
+      profilesQuery.isLoading || userRolesQuery.isLoading || tradeSettingsQuery.isLoading ||
+      adsCountQuery.isLoading || offersQuery.isLoading || conversationsQuery.isLoading || favoritesQuery.isLoading,
+    updateAdStatus, toggleFeatured, updateUserRole, banUser, deleteUser,
+    updateTradeSettings, updateOfferStatus, deleteOffer, deleteConversation,
+    getConversationMessages, createAdAdmin,
   };
 };
