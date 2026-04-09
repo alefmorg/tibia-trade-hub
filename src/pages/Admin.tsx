@@ -6,6 +6,7 @@ import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
+import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
 } from "lucide-react";
 
