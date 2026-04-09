@@ -36,12 +36,15 @@ const Index = () => {
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
+  const [customFilters, setCustomFilters] = useState<Record<string, string | undefined>>({});
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
+  const { data: filterOptions } = useFilterOptions(undefined, true);
 
   const { data: ads, isLoading } = useAds({
     search,
