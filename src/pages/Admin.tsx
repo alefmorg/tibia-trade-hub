@@ -159,6 +159,7 @@ const Admin = () => {
     { key: "items", label: "Itens", icon: Image },
     { key: "offers", label: "Ofertas", icon: HandCoins },
     { key: "conversations", label: "Conversas", icon: MessageCircle },
+    { key: "filters", label: "Filtros", icon: Filter },
     { key: "nav-links", label: "Links Nav", icon: Link2 },
     { key: "banners", label: "Banners", icon: Megaphone },
     { key: "create-ad", label: "Criar Anúncio", icon: Plus },
