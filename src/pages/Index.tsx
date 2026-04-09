@@ -69,6 +69,8 @@ const Index = () => {
     setTypeFilter(undefined);
     setPvpFilter(undefined);
     setWorldFilter(undefined);
+    setCategoryFilter(undefined);
+    setCustomFilters({});
     setOnlyWithPrice(false);
   };
 
