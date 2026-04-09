@@ -30,7 +30,7 @@ const Admin = () => {
   const deleteItem = useDeleteItem();
 
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad">("ads");
+  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [adDurationDays, setAdDurationDays] = useState("7");
