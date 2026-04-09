@@ -51,11 +51,19 @@ const Index = () => {
     type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
     pvpType: pvpFilter,
     world: worldFilter,
+    category: categoryFilter,
     onlyWithPrice,
     sortBy,
   });
 
-  const activeFilterCount = [typeFilter, pvpFilter, worldFilter].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
+  // Group dynamic filters by filter_group
+  const filterGroups = (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
+    if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
+    acc[fo.filter_group]!.push(fo);
+    return acc;
+  }, {});
+
+  const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilter, ...Object.values(customFilters)].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
   const clearFilters = () => {
     setTypeFilter(undefined);
