@@ -196,6 +196,32 @@ const Index = () => {
               </div>
             </div>
 
+            {/* Dynamic filter groups from admin */}
+            {Object.entries(filterGroups).map(([group, options]) => (
+              <div key={group} className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground capitalize">{group === "category" ? "Categoria" : group}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {(options || []).map((opt) => (
+                    <FilterChip
+                      key={opt.id}
+                      label={opt.label}
+                      active={group === "category" ? categoryFilter === opt.value : customFilters[group] === opt.value}
+                      onClick={() => {
+                        if (group === "category") {
+                          setCategoryFilter(categoryFilter === opt.value ? undefined : opt.value);
+                        } else {
+                          setCustomFilters((prev) => ({
+                            ...prev,
+                            [group]: prev[group] === opt.value ? undefined : opt.value,
+                          }));
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+
             {user && <OffersPanel />}
           </aside>
 
