@@ -31,7 +31,7 @@ export const useNavLinks = (onlyActive = false) => {
       if (onlyActive) q = q.eq("active", true);
       const { data, error } = await q;
       if (error) throw error;
-      return (data || []) as NavLink[];
+      return (data || []) as unknown as NavLink[];
     },
   });
 };
@@ -44,7 +44,7 @@ export const useSiteBanners = (onlyActive = false) => {
       if (onlyActive) q = q.eq("active", true);
       const { data, error } = await q;
       if (error) throw error;
-      return (data || []) as SiteBanner[];
+      return (data || []) as unknown as SiteBanner[];
     },
   });
 };
