@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,6 +21,7 @@ const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const db = supabase as any;
   const { data: ads } = useAllAdsAdmin();
   const deleteAd = useDeleteAd();
   const updateStatus = useUpdateAdStatus();
@@ -31,8 +32,26 @@ const Admin = () => {
   const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "stats">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
+  const [newItemTier, setNewItemTier] = useState("");
+  const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: tradeSettings } = useQuery({
+    queryKey: ["trade-settings"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await db.from("trade_settings").select("*").limit(1).maybeSingle();
+      if (error) throw error;
+      return data as { id: string; ad_duration_days: number } | null;
+    },
+  });
+
+  useEffect(() => {
+    if (tradeSettings?.ad_duration_days) {
+      setAdDurationDays(String(tradeSettings.ad_duration_days));
+    }
+  }, [tradeSettings]);
 
   const { data: profiles } = useQuery({
     queryKey: ["admin-profiles"],
@@ -101,24 +120,40 @@ const Admin = () => {
 
   const updateUserRole = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      const { data: existing } = await supabase.from("user_roles").select("id").eq("user_id", userId).single();
-      if (existing) {
-        const { error } = await supabase.from("user_roles").update({ role }).eq("user_id", userId);
-        if (error) throw error;
-      } else {
+      const { data: existingRoles, error: fetchError } = await supabase.from("user_roles").select("id, role").eq("user_id", userId);
+      if (fetchError) throw fetchError;
+
+      if (!existingRoles?.length) {
+        if (role === "user") return;
         const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
         if (error) throw error;
+        return;
       }
+
+      if (role === "user") {
+        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId);
+        if (error) throw error;
+        return;
+      }
+
+      const { error: deleteError } = await supabase.from("user_roles").delete().eq("user_id", userId);
+      if (deleteError) throw deleteError;
+
+      const { error: insertError } = await supabase.from("user_roles").insert({ user_id: userId, role });
+      if (insertError) throw insertError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-user-roles"] });
       toast.success("Cargo atualizado!");
     },
-    onError: () => toast.error("Erro ao atualizar cargo"),
+    onError: (err: any) => toast.error(err.message || "Erro ao atualizar cargo"),
   });
 
   const deleteUser = useMutation({
     mutationFn: async (userId: string) => {
+      await supabase.from("messages").delete().eq("sender_id", userId);
+      await supabase.from("offers").delete().eq("sender_id", userId);
+      await supabase.from("conversations").delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
       const { error: adsError } = await supabase.from("ads").delete().eq("user_id", userId);
       if (adsError) throw adsError;
       const { error: favsError } = await supabase.from("favorites").delete().eq("user_id", userId);
@@ -135,6 +170,24 @@ const Admin = () => {
       toast.success("Usuário removido!");
     },
     onError: () => toast.error("Erro ao remover usuário"),
+  });
+
+  const updateTradeSettings = useMutation({
+    mutationFn: async (days: number) => {
+      if (tradeSettings?.id) {
+        const { error } = await db.from("trade_settings").update({ ad_duration_days: days }).eq("id", tradeSettings.id);
+        if (error) throw error;
+        return;
+      }
+
+      const { error } = await db.from("trade_settings").insert({ ad_duration_days: days });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["trade-settings"] });
+      toast.success("Tempo padrão dos anúncios atualizado!");
+    },
+    onError: (err: any) => toast.error(err.message || "Erro ao salvar configuração"),
   });
 
   const toggleFeatured = useMutation({
@@ -185,8 +238,13 @@ const Admin = () => {
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
-    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined });
+    await createItem.mutateAsync({
+      name: newItemName.trim(),
+      imageFile: newItemImage || undefined,
+      tier: newItemTier === "" ? null : Number(newItemTier),
+    });
     setNewItemName("");
+    setNewItemTier("");
     setNewItemImage(null);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -244,6 +302,35 @@ const Admin = () => {
           </div>
         )}
 
+        <div className="card-gaming p-4 mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Duração padrão dos anúncios</p>
+              <p className="text-xs text-muted-foreground">Todo novo card criado expira automaticamente após esse período.</p>
+            </div>
+            <div className="flex items-end gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Dias</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={adDurationDays}
+                  onChange={(e) => setAdDurationDays(e.target.value)}
+                  className="w-24 bg-secondary border-border"
+                />
+              </div>
+              <Button
+                onClick={() => updateTradeSettings.mutate(Number(adDurationDays))}
+                disabled={updateTradeSettings.isPending || !adDurationDays}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {updateTradeSettings.isPending ? "Salvando..." : "Salvar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* ===== ADS TAB ===== */}
         {tab === "ads" && (
           <div className="card-gaming overflow-hidden overflow-x-auto">
@@ -257,6 +344,7 @@ const Admin = () => {
                   <TableHead className="text-muted-foreground">Mundo</TableHead>
                   <TableHead className="text-muted-foreground">Usuário</TableHead>
                   <TableHead className="text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-muted-foreground">Expira</TableHead>
                   <TableHead className="text-muted-foreground text-center">⭐</TableHead>
                   <TableHead className="text-muted-foreground">Ações</TableHead>
                 </TableRow>
@@ -303,6 +391,9 @@ const Admin = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
+                     <TableCell className="text-muted-foreground text-xs">
+                       {(ad.expires_at && new Date(ad.expires_at).toLocaleDateString("pt-BR")) || "Sem prazo"}
+                     </TableCell>
                     <TableCell className="text-center">
                       <button
                         onClick={() => toggleFeatured.mutate({ id: ad.id, featured: !ad.featured })}
@@ -424,6 +515,10 @@ const Admin = () => {
                   <Label className="text-xs text-muted-foreground">Nome do item</Label>
                   <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
                 </div>
+                  <div className="space-y-2 sm:w-28">
+                    <Label className="text-xs text-muted-foreground">Tier</Label>
+                    <Input type="number" min="0" max="10" value={newItemTier} onChange={(e) => setNewItemTier(e.target.value)} placeholder="0-10" className="bg-secondary border-border" />
+                  </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Imagem</Label>
                   <div className="flex items-center gap-3">
@@ -448,6 +543,7 @@ const Admin = () => {
                   <TableRow className="border-border">
                     <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
                     <TableHead className="text-muted-foreground">Nome</TableHead>
+                      <TableHead className="text-muted-foreground">Tier</TableHead>
                     <TableHead className="text-muted-foreground">Cadastro</TableHead>
                     <TableHead className="text-muted-foreground w-20">Ações</TableHead>
                   </TableRow>
@@ -465,6 +561,7 @@ const Admin = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-foreground font-medium">{item.name}</TableCell>
+                       <TableCell className="text-muted-foreground">{item.tier != null ? `T${item.tier}` : "-"}</TableCell>
                       <TableCell className="text-muted-foreground">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {

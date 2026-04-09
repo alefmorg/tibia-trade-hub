@@ -47,6 +47,7 @@ const CriarAnuncio = () => {
     if (!selectedItem) return;
     await createAd.mutateAsync({
       title: selectedItem.name,
+      item_id: selectedItem.id,
       type: form.type,
       price: form.acceptOffers ? "Aceita ofertas" : form.price,
       currency: form.currency,
@@ -75,7 +76,14 @@ const CriarAnuncio = () => {
             />
             {selectedItem?.image_url && (
               <div className="flex justify-center pt-2">
-                <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
+                <div className="flex flex-col items-center gap-2">
+                  <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
+                  {selectedItem.tier != null && (
+                    <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] text-muted-foreground">
+                      Tier {selectedItem.tier}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
             {items?.length === 0 && (
