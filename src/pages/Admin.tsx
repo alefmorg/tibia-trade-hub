@@ -2,50 +2,69 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
-import { useAllAdsAdmin, useDeleteAd, useUpdateAdStatus } from "@/hooks/useAds";
+import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
+import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Trash2, Shield, Users, BarChart3, Package, Plus, Upload, Image, Star, ShieldCheck, ShieldAlert, UserCog, HandCoins, MessageCircle, Eye } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import type { Database } from "@/integrations/supabase/types";
-
-type AppRole = Database["public"]["Enums"]["app_role"];
+import {
+  BarChart3,
+  Check,
+  Eye,
+  HandCoins,
+  Image,
+  MessageCircle,
+  Package,
+  Plus,
+  Search,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Star,
+  Trash2,
+  Upload,
+  UserCog,
+  Users,
+  X,
+} from "lucide-react";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const db = supabase as any;
   const { data: ads } = useAllAdsAdmin();
   const deleteAd = useDeleteAd();
-  const updateStatus = useUpdateAdStatus();
   const { data: items } = useItems();
   const createItem = useCreateItem();
   const deleteItem = useDeleteItem();
+
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "stats">("ads");
+  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
-  const [newItemTier, setNewItemTier] = useState("");
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: tradeSettings } = useQuery({
-    queryKey: ["trade-settings"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await db.from("trade_settings").select("*").limit(1).maybeSingle();
-      if (error) throw error;
-      return data as { id: string; ad_duration_days: number } | null;
-    },
-  });
+  const {
+    profiles,
+    userRoles,
+    tradeSettings,
+    adsCountByUser,
+    allOffers,
+    allConversations,
+    allFavorites,
+    updateAdStatus,
+    toggleFeatured,
+    updateUserRole,
+    deleteUser,
+    updateTradeSettings,
+    updateOfferStatus,
+    deleteOffer,
+    deleteConversation,
+  } = useAdminData(isAdmin);
 
   useEffect(() => {
     if (tradeSettings?.ad_duration_days) {
@@ -53,198 +72,81 @@ const Admin = () => {
     }
   }, [tradeSettings]);
 
-  const { data: profiles } = useQuery({
-    queryKey: ["admin-profiles"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: userRoles } = useQuery({
-    queryKey: ["admin-user-roles"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("user_roles").select("*");
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: adsCountByUser } = useQuery({
-    queryKey: ["admin-ads-count"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("ads").select("user_id");
-      if (error) throw error;
-      const counts: Record<string, number> = {};
-      data?.forEach((ad) => { counts[ad.user_id] = (counts[ad.user_id] || 0) + 1; });
-      return counts;
-    },
-  });
-
-  // All offers for admin
-  const { data: allOffers } = useQuery({
-    queryKey: ["admin-offers"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("offers").select("*").order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // All conversations for admin
-  const { data: allConversations } = useQuery({
-    queryKey: ["admin-conversations"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("conversations").select("*").order("updated_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // All favorites count
-  const { data: allFavorites } = useQuery({
-    queryKey: ["admin-favorites"],
-    enabled: isAdmin,
-    queryFn: async () => {
-      const { data, error } = await supabase.from("favorites").select("id");
-      if (error) throw error;
-      return data?.length || 0;
-    },
-  });
-
-  const updateUserRole = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      const { data: existingRoles, error: fetchError } = await supabase.from("user_roles").select("id, role").eq("user_id", userId);
-      if (fetchError) throw fetchError;
-
-      if (!existingRoles?.length) {
-        if (role === "user") return;
-        const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
-        if (error) throw error;
-        return;
-      }
-
-      if (role === "user") {
-        const { error } = await supabase.from("user_roles").delete().eq("user_id", userId);
-        if (error) throw error;
-        return;
-      }
-
-      const { error: deleteError } = await supabase.from("user_roles").delete().eq("user_id", userId);
-      if (deleteError) throw deleteError;
-
-      const { error: insertError } = await supabase.from("user_roles").insert({ user_id: userId, role });
-      if (insertError) throw insertError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-user-roles"] });
-      toast.success("Cargo atualizado!");
-    },
-    onError: (err: any) => toast.error(err.message || "Erro ao atualizar cargo"),
-  });
-
-  const deleteUser = useMutation({
-    mutationFn: async (userId: string) => {
-      await supabase.from("messages").delete().eq("sender_id", userId);
-      await supabase.from("offers").delete().eq("sender_id", userId);
-      await supabase.from("conversations").delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
-      const { error: adsError } = await supabase.from("ads").delete().eq("user_id", userId);
-      if (adsError) throw adsError;
-      const { error: favsError } = await supabase.from("favorites").delete().eq("user_id", userId);
-      if (favsError) throw favsError;
-      const { error: roleError } = await supabase.from("user_roles").delete().eq("user_id", userId);
-      if (roleError) throw roleError;
-      const { error: profileError } = await supabase.from("profiles").delete().eq("user_id", userId);
-      if (profileError) throw profileError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-ads-count"] });
-      queryClient.invalidateQueries({ queryKey: ["ads"] });
-      toast.success("Usuário removido!");
-    },
-    onError: () => toast.error("Erro ao remover usuário"),
-  });
-
-  const updateTradeSettings = useMutation({
-    mutationFn: async (days: number) => {
-      if (tradeSettings?.id) {
-        const { error } = await db.from("trade_settings").update({ ad_duration_days: days }).eq("id", tradeSettings.id);
-        if (error) throw error;
-        return;
-      }
-
-      const { error } = await db.from("trade_settings").insert({ ad_duration_days: days });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["trade-settings"] });
-      toast.success("Tempo padrão dos anúncios atualizado!");
-    },
-    onError: (err: any) => toast.error(err.message || "Erro ao salvar configuração"),
-  });
-
-  const toggleFeatured = useMutation({
-    mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
-      const { error } = await supabase.from("ads").update({ featured }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ads"] });
-      queryClient.invalidateQueries({ queryKey: ["ads", "admin"] });
-      queryClient.invalidateQueries({ queryKey: ["user-ads"] });
-      toast.success("Destaque atualizado!");
-    },
-  });
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      navigate("/");
+    }
+  }, [loading, user, isAdmin, navigate]);
 
   const getUserRole = (userId: string): AppRole => {
-    return userRoles?.find((r) => r.user_id === userId)?.role || "user";
+    return userRoles.find((role) => role.user_id === userId)?.role || "user";
   };
 
   const getProfileName = (userId: string) => {
-    return profiles?.find((p: any) => p.user_id === userId)?.username || "Desconhecido";
+    return profiles.find((profile) => profile.user_id === userId)?.username || "Desconhecido";
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Carregando...</p></div>;
-  if (!user || !isAdmin) { navigate("/"); return null; }
+  const getAdTitle = (adId: string) => {
+    return ads?.find((ad) => ad.id === adId)?.title || adId.slice(0, 8);
+  };
 
-  const filteredAds = ads?.filter(ad => ad.title.toLowerCase().includes(search.toLowerCase())) || [];
-  const filteredProfiles = profiles?.filter((p: any) => p.username.toLowerCase().includes(search.toLowerCase())) || [];
+  if (loading || !user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  const searchTerm = search.toLowerCase();
+  const filteredAds = (ads || []).filter((ad) => {
+    const owner = ad.profiles?.username || "";
+    return `${ad.title} ${owner} ${ad.world}`.toLowerCase().includes(searchTerm);
+  });
+  const filteredProfiles = profiles.filter((profile) => profile.username.toLowerCase().includes(searchTerm));
+  const filteredOffers = allOffers.filter((offer) => {
+    const sender = getProfileName(offer.sender_id);
+    const adTitle = getAdTitle(offer.ad_id);
+    return `${sender} ${adTitle} ${offer.amount} ${offer.status} ${offer.message || ""}`.toLowerCase().includes(searchTerm);
+  });
+  const filteredConversations = allConversations.filter((conversation) => {
+    const adTitle = getAdTitle(conversation.ad_id);
+    const buyer = getProfileName(conversation.buyer_id);
+    const seller = getProfileName(conversation.seller_id);
+    return `${adTitle} ${buyer} ${seller}`.toLowerCase().includes(searchTerm);
+  });
 
   const stats = {
     totalAds: ads?.length || 0,
-    activeAds: ads?.filter(a => a.status === "active").length || 0,
-    featuredAds: ads?.filter(a => a.featured).length || 0,
-    sellingAds: ads?.filter(a => a.type === "selling").length || 0,
-    buyingAds: ads?.filter(a => a.type === "buying").length || 0,
-    totalUsers: profiles?.length || 0,
+    activeAds: ads?.filter((ad) => ad.status === "active").length || 0,
+    featuredAds: ads?.filter((ad) => ad.featured).length || 0,
+    sellingAds: ads?.filter((ad) => ad.type === "selling").length || 0,
+    buyingAds: ads?.filter((ad) => ad.type === "buying").length || 0,
+    totalUsers: profiles.length || 0,
     totalItems: items?.length || 0,
-    totalOffers: allOffers?.length || 0,
-    pendingOffers: allOffers?.filter(o => o.status === "pending").length || 0,
-    totalConversations: allConversations?.length || 0,
+    totalOffers: allOffers.length || 0,
+    pendingOffers: allOffers.filter((offer) => offer.status === "pending").length || 0,
+    totalConversations: allConversations.length || 0,
     totalFavorites: allFavorites || 0,
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) { setNewItemImage(file); setImagePreview(URL.createObjectURL(file)); }
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setNewItemImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
+
     await createItem.mutateAsync({
       name: newItemName.trim(),
       imageFile: newItemImage || undefined,
-      tier: newItemTier === "" ? null : Number(newItemTier),
     });
+
     setNewItemName("");
-    setNewItemTier("");
     setNewItemImage(null);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -255,8 +157,16 @@ const Admin = () => {
     { key: "users", label: "Usuários", icon: Users },
     { key: "items", label: "Itens", icon: Image },
     { key: "offers", label: "Ofertas", icon: HandCoins },
+    { key: "conversations", label: "Conversas", icon: MessageCircle },
     { key: "stats", label: "Estatísticas", icon: BarChart3 },
   ] as const;
+
+  const searchPlaceholder = {
+    ads: "Buscar anúncios...",
+    users: "Buscar usuários...",
+    offers: "Buscar ofertas...",
+    conversations: "Buscar conversas...",
+  } as const;
 
   return (
     <div className="min-h-screen">
@@ -267,7 +177,6 @@ const Admin = () => {
           <h1 className="text-xl font-semibold">Painel Admin</h1>
         </div>
 
-        {/* Quick Stats Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-8">
           {[
             { label: "Anúncios", value: stats.totalAds, color: "text-primary" },
@@ -276,29 +185,41 @@ const Admin = () => {
             { label: "Itens", value: stats.totalItems, color: "text-warning" },
             { label: "Ofertas", value: stats.totalOffers, color: "text-destructive" },
             { label: "Conversas", value: stats.totalConversations, color: "text-muted-foreground" },
-          ].map((s) => (
-            <div key={s.label} className="card-gaming p-3 text-center">
-              <p className={`font-pixel text-lg ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          ].map((stat) => (
+            <div key={stat.label} className="card-gaming p-3 text-center">
+              <p className={`font-pixel text-lg ${stat.color}`}>{stat.value}</p>
+              <p className="text-[10px] text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1">
           {tabs.map(({ key, label, icon: Icon }) => (
-            <Button key={key} size="sm" variant={tab === key ? "default" : "outline"} onClick={() => { setTab(key); setSearch(""); }} className={`gap-1.5 ${tab === key ? "bg-primary text-primary-foreground" : "border-border"}`}>
+            <Button
+              key={key}
+              size="sm"
+              variant={tab === key ? "default" : "outline"}
+              onClick={() => {
+                setTab(key);
+                setSearch("");
+              }}
+              className={`gap-1.5 ${tab === key ? "bg-primary text-primary-foreground" : "border-border"}`}
+            >
               <Icon className="h-3.5 w-3.5" />
               {label}
             </Button>
           ))}
         </div>
 
-        {/* Search */}
-        {(tab === "ads" || tab === "users") && (
+        {(tab === "ads" || tab === "users" || tab === "offers" || tab === "conversations") && (
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder={tab === "ads" ? "Buscar anúncios..." : "Buscar usuários..."} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border" />
+            <Input
+              placeholder={searchPlaceholder[tab as keyof typeof searchPlaceholder]}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="pl-10 bg-secondary border-border"
+            />
           </div>
         )}
 
@@ -316,7 +237,7 @@ const Admin = () => {
                   min="1"
                   max="365"
                   value={adDurationDays}
-                  onChange={(e) => setAdDurationDays(e.target.value)}
+                  onChange={(event) => setAdDurationDays(event.target.value)}
                   className="w-24 bg-secondary border-border"
                 />
               </div>
@@ -331,7 +252,6 @@ const Admin = () => {
           </div>
         </div>
 
-        {/* ===== ADS TAB ===== */}
         {tab === "ads" && (
           <div className="card-gaming overflow-hidden overflow-x-auto">
             <Table>
@@ -380,7 +300,7 @@ const Admin = () => {
                     <TableCell className="text-muted-foreground text-xs">{ad.world}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">{ad.profiles?.username || "-"}</TableCell>
                     <TableCell>
-                      <Select value={ad.status} onValueChange={(v) => updateStatus.mutate({ id: ad.id, status: v })}>
+                      <Select value={ad.status} onValueChange={(value) => updateAdStatus.mutate({ id: ad.id, status: value as AdStatus })}>
                         <SelectTrigger className="w-24 h-7 text-xs bg-secondary border-border">
                           <SelectValue />
                         </SelectTrigger>
@@ -391,9 +311,9 @@ const Admin = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                     <TableCell className="text-muted-foreground text-xs">
-                       {(ad.expires_at && new Date(ad.expires_at).toLocaleDateString("pt-BR")) || "Sem prazo"}
-                     </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {(ad.expires_at && new Date(ad.expires_at).toLocaleDateString("pt-BR")) || "Sem prazo"}
+                    </TableCell>
                     <TableCell className="text-center">
                       <button
                         onClick={() => toggleFeatured.mutate({ id: ad.id, featured: !ad.featured })}
@@ -403,10 +323,15 @@ const Admin = () => {
                       </button>
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {
-                        if (!confirm("Remover este anúncio?")) return;
-                        deleteAd.mutate(ad.id);
-                      }}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          if (!confirm("Remover este anúncio?")) return;
+                          deleteAd.mutate(ad.id);
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -418,7 +343,6 @@ const Admin = () => {
           </div>
         )}
 
-        {/* ===== USERS TAB ===== */}
         {tab === "users" && (
           <div className="card-gaming overflow-hidden overflow-x-auto">
             <Table>
@@ -433,24 +357,25 @@ const Admin = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.map((p: any) => {
-                  const currentRole = getUserRole(p.user_id);
-                  const adsCount = adsCountByUser?.[p.user_id] || 0;
-                  const isCurrentUser = p.user_id === user?.id;
+                {filteredProfiles.map((profile) => {
+                  const currentRole = getUserRole(profile.user_id);
+                  const adsCount = adsCountByUser[profile.user_id] || 0;
+                  const isCurrentUser = profile.user_id === user.id;
+
                   return (
-                    <TableRow key={p.id} className="border-border">
+                    <TableRow key={profile.id} className="border-border">
                       <TableCell>
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                          {p.avatar_url ? (
-                            <img src={p.avatar_url} alt={p.username} className="h-8 w-8 object-cover rounded-full" />
+                          {profile.avatar_url ? (
+                            <img src={profile.avatar_url} alt={profile.username} className="h-8 w-8 object-cover rounded-full" />
                           ) : (
-                            <span className="text-primary text-xs font-bold">{p.username?.charAt(0).toUpperCase()}</span>
+                            <span className="text-primary text-xs font-bold">{profile.username?.charAt(0).toUpperCase()}</span>
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="text-foreground font-medium">
                         <div className="flex items-center gap-2">
-                          {p.username}
+                          {profile.username}
                           {currentRole === "admin" && <ShieldCheck className="h-4 w-4 text-primary" />}
                           {currentRole === "moderator" && <ShieldAlert className="h-4 w-4 text-warning" />}
                         </div>
@@ -461,7 +386,7 @@ const Admin = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Select value={currentRole} onValueChange={(v) => updateUserRole.mutate({ userId: p.user_id, role: v as AppRole })} disabled={isCurrentUser}>
+                        <Select value={currentRole} onValueChange={(value) => updateUserRole.mutate({ userId: profile.user_id, role: value as AppRole })} disabled={isCurrentUser}>
                           <SelectTrigger className="w-28 h-7 text-xs bg-secondary border-border">
                             <SelectValue />
                           </SelectTrigger>
@@ -478,17 +403,22 @@ const Admin = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">{new Date(p.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell className="text-muted-foreground text-xs">{new Date(profile.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" onClick={() => navigate(`/perfil/${p.user_id}`)}>
+                          <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" onClick={() => navigate(`/perfil/${profile.user_id}`)}>
                             <Eye className="h-4 w-4" />
                           </Button>
                           {!isCurrentUser && (
-                            <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {
-                              if (!confirm(`Remover "${p.username}" e todos os seus dados?`)) return;
-                              deleteUser.mutate(p.user_id);
-                            }}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                if (!confirm(`Remover "${profile.username}" e todos os seus dados?`)) return;
+                                deleteUser.mutate(profile.user_id);
+                              }}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           )}
@@ -503,7 +433,6 @@ const Admin = () => {
           </div>
         )}
 
-        {/* ===== ITEMS TAB ===== */}
         {tab === "items" && (
           <>
             <div className="card-gaming p-6 mb-6">
@@ -513,7 +442,7 @@ const Admin = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 space-y-2">
                   <Label className="text-xs text-muted-foreground">Nome do item</Label>
-                  <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
+                  <Input value={newItemName} onChange={(event) => setNewItemName(event.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Imagem</Label>
@@ -558,10 +487,15 @@ const Admin = () => {
                       <TableCell className="text-foreground font-medium">{item.name}</TableCell>
                       <TableCell className="text-muted-foreground">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
-                        <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => {
-                          if (!confirm(`Remover item "${item.name}"?`)) return;
-                          deleteItem.mutate(item.id);
-                        }}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => {
+                            if (!confirm(`Remover item "${item.name}"?`)) return;
+                            deleteItem.mutate(item.id);
+                          }}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -574,7 +508,6 @@ const Admin = () => {
           </>
         )}
 
-        {/* ===== OFFERS TAB ===== */}
         {tab === "offers" && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -583,11 +516,11 @@ const Admin = () => {
                 <p className="text-[10px] text-muted-foreground">Pendentes</p>
               </div>
               <div className="card-gaming p-3 text-center">
-                <p className="font-pixel text-lg text-accent">{allOffers?.filter(o => o.status === "accepted").length || 0}</p>
+                <p className="font-pixel text-lg text-accent">{allOffers.filter((offer) => offer.status === "accepted").length || 0}</p>
                 <p className="text-[10px] text-muted-foreground">Aceitas</p>
               </div>
               <div className="card-gaming p-3 text-center">
-                <p className="font-pixel text-lg text-destructive">{allOffers?.filter(o => o.status === "rejected").length || 0}</p>
+                <p className="font-pixel text-lg text-destructive">{allOffers.filter((offer) => offer.status === "rejected").length || 0}</p>
                 <p className="text-[10px] text-muted-foreground">Recusadas</p>
               </div>
             </div>
@@ -597,48 +530,116 @@ const Admin = () => {
                 <TableHeader>
                   <TableRow className="border-border">
                     <TableHead className="text-muted-foreground">Remetente</TableHead>
-                    <TableHead className="text-muted-foreground">Anúncio ID</TableHead>
+                    <TableHead className="text-muted-foreground">Anúncio</TableHead>
                     <TableHead className="text-muted-foreground">Valor</TableHead>
                     <TableHead className="text-muted-foreground">Mensagem</TableHead>
                     <TableHead className="text-muted-foreground">Status</TableHead>
                     <TableHead className="text-muted-foreground">Data</TableHead>
+                    <TableHead className="text-muted-foreground">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {allOffers?.map((offer) => {
-                    const ad = ads?.find(a => a.id === offer.ad_id);
-                    return (
-                      <TableRow key={offer.id} className="border-border">
-                        <TableCell className="text-foreground text-xs">{getProfileName(offer.sender_id)}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs max-w-[120px] truncate">{ad?.title || offer.ad_id.slice(0, 8)}</TableCell>
-                        <TableCell>
-                          <span className="flex items-center gap-1 text-foreground text-xs">
-                            <img src={`/icons/${offer.currency}.png`} alt="" className="w-4 h-4 object-contain" />
-                            {offer.amount}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs max-w-[140px] truncate">{offer.message || "-"}</TableCell>
-                        <TableCell>
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            offer.status === "pending" ? "bg-warning/20 text-warning" :
-                            offer.status === "accepted" ? "bg-accent/20 text-accent" :
-                            "bg-destructive/20 text-destructive"
-                          }`}>
-                            {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs">{new Date(offer.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {filteredOffers.map((offer) => (
+                    <TableRow key={offer.id} className="border-border">
+                      <TableCell className="text-foreground text-xs">{getProfileName(offer.sender_id)}</TableCell>
+                      <TableCell className="text-muted-foreground text-xs max-w-[140px] truncate">{getAdTitle(offer.ad_id)}</TableCell>
+                      <TableCell>
+                        <span className="flex items-center gap-1 text-foreground text-xs">
+                          <img src={`/icons/${offer.currency}.png`} alt="" className="w-4 h-4 object-contain" />
+                          {offer.amount}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate">{offer.message || "-"}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded ${
+                            offer.status === "pending"
+                              ? "bg-warning/20 text-warning"
+                              : offer.status === "accepted"
+                                ? "bg-accent/20 text-accent"
+                                : "bg-destructive/20 text-destructive"
+                          }`}
+                        >
+                          {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">{new Date(offer.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          {offer.status === "pending" && (
+                            <>
+                              <Button size="sm" variant="ghost" className="text-accent hover:bg-accent/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "accepted" as OfferStatus })}>
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-warning hover:bg-warning/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "rejected" as OfferStatus })}>
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              if (!confirm("Remover esta oferta?")) return;
+                              deleteOffer.mutate(offer.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
-              {(!allOffers || allOffers.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm">Nenhuma oferta encontrada</p>}
+              {filteredOffers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm">Nenhuma oferta encontrada</p>}
             </div>
           </div>
         )}
 
-        {/* ===== STATS TAB ===== */}
+        {tab === "conversations" && (
+          <div className="card-gaming overflow-hidden overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead className="text-muted-foreground">Anúncio</TableHead>
+                  <TableHead className="text-muted-foreground">Comprador</TableHead>
+                  <TableHead className="text-muted-foreground">Vendedor</TableHead>
+                  <TableHead className="text-muted-foreground">Criada em</TableHead>
+                  <TableHead className="text-muted-foreground">Atualizada em</TableHead>
+                  <TableHead className="text-muted-foreground">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredConversations.map((conversation) => (
+                  <TableRow key={conversation.id} className="border-border">
+                    <TableCell className="text-foreground text-xs max-w-[180px] truncate">{getAdTitle(conversation.ad_id)}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{getProfileName(conversation.buyer_id)}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{getProfileName(conversation.seller_id)}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{new Date(conversation.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{new Date(conversation.updated_at).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          if (!confirm("Remover esta conversa e suas mensagens?")) return;
+                          deleteConversation.mutate(conversation.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {filteredConversations.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm">Nenhuma conversa encontrada</p>}
+          </div>
+        )}
+
         {tab === "stats" && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -652,34 +653,31 @@ const Admin = () => {
                 { label: "Ofertas", value: stats.totalOffers, sub: `${stats.pendingOffers} pendentes`, color: "text-destructive" },
                 { label: "Favoritos", value: stats.totalFavorites, sub: "total de curtidas", color: "text-primary" },
                 { label: "Conversas", value: stats.totalConversations, sub: "abertas", color: "text-muted-foreground" },
-              ].map((s) => (
-                <div key={s.label} className="card-gaming p-4">
-                  <p className={`font-pixel text-2xl ${s.color}`}>{s.value}</p>
-                  <p className="text-sm text-foreground font-medium">{s.label}</p>
-                  <p className="text-xs text-muted-foreground">{s.sub}</p>
+              ].map((stat) => (
+                <div key={stat.label} className="card-gaming p-4">
+                  <p className={`font-pixel text-2xl ${stat.color}`}>{stat.value}</p>
+                  <p className="text-sm text-foreground font-medium">{stat.label}</p>
+                  <p className="text-xs text-muted-foreground">{stat.sub}</p>
                 </div>
               ))}
             </div>
 
-            {/* Top users by ads */}
             <div className="card-gaming p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Top Anunciantes</h3>
               <div className="space-y-2">
-                {Object.entries(adsCountByUser || {})
-                  .sort(([, a], [, b]) => b - a)
+                {Object.entries(adsCountByUser as Record<string, number>)
+                  .sort(([, left], [, right]) => right - left)
                   .slice(0, 10)
-                  .map(([userId, count], i) => (
+                  .map(([userId, count], index) => (
                     <div key={userId} className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
-                        <span className="text-muted-foreground text-xs w-5">{i + 1}.</span>
+                        <span className="text-muted-foreground text-xs w-5">{index + 1}.</span>
                         <span className="text-foreground">{getProfileName(userId)}</span>
                       </span>
                       <span className="text-primary font-medium">{count}</span>
                     </div>
                   ))}
-                {!adsCountByUser || Object.keys(adsCountByUser).length === 0 && (
-                  <p className="text-muted-foreground text-xs text-center py-4">Sem dados</p>
-                )}
+                {Object.keys(adsCountByUser || {}).length === 0 && <p className="text-muted-foreground text-xs text-center py-4">Sem dados</p>}
               </div>
             </div>
           </div>
