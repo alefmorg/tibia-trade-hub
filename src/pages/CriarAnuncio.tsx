@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateAd } from "@/hooks/useAds";
 import { useItems } from "@/hooks/useItems";
-import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
+import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 
