@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
+import { useFilterOptions } from "@/hooks/useFilterOptions";
 
 const adTypes = ["Vendendo", "Comprando"];
 
