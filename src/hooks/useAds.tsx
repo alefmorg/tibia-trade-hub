@@ -6,6 +6,7 @@ import { toast } from "sonner";
 export interface Ad {
   id: string;
   user_id: string;
+  item_id?: string | null;
   title: string;
   type: "selling" | "buying";
   price: string | null;
@@ -18,6 +19,7 @@ export interface Ad {
   featured: boolean;
   status: string;
   likes_count: number;
+  expires_at?: string | null;
   created_at: string;
   updated_at: string;
   profiles?: { username: string; avatar_url: string | null };
@@ -75,7 +77,7 @@ export const useAds = (filters?: {
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data as unknown as Ad[]) || [];
+      return (((data as unknown as Ad[]) || []).filter((ad) => !ad.expires_at || new Date(ad.expires_at).getTime() > Date.now())) as Ad[];
     },
   });
 };
@@ -87,6 +89,7 @@ export const useCreateAd = () => {
   return useMutation({
     mutationFn: async (ad: {
       title: string;
+      item_id?: string;
       type: string;
       price?: string;
       currency?: string;
@@ -97,7 +100,8 @@ export const useCreateAd = () => {
       image_url?: string;
     }) => {
       if (!user) throw new Error("Não autenticado");
-      const { data, error } = await supabase
+      const db = supabase as any;
+      const { data, error } = await db
         .from("ads")
         .insert({ ...ad, user_id: user.id })
         .select()

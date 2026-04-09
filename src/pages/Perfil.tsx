@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, Camera, Save, Package, Heart, Calendar } from "lucide-react";
+import { Save, Package, Heart, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,9 +24,7 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<"ads" | "favorites">("ads");
-  const fileRef = useRef<HTMLInputElement>(null);
 
   // Fetch profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -90,7 +88,7 @@ const Perfil = () => {
 
   // Update profile mutation
   const updateProfile = useMutation({
-    mutationFn: async (updates: { username?: string; bio?: string; avatar_url?: string }) => {
+    mutationFn: async (updates: { username?: string; bio?: string }) => {
       const { error } = await supabase
         .from("profiles")
         .update(updates)
@@ -104,26 +102,6 @@ const Perfil = () => {
     },
     onError: (err: any) => toast.error(err.message),
   });
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-      await updateProfile.mutateAsync({ avatar_url: urlData.publicUrl + `?t=${Date.now()}` });
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao enviar avatar");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSaveProfile = () => {
     updateProfile.mutate({ username: editUsername.trim(), bio: editBio.trim() });
@@ -160,28 +138,14 @@ const Perfil = () => {
           <div className="card-gaming p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start gap-6">
               {/* Avatar */}
-              <div className="relative group">
-                <Avatar className="h-20 w-20 border-2 border-primary/30">
-                  {profile.avatar_url ? (
-                    <AvatarImage src={profile.avatar_url} alt={profile.username} />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                    {profile.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {isOwnProfile && (
-                  <>
-                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                    <button
-                      onClick={() => fileRef.current?.click()}
-                      disabled={uploading}
-                      className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                    >
-                      <Camera className="h-5 w-5 text-white" />
-                    </button>
-                  </>
-                )}
-              </div>
+              <Avatar className="h-20 w-20 border-2 border-primary/30">
+                {profile.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt={profile.username} />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                  {profile.username.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
 
               {/* Info */}
               <div className="flex-1 min-w-0">

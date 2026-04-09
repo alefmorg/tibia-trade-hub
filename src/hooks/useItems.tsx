@@ -7,6 +7,7 @@ export interface Item {
   id: string;
   name: string;
   image_url: string | null;
+  tier?: number | null;
   created_at: string;
 }
 
@@ -27,8 +28,9 @@ export const useItems = () => {
 export const useCreateItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ name, imageFile }: { name: string; imageFile?: File }) => {
+    mutationFn: async ({ name, imageFile, tier }: { name: string; imageFile?: File; tier?: number | null }) => {
       let image_url: string | null = null;
+      const db = supabase as any;
 
       if (imageFile) {
         const ext = imageFile.name.split(".").pop();
@@ -44,9 +46,9 @@ export const useCreateItem = () => {
         image_url = urlData.publicUrl;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("items")
-        .insert({ name, image_url })
+        .insert({ name, image_url, tier: tier ?? null })
         .select()
         .single();
       if (error) throw error;

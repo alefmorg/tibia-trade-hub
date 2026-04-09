@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -32,6 +32,11 @@ const ItemCombobox = ({ items, value, onSelect }: ItemComboboxProps) => {
                 <img src={selectedItem.image_url} alt="" className="h-5 w-5 object-contain shrink-0" />
               )}
               <span className="truncate">{selectedItem.name}</span>
+              {selectedItem.tier != null && (
+                <span className="shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                  T{selectedItem.tier}
+                </span>
+              )}
             </span>
           ) : (
             <span className="text-muted-foreground">Buscar item...</span>
@@ -60,6 +65,11 @@ const ItemCombobox = ({ items, value, onSelect }: ItemComboboxProps) => {
                       <img src={item.image_url} alt="" className="h-5 w-5 object-contain shrink-0" />
                     )}
                     <span>{item.name}</span>
+                    {item.tier != null && (
+                      <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                        T{item.tier}
+                      </span>
+                    )}
                   </div>
                 </CommandItem>
               ))}
