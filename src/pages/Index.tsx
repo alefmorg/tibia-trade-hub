@@ -67,6 +67,57 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
 
+      {/* Nav Links Bar */}
+      {navLinks && navLinks.length > 0 && (
+        <div className="border-b border-border bg-card/60">
+          <div className="container py-3">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {navLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target={link.url.startsWith("http") ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-80 hover:scale-105"
+                  style={{ backgroundColor: link.color, color: "#fff" }}
+                >
+                  {link.icon_url && <img src={link.icon_url} alt="" className="w-5 h-5 object-contain" />}
+                  {link.label}
+                  {link.url.startsWith("http") && <ExternalLink className="w-3 h-3 opacity-70" />}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Site Banner */}
+      {banners && banners.length > 0 && (
+        <div className="border-b border-border bg-card/30">
+          <div className="container py-3">
+            <div className="flex flex-col gap-3">
+              {banners.map((banner) => (
+                <a
+                  key={banner.id}
+                  href={banner.link_url || "#"}
+                  target={banner.link_url?.startsWith("http") ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-lg overflow-hidden transition-opacity hover:opacity-90"
+                >
+                  {banner.image_url ? (
+                    <img src={banner.image_url} alt={banner.title || "Banner"} className="w-full h-auto max-h-24 object-cover rounded-lg" />
+                  ) : banner.title ? (
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg px-6 py-4 text-center">
+                      <p className="text-sm font-semibold text-primary">{banner.title}</p>
+                    </div>
+                  ) : null}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="border-b border-border bg-card/40">
         <div className="container py-5 flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full max-w-2xl">
