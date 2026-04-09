@@ -57,6 +57,7 @@ const CriarAnuncio = () => {
       category: form.category,
       description: form.description || undefined,
       image_url: selectedItem.image_url || undefined,
+      tier: form.tier && form.tier !== "none" ? Number(form.tier) : null,
     });
     navigate("/");
   };

@@ -20,6 +20,7 @@ export interface Ad {
   status: string;
   likes_count: number;
   expires_at?: string | null;
+  tier?: number | null;
   created_at: string;
   updated_at: string;
   profiles?: { username: string; avatar_url: string | null };
@@ -99,6 +100,7 @@ export const useCreateAd = () => {
       category: string;
       description?: string;
       image_url?: string;
+      tier?: number | null;
     }) => {
       if (!user) throw new Error("Não autenticado");
       const db = supabase as any;

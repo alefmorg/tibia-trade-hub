@@ -243,7 +243,7 @@ const Perfil = () => {
                       imageUrl={ad.image_url}
                       likes={ad.likes_count}
                       featured={ad.featured}
-                      tier={ad.items?.tier}
+                      tier={(ad as any).tier}
                       profiles={ad.profiles}
                       userId={ad.user_id}
                     />
@@ -283,7 +283,7 @@ const Perfil = () => {
                       imageUrl={ad.image_url}
                       likes={ad.likes_count}
                       featured={ad.featured}
-                      tier={ad.items?.tier}
+                      tier={(ad as any).tier}
                       profiles={ad.profiles}
                       userId={ad.user_id}
                     />
