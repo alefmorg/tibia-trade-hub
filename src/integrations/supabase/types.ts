@@ -20,9 +20,11 @@ export type Database = {
           created_at: string
           currency: string
           description: string | null
+          expires_at: string | null
           featured: boolean
           id: string
           image_url: string | null
+          item_id: string | null
           likes_count: number
           price: string | null
           pvp_type: string
@@ -38,9 +40,11 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          expires_at?: string | null
           featured?: boolean
           id?: string
           image_url?: string | null
+          item_id?: string | null
           likes_count?: number
           price?: string | null
           pvp_type?: string
@@ -56,9 +60,11 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
+          expires_at?: string | null
           featured?: boolean
           id?: string
           image_url?: string | null
+          item_id?: string | null
           likes_count?: number
           price?: string | null
           pvp_type?: string
@@ -70,6 +76,13 @@ export type Database = {
           world?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ads_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ads_user_id_fkey"
             columns: ["user_id"]
@@ -149,18 +162,21 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          tier: number | null
         }
         Insert: {
           created_at?: string
           id?: string
           image_url?: string | null
           name: string
+          tier?: number | null
         }
         Update: {
           created_at?: string
           id?: string
           image_url?: string | null
           name?: string
+          tier?: number | null
         }
         Relationships: []
       }
@@ -273,6 +289,27 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_settings: {
+        Row: {
+          ad_duration_days: number
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ad_duration_days?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_duration_days?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -297,6 +334,7 @@ export type Database = {
     }
     Functions: {
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
+      get_ad_duration_days: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
