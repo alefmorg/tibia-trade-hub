@@ -55,6 +55,19 @@ const Admin = () => {
     getConversationMessages, createAdAdmin,
   } = useAdminData(isAdmin);
 
+  const { data: navLinks } = useNavLinks();
+  const { data: siteBanners } = useSiteBanners();
+  const navLinksMut = useNavLinksMutations();
+  const bannerMut = useBannerMutations();
+
+  // Nav link form
+  const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
+  const [editingNl, setEditingNl] = useState<string | null>(null);
+
+  // Banner form
+  const [bnForm, setBnForm] = useState({ title: "", image_url: "", link_url: "", sort_order: "0" });
+  const [editingBn, setEditingBn] = useState<string | null>(null);
+
   useEffect(() => {
     if (tradeSettings?.ad_duration_days) setAdDurationDays(String(tradeSettings.ad_duration_days));
   }, [tradeSettings]);
