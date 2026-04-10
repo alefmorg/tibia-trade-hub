@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 92%;
+    --background: 0 0% 8%;
+    --foreground: 0 0% 90%;
 
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 92%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 90%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 92%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 90%;
 
-    --primary: 187 100% 50%;
-    --primary-foreground: 222 47% 6%;
+    --primary: 160 84% 44%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 85%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 75%;
 
-    --muted: 222 30% 14%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 50%;
 
-    --accent: 142 71% 45%;
-    --accent-foreground: 222 47% 6%;
+    --accent: 160 84% 44%;
+    --accent-foreground: 0 0% 5%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 187 100% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 160 84% 44%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 85%;
-    --sidebar-primary: 187 100% 50%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 30% 14%;
-    --sidebar-accent-foreground: 210 40% 85%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 187 100% 50%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 75%;
+    --sidebar-primary: 160 84% 44%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 75%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 160 84% 44%;
 
-    --warning: 45 100% 50%;
-    --warning-foreground: 222 47% 6%;
-    --success: 142 71% 45%;
-    --success-foreground: 222 47% 6%;
+    --warning: 42 100% 55%;
+    --warning-foreground: 0 0% 5%;
+    --success: 160 84% 44%;
+    --success-foreground: 0 0% 5%;
 
     --font-pixel: 'Press Start 2P', monospace;
     --font-body: 'Inter', sans-serif;
 
-    --glow-primary: 0 0 20px hsl(187 100% 50% / 0.3);
-    --glow-accent: 0 0 20px hsl(142 71% 45% / 0.3);
+    --glow-primary: 0 0 24px hsl(160 84% 44% / 0.15);
+    --glow-accent: 0 0 24px hsl(160 84% 44% / 0.15);
   }
 }
 
@@ -66,14 +66,21 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
-    background-image:
-      radial-gradient(circle at top right, hsl(var(--primary) / 0.08), transparent 28%),
-      linear-gradient(135deg, hsl(var(--background)), hsl(220 28% 17%));
-    background-attachment: fixed;
   }
 
   h1, h2, h3 {
     font-family: var(--font-pixel);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
   }
 }
 
@@ -95,20 +102,25 @@
   }
 
   .border-glow {
-    border: 1px solid hsl(var(--primary) / 0.3);
-    box-shadow: inset 0 0 30px hsl(var(--primary) / 0.05), var(--glow-primary);
+    border: 1px solid hsl(var(--primary) / 0.2);
+    box-shadow: inset 0 0 30px hsl(var(--primary) / 0.03), var(--glow-primary);
   }
 
   .card-gaming {
-    @apply bg-card border border-border rounded-lg;
-    background: linear-gradient(135deg, hsl(222 47% 9%) 0%, hsl(222 47% 7%) 100%);
+    @apply bg-card border border-border rounded-xl;
   }
 
   .trade-card {
-    @apply rounded-[20px] border overflow-hidden relative;
-    background: linear-gradient(180deg, hsl(var(--card) / 0.98) 0%, hsl(var(--secondary) / 0.96) 100%);
+    @apply rounded-2xl border overflow-hidden relative;
+    background: hsl(var(--card));
     border-color: hsl(var(--border));
-    box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.05), 0 14px 34px hsl(var(--background) / 0.22);
+    transition: border-color 0.2s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+
+  .trade-card:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.1), 0 20px 40px hsl(0 0% 0% / 0.3);
+    transform: translateY(-2px);
   }
 
   .trade-card-grid {
@@ -119,25 +131,35 @@
   }
 
   .trade-card-featured {
-    border-color: hsl(var(--warning) / 0.75);
-    box-shadow: 0 0 0 1px hsl(var(--warning) / 0.35), 0 18px 50px hsl(var(--background) / 0.24);
+    border-color: hsl(var(--warning) / 0.5);
+    box-shadow: 0 0 0 1px hsl(var(--warning) / 0.2), 0 16px 40px hsl(0 0% 0% / 0.25);
+  }
+
+  .trade-card-featured:hover {
+    border-color: hsl(var(--warning) / 0.7);
+    box-shadow: 0 0 0 1px hsl(var(--warning) / 0.3), 0 20px 50px hsl(0 0% 0% / 0.35);
   }
 
   .trade-card-world-badge {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold;
-    background: hsl(var(--secondary) / 0.92);
+    background: hsl(var(--secondary));
     border: 1px solid hsl(var(--border));
   }
 
   .trade-card-user-link {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 max-w-[145px];
-    background: hsl(var(--secondary) / 0.96);
+    background: hsl(var(--secondary));
     border: 1px solid hsl(var(--border));
+    transition: border-color 0.15s ease;
+  }
+
+  .trade-card-user-link:hover {
+    border-color: hsl(var(--primary) / 0.3);
   }
 
   .trade-card-like-badge {
-    @apply inline-flex items-center gap-1 rounded-tl-[20px] rounded-br-[16px] px-3 py-1.5 text-foreground;
-    background: hsl(var(--secondary) / 0.98);
+    @apply inline-flex items-center gap-1 rounded-tl-2xl rounded-br-xl px-3 py-1.5 text-foreground;
+    background: hsl(var(--secondary));
     border-top: 1px solid hsl(var(--border));
     border-left: 1px solid hsl(var(--border));
   }
@@ -171,20 +193,26 @@
 
   .badge-active {
     @apply text-xs font-pixel px-3 py-1 rounded-full;
-    background: hsl(var(--success) / 0.15);
+    background: hsl(var(--success) / 0.12);
     color: hsl(var(--success));
-    border: 1px solid hsl(var(--success) / 0.3);
+    border: 1px solid hsl(var(--success) / 0.25);
   }
 
   .badge-selling {
     @apply text-xs font-semibold px-2 py-0.5 rounded;
-    background: hsl(var(--primary) / 0.15);
-    color: hsl(var(--primary));
+    background: hsl(var(--destructive) / 0.12);
+    color: hsl(var(--destructive));
   }
 
   .badge-buying {
     @apply text-xs font-semibold px-2 py-0.5 rounded;
-    background: hsl(var(--warning) / 0.15);
-    color: hsl(var(--warning));
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+  }
+
+  .glass-surface {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border));
   }
 }
