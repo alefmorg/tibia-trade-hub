@@ -117,8 +117,8 @@ const Admin = () => {
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
-    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined });
-    setNewItemName(""); setNewItemImage(null); setImagePreview(null);
+    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined, category: newItemCategory });
+    setNewItemName(""); setNewItemImage(null); setImagePreview(null); setNewItemCategory("Geral");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
