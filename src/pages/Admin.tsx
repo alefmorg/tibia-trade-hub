@@ -33,6 +33,7 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters">("ads");
   const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
