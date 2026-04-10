@@ -1,0 +1,1 @@
+ALTER TABLE public.items ADD COLUMN category text NOT NULL DEFAULT 'Geral';

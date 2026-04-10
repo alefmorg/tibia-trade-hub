@@ -33,6 +33,7 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters">("ads");
   const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -116,8 +117,8 @@ const Admin = () => {
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
-    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined });
-    setNewItemName(""); setNewItemImage(null); setImagePreview(null);
+    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined, category: newItemCategory });
+    setNewItemName(""); setNewItemImage(null); setImagePreview(null); setNewItemCategory("Geral");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -391,10 +392,14 @@ const Admin = () => {
           <>
             <div className="card-gaming p-6 mb-6">
               <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2"><Plus className="h-4 w-4 text-primary" /> Adicionar Item</h3>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Nome do item</Label>
                   <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Categoria</Label>
+                  <Input value={newItemCategory} onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Ex: Armas, Equipamentos, Consumíveis" className="bg-secondary border-border" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Imagem</Label>
@@ -417,10 +422,11 @@ const Admin = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border">
-                    <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
-                    <TableHead className="text-muted-foreground">Nome</TableHead>
-                    <TableHead className="text-muted-foreground">Cadastro</TableHead>
-                    <TableHead className="text-muted-foreground w-20">Ações</TableHead>
+                     <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
+                     <TableHead className="text-muted-foreground">Nome</TableHead>
+                     <TableHead className="text-muted-foreground">Categoria</TableHead>
+                     <TableHead className="text-muted-foreground">Cadastro</TableHead>
+                     <TableHead className="text-muted-foreground w-20">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -430,7 +436,8 @@ const Admin = () => {
                         {item.image_url ? <img src={item.image_url} alt={item.name} className="h-10 w-10 object-contain" /> :
                           <div className="h-10 w-10 bg-secondary rounded flex items-center justify-center"><Image className="h-4 w-4 text-muted-foreground" /></div>}
                       </TableCell>
-                      <TableCell className="text-foreground font-medium">{item.name}</TableCell>
+                       <TableCell className="text-foreground font-medium">{item.name}</TableCell>
+                       <TableCell><span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{(item as any).category || "Geral"}</span></TableCell>
                       <TableCell className="text-muted-foreground">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10"

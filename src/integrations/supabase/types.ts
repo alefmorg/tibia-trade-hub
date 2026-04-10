@@ -191,6 +191,7 @@ export type Database = {
       }
       items: {
         Row: {
+          category: string
           created_at: string
           id: string
           image_url: string | null
@@ -198,6 +199,7 @@ export type Database = {
           tier: number | null
         }
         Insert: {
+          category?: string
           created_at?: string
           id?: string
           image_url?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           tier?: number | null
         }
         Update: {
+          category?: string
           created_at?: string
           id?: string
           image_url?: string | null
