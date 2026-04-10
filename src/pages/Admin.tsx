@@ -436,7 +436,8 @@ const Admin = () => {
                         {item.image_url ? <img src={item.image_url} alt={item.name} className="h-10 w-10 object-contain" /> :
                           <div className="h-10 w-10 bg-secondary rounded flex items-center justify-center"><Image className="h-4 w-4 text-muted-foreground" /></div>}
                       </TableCell>
-                      <TableCell className="text-foreground font-medium">{item.name}</TableCell>
+                       <TableCell className="text-foreground font-medium">{item.name}</TableCell>
+                       <TableCell><span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{(item as any).category || "Geral"}</span></TableCell>
                       <TableCell className="text-muted-foreground">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
                       <TableCell>
                         <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10"
