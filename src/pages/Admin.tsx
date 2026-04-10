@@ -422,10 +422,11 @@ const Admin = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border">
-                    <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
-                    <TableHead className="text-muted-foreground">Nome</TableHead>
-                    <TableHead className="text-muted-foreground">Cadastro</TableHead>
-                    <TableHead className="text-muted-foreground w-20">Ações</TableHead>
+                     <TableHead className="text-muted-foreground w-16">Imagem</TableHead>
+                     <TableHead className="text-muted-foreground">Nome</TableHead>
+                     <TableHead className="text-muted-foreground">Categoria</TableHead>
+                     <TableHead className="text-muted-foreground">Cadastro</TableHead>
+                     <TableHead className="text-muted-foreground w-20">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
