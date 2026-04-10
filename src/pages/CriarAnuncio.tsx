@@ -12,6 +12,7 @@ import { useItems } from "@/hooks/useItems";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
+import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
 
 const CriarAnuncio = () => {
   const { user } = useAuth();
@@ -65,112 +66,147 @@ const CriarAnuncio = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container py-8 max-w-lg">
-        <h1 className="text-xl mb-6">Criar Anúncio</h1>
-        <form onSubmit={handleSubmit} className="card-gaming p-6 space-y-4">
-          {/* Item selection with search */}
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Item</Label>
+      <div className="container py-8 max-w-xl">
+        {/* Back button */}
+        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </button>
+
+        {/* Title */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <PackagePlus className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg leading-tight">Criar Anúncio</h1>
+            <p className="text-xs text-muted-foreground font-body">Publique seu item para vender ou comprar</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Item Selection Card */}
+          <div className="card-gaming p-5 space-y-4 rounded-2xl">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">Selecione o Item</span>
+            </div>
             <ItemCombobox
               items={items || []}
               value={form.itemId}
               onSelect={(id) => setForm({ ...form, itemId: id })}
             />
             {selectedItem?.image_url && (
-              <div className="flex justify-center pt-2">
-                <img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" />
+              <div className="flex justify-center pt-1">
+                <div className="h-20 w-20 rounded-xl bg-secondary/80 flex items-center justify-center border border-border">
+                  <img src={selectedItem.image_url} alt={selectedItem.name} className="h-14 w-14 object-contain" />
+                </div>
               </div>
             )}
             {items?.length === 0 && (
               <p className="text-xs text-muted-foreground">Nenhum item cadastrado. O admin precisa cadastrar itens primeiro.</p>
             )}
-          </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Tier do Item</Label>
-            <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue placeholder="Selecione o tier (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem tier</SelectItem>
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
-                  <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Tipo</Label>
-            <div className="flex gap-2">
-              <Button type="button" size="sm" variant={form.type === "selling" ? "default" : "outline"} className={form.type === "selling" ? "bg-primary text-primary-foreground" : "border-border"} onClick={() => setForm({ ...form, type: "selling" })}>Vendendo</Button>
-              <Button type="button" size="sm" variant={form.type === "buying" ? "default" : "outline"} className={form.type === "buying" ? "bg-warning text-warning-foreground" : "border-border"} onClick={() => setForm({ ...form, type: "buying" })}>Comprando</Button>
+            {/* Tier */}
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Tier do Item</Label>
+              <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
+                <SelectTrigger className="bg-secondary border-border rounded-xl h-11">
+                  <SelectValue placeholder="Selecione o tier (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem tier</SelectItem>
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
+                    <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm text-foreground">Preço</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Aceita ofertas</span>
-                <Switch checked={form.acceptOffers} onCheckedChange={(v) => setForm({ ...form, acceptOffers: v })} />
-              </div>
-            </div>
-            {!form.acceptOffers && (
+          {/* Type & Price Card */}
+          <div className="card-gaming p-5 space-y-4 rounded-2xl">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Tipo do Anúncio</Label>
               <div className="flex gap-2">
-                <Input
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  placeholder="Ex: 15"
-                  className="bg-secondary border-border flex-1"
-                />
-                <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
-                  <SelectTrigger className="w-28 bg-secondary border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kk">
-                      <span className="flex items-center gap-2">
-                        <img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />
-                        kk
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="coins">
-                      <span className="flex items-center gap-2">
-                        <img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />
-                        coins
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Button type="button" size="sm"
+                  className={`flex-1 rounded-xl h-11 font-semibold transition-all ${form.type === "selling" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "bg-secondary border border-border text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setForm({ ...form, type: "selling" })}>
+                  Vendendo
+                </Button>
+                <Button type="button" size="sm"
+                  className={`flex-1 rounded-xl h-11 font-semibold transition-all ${form.type === "buying" ? "bg-warning text-warning-foreground shadow-lg shadow-warning/20" : "bg-secondary border border-border text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setForm({ ...form, type: "buying" })}>
+                  Comprando
+                </Button>
               </div>
-            )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-muted-foreground">Preço</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Aceita ofertas</span>
+                  <Switch checked={form.acceptOffers} onCheckedChange={(v) => setForm({ ...form, acceptOffers: v })} />
+                </div>
+              </div>
+              {!form.acceptOffers && (
+                <div className="flex gap-2">
+                  <Input
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                    placeholder="Ex: 15"
+                    className="bg-secondary border-border flex-1 rounded-xl h-11"
+                  />
+                  <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
+                    <SelectTrigger className="w-28 bg-secondary border-border rounded-xl h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kk">
+                        <span className="flex items-center gap-2">
+                          <img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />
+                          kk
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="coins">
+                        <span className="flex items-center gap-2">
+                          <img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />
+                          coins
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Mundo</Label>
-            <Select value={form.world} onValueChange={handleWorldChange}>
-              <SelectTrigger className="bg-secondary border-border">
-                <SelectValue placeholder="Selecione o mundo" />
-              </SelectTrigger>
-              <SelectContent>
-                {rubinotWorlds.map(w => (
-                  <SelectItem key={w.name} value={w.name}>
-                    {w.name} ({w.pvp})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* World Card */}
+          <div className="card-gaming p-5 space-y-4 rounded-2xl">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Mundo</Label>
+              <Select value={form.world} onValueChange={handleWorldChange}>
+                <SelectTrigger className="bg-secondary border-border rounded-xl h-11">
+                  <SelectValue placeholder="Selecione o mundo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rubinotWorlds.map(w => (
+                    <SelectItem key={w.name} value={w.name}>
+                      {w.name} ({w.pvp})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Descrição</Label>
+              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes sobre o item..." className="bg-secondary border-border min-h-[80px] rounded-xl" />
+            </div>
           </div>
 
-
-          <div className="space-y-2">
-            <Label className="text-sm text-foreground">Descrição</Label>
-            <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes sobre o item..." className="bg-secondary border-border min-h-[80px]" />
-          </div>
-
-          <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 rounded-xl font-semibold text-sm shadow-lg shadow-primary/20 transition-all">
             {createAd.isPending ? "Publicando..." : "Publicar Anúncio"}
           </Button>
         </form>

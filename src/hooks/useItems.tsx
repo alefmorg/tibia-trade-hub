@@ -8,6 +8,7 @@ export interface Item {
   name: string;
   image_url: string | null;
   tier?: number | null;
+  category: string;
   created_at: string;
 }
 
@@ -18,6 +19,7 @@ export const useItems = () => {
       const { data, error } = await supabase
         .from("items")
         .select("*")
+        .order("category", { ascending: true })
         .order("name", { ascending: true });
       if (error) throw error;
       return (data || []) as Item[];
@@ -28,7 +30,7 @@ export const useItems = () => {
 export const useCreateItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ name, imageFile, tier }: { name: string; imageFile?: File; tier?: number | null }) => {
+    mutationFn: async ({ name, imageFile, tier, category }: { name: string; imageFile?: File; tier?: number | null; category?: string }) => {
       let image_url: string | null = null;
       const db = supabase as any;
 
@@ -48,7 +50,7 @@ export const useCreateItem = () => {
 
       const { data, error } = await db
         .from("items")
-        .insert({ name, image_url, tier: tier ?? null })
+        .insert({ name, image_url, tier: tier ?? null, category: category || "Geral" })
         .select()
         .single();
       if (error) throw error;
