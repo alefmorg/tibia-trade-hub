@@ -392,10 +392,14 @@ const Admin = () => {
           <>
             <div className="card-gaming p-6 mb-6">
               <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2"><Plus className="h-4 w-4 text-primary" /> Adicionar Item</h3>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Nome do item</Label>
                   <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Ex: Golden Armor" className="bg-secondary border-border" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Categoria</Label>
+                  <Input value={newItemCategory} onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Ex: Armas, Equipamentos, Consumíveis" className="bg-secondary border-border" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Imagem</Label>
