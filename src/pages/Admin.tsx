@@ -7,6 +7,7 @@ import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
+import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
 } from "lucide-react";
 
@@ -31,7 +32,7 @@ const Admin = () => {
   const deleteItem = useDeleteItem();
 
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters">("ads");
+  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
@@ -67,6 +68,15 @@ const Admin = () => {
   const filterMut = useFilterOptionsMutations();
   const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
   const [editingFo, setEditingFo] = useState<string | null>(null);
+
+  // Wallet & Plans
+  const { data: allWallets } = useAllWallets();
+  const addBalance = useAddBalance();
+  const { data: highlightPlans } = useHighlightPlans();
+  const plansMut = useHighlightPlansMutations();
+  const [walletForm, setWalletForm] = useState({ userId: "", amount: "", reason: "" });
+  const [planForm, setPlanForm] = useState({ name: "", price_coins: "", duration_days: "", sort_order: "0" });
+  const [editingPlan, setEditingPlan] = useState<string | null>(null);
 
   // Nav link form
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
@@ -161,6 +171,8 @@ const Admin = () => {
     { key: "offers", label: "Ofertas", icon: HandCoins },
     { key: "conversations", label: "Conversas", icon: MessageCircle },
     { key: "filters", label: "Filtros", icon: Filter },
+    { key: "wallet", label: "Saldo", icon: Coins },
+    { key: "plans", label: "Planos Destaque", icon: Star },
     { key: "nav-links", label: "Links Nav", icon: Link2 },
     { key: "banners", label: "Banners", icon: Megaphone },
     { key: "create-ad", label: "Criar Anúncio", icon: Plus },
@@ -941,6 +953,124 @@ const Admin = () => {
           </div>
         )}
 
+
+        {/* Wallet Tab */}
+        {tab === "wallet" && (
+          <div className="space-y-6">
+            <div className="card-gaming p-5 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><Coins className="h-4 w-4 text-warning" />Adicionar/Remover Saldo</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Usuário</Label>
+                  <Select value={walletForm.userId} onValueChange={(v) => setWalletForm({ ...walletForm, userId: v })}>
+                    <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                    <SelectContent>
+                      {profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Quantidade (negativo = remover)</Label>
+                  <Input type="number" value={walletForm.amount} onChange={(e) => setWalletForm({ ...walletForm, amount: e.target.value })} className="bg-secondary border-border" placeholder="100" />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Motivo</Label>
+                  <Input value={walletForm.reason} onChange={(e) => setWalletForm({ ...walletForm, reason: e.target.value })} className="bg-secondary border-border" placeholder="Compra de coins" />
+                </div>
+                <div className="flex items-end">
+                  <Button onClick={() => {
+                    if (!walletForm.userId || !walletForm.amount) return;
+                    addBalance.mutate({ userId: walletForm.userId, amount: Number(walletForm.amount), reason: walletForm.reason || undefined });
+                    setWalletForm({ userId: "", amount: "", reason: "" });
+                  }} className="bg-primary text-primary-foreground w-full"><Plus className="h-4 w-4 mr-1" />Aplicar</Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="card-gaming p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-3">Saldos dos Usuários</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border">
+                    <TableHead className="text-muted-foreground">Usuário</TableHead>
+                    <TableHead className="text-muted-foreground">Saldo (Rubini Coins)</TableHead>
+                    <TableHead className="text-muted-foreground">Atualizado</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(allWallets || []).map((w) => (
+                    <TableRow key={w.id} className="border-border">
+                      <TableCell className="text-foreground text-sm">{getProfileName(w.user_id)}</TableCell>
+                      <TableCell className="text-warning font-semibold">{w.balance}</TableCell>
+                      <TableCell className="text-muted-foreground text-xs">{new Date(w.updated_at).toLocaleDateString("pt-BR")}</TableCell>
+                    </TableRow>
+                  ))}
+                  {(!allWallets || allWallets.length === 0) && (
+                    <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground text-sm py-6">Nenhuma carteira encontrada</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+
+        {/* Highlight Plans Tab */}
+        {tab === "plans" && (
+          <div className="space-y-6">
+            <div className="card-gaming p-5 space-y-4">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><Star className="h-4 w-4 text-warning" />{editingPlan ? "Editar Plano" : "Novo Plano de Destaque"}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div><Label className="text-xs text-muted-foreground">Nome</Label><Input value={planForm.name} onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })} className="bg-secondary border-border" placeholder="Bronze" /></div>
+                <div><Label className="text-xs text-muted-foreground">Preço (Coins)</Label><Input type="number" value={planForm.price_coins} onChange={(e) => setPlanForm({ ...planForm, price_coins: e.target.value })} className="bg-secondary border-border" placeholder="50" /></div>
+                <div><Label className="text-xs text-muted-foreground">Duração (dias)</Label><Input type="number" value={planForm.duration_days} onChange={(e) => setPlanForm({ ...planForm, duration_days: e.target.value })} className="bg-secondary border-border" placeholder="7" /></div>
+                <div><Label className="text-xs text-muted-foreground">Ordem</Label><Input type="number" value={planForm.sort_order} onChange={(e) => setPlanForm({ ...planForm, sort_order: e.target.value })} className="bg-secondary border-border" /></div>
+                <div className="flex items-end gap-2">
+                  <Button className="bg-primary text-primary-foreground flex-1" onClick={() => {
+                    if (!planForm.name || !planForm.price_coins || !planForm.duration_days) return;
+                    const data = { name: planForm.name, price_coins: Number(planForm.price_coins), duration_days: Number(planForm.duration_days), sort_order: Number(planForm.sort_order) };
+                    if (editingPlan) { plansMut.update.mutate({ id: editingPlan, ...data }); setEditingPlan(null); }
+                    else plansMut.create.mutate(data);
+                    setPlanForm({ name: "", price_coins: "", duration_days: "", sort_order: "0" });
+                  }}>{editingPlan ? "Salvar" : "Criar"}</Button>
+                  {editingPlan && <Button variant="outline" size="sm" onClick={() => { setEditingPlan(null); setPlanForm({ name: "", price_coins: "", duration_days: "", sort_order: "0" }); }}><X className="h-4 w-4" /></Button>}
+                </div>
+              </div>
+            </div>
+
+            <div className="card-gaming p-5">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border">
+                    <TableHead className="text-muted-foreground">Nome</TableHead>
+                    <TableHead className="text-muted-foreground">Preço</TableHead>
+                    <TableHead className="text-muted-foreground">Duração</TableHead>
+                    <TableHead className="text-muted-foreground">Ativo</TableHead>
+                    <TableHead className="text-muted-foreground">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(highlightPlans || []).map((p) => (
+                    <TableRow key={p.id} className="border-border">
+                      <TableCell className="text-foreground font-medium">{p.name}</TableCell>
+                      <TableCell className="text-warning font-semibold">{p.price_coins} coins</TableCell>
+                      <TableCell className="text-muted-foreground">{p.duration_days} dias</TableCell>
+                      <TableCell><Switch checked={p.active} onCheckedChange={(v) => plansMut.update.mutate({ id: p.id, active: v })} /></TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/10" onClick={() => { setEditingPlan(p.id); setPlanForm({ name: p.name, price_coins: String(p.price_coins), duration_days: String(p.duration_days), sort_order: String(p.sort_order) }); }}><Eye className="h-4 w-4" /></Button>
+                          <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => { if (confirm(`Remover "${p.name}"?`)) plansMut.remove.mutate(p.id); }}><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {(!highlightPlans || highlightPlans.length === 0) && (
+                    <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground text-sm py-6">Nenhum plano criado</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
 
         {tab === "stats" && (
           <div className="space-y-6">

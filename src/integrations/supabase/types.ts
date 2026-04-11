@@ -189,6 +189,36 @@ export type Database = {
         }
         Relationships: []
       }
+      highlight_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          duration_days: number
+          id: string
+          name: string
+          price_coins: number
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          duration_days: number
+          id?: string
+          name: string
+          price_coins: number
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          duration_days?: number
+          id?: string
+          name?: string
+          price_coins?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           category: string
@@ -430,11 +460,66 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          reason: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      add_balance: {
+        Args: { p_amount: number; p_reason?: string; p_user_id: string }
+        Returns: undefined
+      }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       get_ad_duration_days: { Args: never; Returns: number }
       has_role: {
@@ -443,6 +528,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      highlight_ad: {
+        Args: { p_ad_id: string; p_plan_id: string }
+        Returns: undefined
       }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
