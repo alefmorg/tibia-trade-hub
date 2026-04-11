@@ -123,27 +123,65 @@ const Index = () => {
           </div>
 
           {/* Banners Row */}
-          {banners && banners.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {banners.map((banner) => (
-                <a
-                  key={banner.id}
-                  href={banner.link_url || "#"}
-                  target={banner.link_url?.startsWith("http") ? "_blank" : "_self"}
-                  rel="noopener noreferrer"
-                  className="block w-full rounded-2xl overflow-hidden border border-border/60 transition-all duration-200 hover:border-primary/30 hover:shadow-lg group"
-                >
-                  {banner.image_url ? (
-                    <img src={banner.image_url} alt={banner.title || "Banner"} className="w-full h-28 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                  ) : banner.title ? (
-                    <div className="bg-card/80 h-28 flex items-center justify-center px-6">
-                      <p className="text-sm font-semibold text-foreground">{banner.title}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left: Featured Items Showcase */}
+            <div className="bg-card/80 border border-border/60 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" />
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Itens em Destaque</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(featuredAds.length > 0 ? featuredAds.slice(0, 4) : regularAds?.slice(0, 4) || []).map((ad) => (
+                  <button
+                    key={ad.id}
+                    onClick={() => navigate(`/anuncio/${ad.id}`)}
+                    className="flex items-center gap-2.5 p-2.5 rounded-xl bg-secondary/50 border border-border/40 hover:border-primary/30 hover:bg-secondary/80 transition-all duration-200 text-left group"
+                  >
+                    {ad.image_url ? (
+                      <img src={ad.image_url} alt={ad.title} className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border/40" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                        <Flame className="w-4 h-4 text-primary/60" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">{ad.title}</p>
+                      {ad.price && (
+                        <p className="text-[10px] text-primary font-semibold mt-0.5">{ad.price} {ad.currency}</p>
+                      )}
                     </div>
-                  ) : null}
-                </a>
-              ))}
+                  </button>
+                ))}
+                {(!featuredAds.length && !regularAds?.length) && (
+                  <div className="col-span-2 text-center py-4">
+                    <p className="text-xs text-muted-foreground/60">Nenhum item em destaque</p>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+
+            {/* Right: First Banner */}
+            {banners && banners.length > 0 ? (
+              <a
+                href={banners[0].link_url || "#"}
+                target={banners[0].link_url?.startsWith("http") ? "_blank" : "_self"}
+                rel="noopener noreferrer"
+                className="block w-full rounded-2xl overflow-hidden border border-border/60 transition-all duration-200 hover:border-primary/30 hover:shadow-lg group"
+              >
+                {banners[0].image_url ? (
+                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                ) : banners[0].title ? (
+                  <div className="bg-card/80 h-full min-h-[140px] flex items-center justify-center px-6">
+                    <p className="text-sm font-semibold text-foreground">{banners[0].title}</p>
+                  </div>
+                ) : null}
+              </a>
+            ) : (
+              <div className="bg-card/80 border border-border/60 rounded-2xl flex items-center justify-center min-h-[140px]">
+                <p className="text-xs text-muted-foreground/40">Banner</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
