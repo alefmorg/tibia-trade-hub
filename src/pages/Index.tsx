@@ -80,25 +80,55 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Nav Links Bar */}
+{/* Nav Links Bar - Sleek Gaming Style */}
       {navLinks && navLinks.length > 0 && (
-        <div className="border-b border-border/60 bg-card/40">
-          <div className="container py-3">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target={link.url.startsWith("http") ? "_blank" : "_self"}
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-80 hover:scale-105 hover:shadow-lg"
-                  style={{ backgroundColor: link.color, color: "#fff" }}
-                >
-                  {link.icon_url && <img src={link.icon_url} alt="" className="w-5 h-5 object-contain" />}
-                  {link.label}
-                  {link.url.startsWith("http") && <ExternalLink className="w-3 h-3 opacity-70" />}
-                </a>
-              ))}
+        <div className="border-b border-border/40 bg-[#0d0d0d]/80 backdrop-blur-sm">
+          <div className="container py-2.5">
+            <div className="flex items-center justify-between">
+              {/* Left: Navigation Links */}
+              <div className="flex items-center gap-1">
+                {navLinks.filter(l => !l.label.toLowerCase().includes('discord') && !l.label.toLowerCase().includes('youtube')).map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target={link.url.startsWith('http') ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground/80 transition-all duration-200 hover:text-foreground hover:bg-white/[0.03]"
+                  >
+                    {link.icon_url && (
+                      <img 
+                        src={link.icon_url} 
+                        alt="" 
+                        className="w-4 h-4 object-contain opacity-60 group-hover:opacity-100 transition-opacity" 
+                      />
+                    )}
+                    <span>{link.label}</span>
+                    {link.url.startsWith('http') && (
+                      <ExternalLink className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-40 group-hover:ml-0 transition-all" />
+                    )}
+                  </a>
+                ))}
+              </div>
+
+              {/* Right: Social Icons */}
+              <div className="flex items-center gap-1">
+                {navLinks.filter(l => l.label.toLowerCase().includes('discord') || l.label.toLowerCase().includes('youtube') || l.icon_url).slice(0, 4).map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-9 h-9 rounded-lg text-muted-foreground/60 transition-all duration-200 hover:text-foreground hover:bg-white/[0.05]"
+                    title={link.label}
+                  >
+                    {link.icon_url ? (
+                      <img src={link.icon_url} alt="" className="w-5 h-5 object-contain" />
+                    ) : (
+                      <ExternalLink className="w-4 h-4" />
+                    )}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
