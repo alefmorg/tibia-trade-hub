@@ -4,7 +4,7 @@ import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal } from "lucide-react";
+import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -80,86 +80,72 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-{/* Nav Links Bar - Sleek Gaming Style */}
-      {navLinks && navLinks.length > 0 && (
-        <div className="border-b border-border/40 bg-[#0d0d0d]/80 backdrop-blur-sm">
-          <div className="container py-2.5">
-            <div className="flex items-center justify-between">
-              {/* Left: Navigation Links */}
-              <div className="flex items-center gap-1">
-                {navLinks.filter(l => !l.label.toLowerCase().includes('discord') && !l.label.toLowerCase().includes('youtube')).map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target={link.url.startsWith('http') ? '_blank' : '_self'}
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground/80 transition-all duration-200 hover:text-foreground hover:bg-white/[0.03]"
-                  >
-                    {link.icon_url && (
-                      <img 
-                        src={link.icon_url} 
-                        alt="" 
-                        className="w-4 h-4 object-contain opacity-60 group-hover:opacity-100 transition-opacity" 
-                      />
-                    )}
-                    <span>{link.label}</span>
-                    {link.url.startsWith('http') && (
-                      <ExternalLink className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-40 group-hover:ml-0 transition-all" />
-                    )}
-                  </a>
-                ))}
-              </div>
-
-              {/* Right: Social Icons */}
-              <div className="flex items-center gap-1">
-                {navLinks.filter(l => l.label.toLowerCase().includes('discord') || l.label.toLowerCase().includes('youtube') || l.icon_url).slice(0, 4).map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center w-9 h-9 rounded-lg text-muted-foreground/60 transition-all duration-200 hover:text-foreground hover:bg-white/[0.05]"
-                    title={link.label}
-                  >
-                    {link.icon_url ? (
-                      <img src={link.icon_url} alt="" className="w-5 h-5 object-contain" />
-                    ) : (
-                      <ExternalLink className="w-4 h-4" />
-                    )}
-                  </a>
-                ))}
+      {/* Hero Section - Welcome + Social + Banners */}
+      <div className="container py-5">
+        <div className="flex flex-col gap-4">
+          {/* Welcome Card */}
+          <div className="bg-card/80 border border-border/60 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6">
+            {/* Logo */}
+            <div className="shrink-0">
+              <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                <Flame className="h-10 w-10 text-primary" />
               </div>
             </div>
+            {/* Text */}
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-lg font-bold text-foreground mb-1">
+                Bem-vindo ao <span className="text-primary">Rubin TRADE</span>!
+              </h1>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+                Encontre os melhores itens, equipamentos e trades do servidor RubinOT.
+              </p>
+            </div>
+            {/* Social Icons */}
+            <div className="flex items-center gap-2 shrink-0">
+              {(navLinks && navLinks.length > 0 ? navLinks : []).map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200 hover:scale-110 hover:shadow-lg"
+                  style={{ backgroundColor: link.color }}
+                  title={link.label}
+                >
+                  {link.icon_url ? (
+                    <img src={link.icon_url} alt={link.label} className="w-5 h-5 object-contain brightness-0 invert" />
+                  ) : (
+                    <ExternalLink className="w-4 h-4 text-white" />
+                  )}
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Site Banner */}
-      {banners && banners.length > 0 && (
-        <div className="border-b border-border/60">
-          <div className="container py-3">
-            <div className="flex flex-col gap-3">
+          {/* Banners Row */}
+          {banners && banners.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {banners.map((banner) => (
                 <a
                   key={banner.id}
                   href={banner.link_url || "#"}
                   target={banner.link_url?.startsWith("http") ? "_blank" : "_self"}
                   rel="noopener noreferrer"
-                  className="block w-full rounded-xl overflow-hidden transition-all duration-200 hover:opacity-90 hover:shadow-lg"
+                  className="block w-full rounded-2xl overflow-hidden border border-border/60 transition-all duration-200 hover:border-primary/30 hover:shadow-lg group"
                 >
                   {banner.image_url ? (
-                    <img src={banner.image_url} alt={banner.title || "Banner"} className="w-full h-auto max-h-24 object-cover rounded-xl" />
+                    <img src={banner.image_url} alt={banner.title || "Banner"} className="w-full h-28 object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                   ) : banner.title ? (
-                    <div className="bg-primary/8 border border-primary/15 rounded-xl px-6 py-4 text-center">
-                      <p className="text-sm font-semibold text-primary">{banner.title}</p>
+                    <div className="bg-card/80 h-28 flex items-center justify-center px-6">
+                      <p className="text-sm font-semibold text-foreground">{banner.title}</p>
                     </div>
                   ) : null}
                 </a>
               ))}
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Search Bar */}
       <div className="border-b border-border/60">
