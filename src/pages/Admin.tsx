@@ -7,6 +7,7 @@ import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
+import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
 } from "lucide-react";
 
@@ -31,7 +32,7 @@ const Admin = () => {
   const deleteItem = useDeleteItem();
 
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters">("ads");
+  const [tab, setTab] = useState<"ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans">("ads");
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
