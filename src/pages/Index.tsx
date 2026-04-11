@@ -160,25 +160,31 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right: First Banner */}
+            {/* Right: Raffle/Promo Banner */}
             {banners && banners.length > 0 ? (
               <a
                 href={banners[0].link_url || "#"}
-                target={banners[0].link_url?.startsWith("http") ? "_blank" : "_self"}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl overflow-hidden border border-border/60 transition-all duration-200 hover:border-primary/30 hover:shadow-lg group"
+                className="block w-full rounded-2xl overflow-hidden border border-warning/30 bg-gradient-to-br from-warning/5 to-warning/10 transition-all duration-200 hover:border-warning/50 hover:shadow-[0_0_20px_hsl(var(--warning)/0.15)] group relative"
               >
                 {banners[0].image_url ? (
-                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                ) : banners[0].title ? (
-                  <div className="bg-card/80 h-full min-h-[140px] flex items-center justify-center px-6">
-                    <p className="text-sm font-semibold text-foreground">{banners[0].title}</p>
+                  <img src={banners[0].image_url} alt={banners[0].title || "Rifa"} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                ) : (
+                  <div className="h-full min-h-[140px] flex flex-col items-center justify-center px-6 gap-2">
+                    <span className="text-2xl">🎰</span>
+                    <p className="text-sm font-bold text-warning">{banners[0].title || "Rifa Ativa!"}</p>
+                    <span className="text-xs text-muted-foreground">Clique para participar</span>
                   </div>
-                ) : null}
+                )}
+                <div className="absolute top-2 right-2 bg-warning/90 text-warning-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  🔥 Rifa
+                </div>
               </a>
             ) : (
-              <div className="bg-card/80 border border-border/60 rounded-2xl flex items-center justify-center min-h-[140px]">
-                <p className="text-xs text-muted-foreground/40">Banner</p>
+              <div className="bg-card/80 border border-border/60 rounded-2xl flex flex-col items-center justify-center min-h-[140px] gap-2">
+                <span className="text-2xl opacity-30">🎰</span>
+                <p className="text-xs text-muted-foreground/40">Nenhuma rifa ativa</p>
               </div>
             )}
           </div>
