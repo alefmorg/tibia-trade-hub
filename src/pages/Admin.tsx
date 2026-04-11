@@ -69,6 +69,15 @@ const Admin = () => {
   const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
   const [editingFo, setEditingFo] = useState<string | null>(null);
 
+  // Wallet & Plans
+  const { data: allWallets } = useAllWallets();
+  const addBalance = useAddBalance();
+  const { data: highlightPlans } = useHighlightPlans();
+  const plansMut = useHighlightPlansMutations();
+  const [walletForm, setWalletForm] = useState({ userId: "", amount: "", reason: "" });
+  const [planForm, setPlanForm] = useState({ name: "", price_coins: "", duration_days: "", sort_order: "0" });
+  const [editingPlan, setEditingPlan] = useState<string | null>(null);
+
   // Nav link form
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
   const [editingNl, setEditingNl] = useState<string | null>(null);
