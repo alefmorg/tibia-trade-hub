@@ -4,7 +4,7 @@ import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal } from "lucide-react";
+import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -144,6 +144,8 @@ const Index = () => {
               ))}
             </div>
           )}
+        </div>
+      </div>
 
       {/* Search Bar */}
       <div className="border-b border-border/60">
