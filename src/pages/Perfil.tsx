@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Save, Package, Heart, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useWallet, useHighlightPlans, useHighlightAd } from "@/hooks/useWallet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -25,23 +27,25 @@ const Perfil = () => {
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
   const [activeTab, setActiveTab] = useState<"ads" | "favorites">("ads");
+  const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
+  const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
 
-  // Fetch profile
+  const { data: wallet } = useWallet();
+  const { data: plans } = useHighlightPlans();
+  const highlightAd = useHighlightAd();
+
+  const activePlans = (plans || []).filter(p => p.active);
+
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileUserId],
     enabled: !!profileUserId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", profileUserId!)
-        .single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", profileUserId!).single();
       if (error) throw error;
       return data;
     },
   });
 
-  // Fetch user's ads
   const { data: userAds, isLoading: adsLoading } = useQuery({
     queryKey: ["user-ads", profileUserId],
     enabled: !!profileUserId,
@@ -57,15 +61,11 @@ const Perfil = () => {
     },
   });
 
-  // Fetch favorited ads (own profile only)
   const { data: favoriteAds, isLoading: favsLoading } = useQuery({
     queryKey: ["favorite-ads", profileUserId],
     enabled: !!profileUserId && isOwnProfile,
     queryFn: async () => {
-      const { data: favs, error: favError } = await supabase
-        .from("favorites")
-        .select("ad_id")
-        .eq("user_id", profileUserId!);
+      const { data: favs, error: favError } = await supabase.from("favorites").select("ad_id").eq("user_id", profileUserId!);
       if (favError) throw favError;
       if (!favs || favs.length === 0) return [];
       const adIds = favs.map((f: any) => f.ad_id);
@@ -86,13 +86,9 @@ const Perfil = () => {
     }
   }, [profile]);
 
-  // Update profile mutation
   const updateProfile = useMutation({
     mutationFn: async (updates: { username?: string; bio?: string }) => {
-      const { error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("user_id", user!.id);
+      const { error } = await supabase.from("profiles").update(updates).eq("user_id", user!.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -105,6 +101,20 @@ const Perfil = () => {
 
   const handleSaveProfile = () => {
     updateProfile.mutate({ username: editUsername.trim(), bio: editBio.trim() });
+  };
+
+  const handleHighlight = (planId: string) => {
+    if (!selectedAdId) return;
+    highlightAd.mutate(
+      { adId: selectedAdId, planId },
+      {
+        onSuccess: () => {
+          setHighlightDialogOpen(false);
+          setSelectedAdId(null);
+          queryClient.invalidateQueries({ queryKey: ["user-ads"] });
+        },
+      }
+    );
   };
 
   const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : "";
@@ -137,17 +147,13 @@ const Perfil = () => {
         ) : profile ? (
           <div className="card-gaming p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start gap-6">
-              {/* Avatar */}
               <Avatar className="h-20 w-20 border-2 border-primary/30">
-                {profile.avatar_url ? (
-                  <AvatarImage src={profile.avatar_url} alt={profile.username} />
-                ) : null}
+                {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
                 <AvatarFallback className="bg-primary/10 text-primary text-xl">
                   {profile.username.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 {editing ? (
                   <div className="space-y-3">
@@ -169,17 +175,19 @@ const Perfil = () => {
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
+                      {isOwnProfile && wallet && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/10 border border-warning/20">
+                          <Coins className="h-3 w-3 text-warning" />
+                          <span className="text-xs font-semibold text-warning">{wallet.balance}</span>
+                        </div>
+                      )}
+                    </div>
                     {profile.bio && <p className="text-sm text-muted-foreground mt-1 font-body">{profile.bio}</p>}
                     <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground font-body">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        Membro desde {memberSince}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Package className="h-3.5 w-3.5" />
-                        {totalAds} anúncio{totalAds !== 1 ? "s" : ""}
-                      </span>
+                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Membro desde {memberSince}</span>
+                      <span className="flex items-center gap-1"><Package className="h-3.5 w-3.5" />{totalAds} anúncio{totalAds !== 1 ? "s" : ""}</span>
                     </div>
                     {isOwnProfile && (
                       <Button size="sm" variant="outline" className="mt-3 border-border text-xs" onClick={() => setEditing(true)}>
@@ -200,22 +208,14 @@ const Perfil = () => {
         {/* Tabs */}
         <div className="mt-8">
           <div className="flex gap-2 mb-4">
-            <Button
-              size="sm"
-              variant={activeTab === "ads" ? "default" : "outline"}
-              onClick={() => setActiveTab("ads")}
-              className={activeTab === "ads" ? "bg-primary text-primary-foreground" : "border-border"}
-            >
+            <Button size="sm" variant={activeTab === "ads" ? "default" : "outline"} onClick={() => setActiveTab("ads")}
+              className={activeTab === "ads" ? "bg-primary text-primary-foreground" : "border-border"}>
               <Package className="h-3.5 w-3.5 mr-1" />
               Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
             </Button>
             {isOwnProfile && (
-              <Button
-                size="sm"
-                variant={activeTab === "favorites" ? "default" : "outline"}
-                onClick={() => setActiveTab("favorites")}
-                className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}
-              >
+              <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
+                className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
                 <Heart className="h-3.5 w-3.5 mr-1" />
                 Favoritos
               </Button>
@@ -229,25 +229,50 @@ const Perfil = () => {
                   {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
                 </div>
               ) : userAds && userAds.length > 0 ? (
-                <div className="trade-card-list">
-                  {userAds.map((ad: any) => (
-                    <TradeCard
-                      key={ad.id}
-                      id={ad.id}
-                      title={ad.title}
-                      type={ad.type}
-                      price={ad.price}
-                      world={ad.world}
-                      pvpType={ad.pvp_type}
-                      date={ad.created_at}
-                      imageUrl={ad.image_url}
-                      likes={ad.likes_count}
-                      featured={ad.featured}
-                      tier={(ad as any).tier}
-                      profiles={ad.profiles}
-                      userId={ad.user_id}
-                    />
-                  ))}
+                <div className="space-y-1">
+                  {isOwnProfile && activePlans.length > 0 && (
+                    <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 mb-4 flex items-center gap-3">
+                      <Sparkles className="h-4 w-4 text-warning shrink-0" />
+                      <p className="text-xs text-muted-foreground font-body">
+                        Clique em <Star className="inline h-3 w-3 text-warning" /> no seu anúncio para destacá-lo usando Rubini Coins!
+                      </p>
+                    </div>
+                  )}
+                  <div className="trade-card-list">
+                    {userAds.map((ad: any) => (
+                      <div key={ad.id} className="relative group">
+                        <TradeCard
+                          id={ad.id}
+                          title={ad.title}
+                          type={ad.type}
+                          price={ad.price}
+                          world={ad.world}
+                          pvpType={ad.pvp_type}
+                          date={ad.created_at}
+                          imageUrl={ad.image_url}
+                          likes={ad.likes_count}
+                          featured={ad.featured}
+                          tier={(ad as any).tier}
+                          profiles={ad.profiles}
+                          userId={ad.user_id}
+                        />
+                        {isOwnProfile && !ad.featured && activePlans.length > 0 && (
+                          <button
+                            onClick={() => { setSelectedAdId(ad.id); setHighlightDialogOpen(true); }}
+                            className="absolute top-2 right-2 z-10 bg-warning/90 hover:bg-warning text-warning-foreground p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                            title="Destacar anúncio"
+                          >
+                            <Star className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        {ad.featured && (
+                          <div className="absolute top-2 right-2 z-10 bg-warning/20 border border-warning/30 text-warning text-[9px] font-bold px-2 py-0.5 rounded-full">
+                            ⭐ Destacado
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="card-gaming p-8 text-center">
@@ -298,6 +323,55 @@ const Perfil = () => {
           )}
         </div>
       </div>
+
+      {/* Highlight Dialog */}
+      <Dialog open={highlightDialogOpen} onOpenChange={setHighlightDialogOpen}>
+        <DialogContent className="bg-card border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-foreground flex items-center gap-2">
+              <Star className="h-5 w-5 text-warning" />
+              Destacar Anúncio
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Escolha um plano para destacar seu anúncio. Seu saldo: <span className="text-warning font-semibold">{wallet?.balance || 0} coins</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            {activePlans.map((plan) => {
+              const canAfford = (wallet?.balance || 0) >= plan.price_coins;
+              return (
+                <button
+                  key={plan.id}
+                  onClick={() => canAfford && handleHighlight(plan.id)}
+                  disabled={!canAfford || highlightAd.isPending}
+                  className={`w-full p-4 rounded-xl border text-left transition-all ${
+                    canAfford
+                      ? "border-warning/30 bg-warning/5 hover:border-warning/60 hover:bg-warning/10 cursor-pointer"
+                      : "border-border bg-secondary/30 opacity-50 cursor-not-allowed"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{plan.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{plan.duration_days} dias de destaque</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-warning/15 px-3 py-1.5 rounded-lg">
+                      <Coins className="h-3.5 w-3.5 text-warning" />
+                      <span className="text-sm font-bold text-warning">{plan.price_coins}</span>
+                    </div>
+                  </div>
+                  {!canAfford && (
+                    <p className="text-[10px] text-destructive mt-1">Saldo insuficiente</p>
+                  )}
+                </button>
+              );
+            })}
+            {activePlans.length === 0 && (
+              <p className="text-center text-muted-foreground text-sm py-4">Nenhum plano disponível no momento.</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
