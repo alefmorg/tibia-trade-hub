@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
