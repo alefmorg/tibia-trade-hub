@@ -13,7 +13,7 @@ import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
-
+import { formatPriceWithDots } from "@/lib/price-utils";
 const CriarAnuncio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -153,8 +153,8 @@ const CriarAnuncio = () => {
                 <div className="flex gap-2">
                   <Input
                     value={form.price}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    placeholder="Ex: 15"
+                    onChange={(e) => setForm({ ...form, price: formatPriceWithDots(e.target.value) })}
+                    placeholder="Ex: 1.000.000"
                     className="bg-secondary border-border flex-1 rounded-xl h-11"
                   />
                   <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
