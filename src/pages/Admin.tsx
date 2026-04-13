@@ -545,32 +545,83 @@ const Admin = () => {
             {tab === "items" && (
               <>
                 <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Adicionar Item</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Nome</Label>
-                      <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Categoria</Label>
-                      <Input value={newItemCategory} onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Equipamentos" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
-                      <div className="flex items-center gap-2">
-                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                        <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileInputRef.current?.click()}>
-                          <Upload className="h-3.5 w-3.5 mr-1" /> {newItemImage ? "Trocar" : "Upload"}
-                        </Button>
-                        {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
-                      </div>
-                    </div>
-                    <div className="flex items-end">
-                      <Button onClick={handleAddItem} disabled={createItem.isPending || !newItemName.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
-                        {createItem.isPending ? "Salvando..." : "Adicionar"}
-                      </Button>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Adicionar Itens</h3>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant={itemAddMode === "single" ? "default" : "outline"} onClick={() => setItemAddMode("single")} className="text-xs h-7">Individual</Button>
+                      <Button size="sm" variant={itemAddMode === "bulk" ? "default" : "outline"} onClick={() => setItemAddMode("bulk")} className="text-xs h-7">Em Massa</Button>
                     </div>
                   </div>
+
+                  {itemAddMode === "single" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Nome</Label>
+                        <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Categoria</Label>
+                        <Select value={newItemCategory} onValueChange={setNewItemCategory}>
+                          <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            <SelectItem value="__new">+ Nova categoria...</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {newItemCategory === "__new" && (
+                          <Input value="" onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
+                        <div className="flex items-center gap-2">
+                          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                          <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="h-3.5 w-3.5 mr-1" /> {newItemImage ? "Trocar" : "Upload"}
+                          </Button>
+                          {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
+                        </div>
+                      </div>
+                      <div className="flex items-end">
+                        <Button onClick={handleAddItem} disabled={createItem.isPending || !newItemName.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                          {createItem.isPending ? "Salvando..." : "Adicionar"}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground font-body">Categoria (para todos)</Label>
+                          <Select value={bulkItemCategory} onValueChange={setBulkItemCategory}>
+                            <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                              <SelectItem value="__new">+ Nova categoria...</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {bulkItemCategory === "__new" && (
+                            <Input value="" onChange={(e) => setBulkItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Nomes dos itens (um por linha)</Label>
+                        <Textarea
+                          value={bulkItemNames}
+                          onChange={(e) => setBulkItemNames(e.target.value)}
+                          placeholder={"Golden Armor\nMagic Plate Armor\nDemon Helmet\nThunder Hammer"}
+                          className="bg-secondary/80 border-border min-h-[120px] font-mono text-sm"
+                        />
+                        <p className="text-[10px] text-muted-foreground font-body">
+                          {bulkItemNames.split("\n").filter(n => n.trim()).length} itens para adicionar
+                        </p>
+                      </div>
+                      <Button onClick={handleBulkAddItems} disabled={createItem.isPending || !bulkItemNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                        {createItem.isPending ? "Adicionando..." : `Adicionar ${bulkItemNames.split("\n").filter(n => n.trim()).length} itens`}
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
                   <Table>
