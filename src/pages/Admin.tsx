@@ -42,12 +42,16 @@ const Admin = () => {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
+  const [bulkItemNames, setBulkItemNames] = useState("");
+  const [bulkItemCategory, setBulkItemCategory] = useState("Geral");
+  const [itemAddMode, setItemAddMode] = useState<"single" | "bulk">("single");
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedConversation, setExpandedConversation] = useState<string | null>(null);
   const [conversationMessages, setConversationMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [notifForm, setNotifForm] = useState({ userId: "", title: "", message: "" });
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
