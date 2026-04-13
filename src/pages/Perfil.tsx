@@ -33,6 +33,7 @@ const Perfil = () => {
   const { data: wallet } = useWallet();
   const { data: plans } = useHighlightPlans();
   const highlightAd = useHighlightAd();
+  const { data: transactions } = useWalletTransactions();
 
   const activePlans = (plans || []).filter(p => p.active);
 
