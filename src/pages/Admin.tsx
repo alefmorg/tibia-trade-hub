@@ -77,6 +77,7 @@ const Admin = () => {
   const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
   const [editingFo, setEditingFo] = useState<string | null>(null);
 
+  const sendNotification = useSendNotification();
   const { data: allWallets } = useAllWallets();
   const addBalance = useAddBalance();
   const { data: highlightPlans } = useHighlightPlans();
