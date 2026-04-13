@@ -208,11 +208,17 @@ const Admin = () => {
       ],
     },
     {
+      title: "COMUNICAÇÃO",
+      items: [
+        { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
+      ],
+    },
+    {
       title: "CONFIGURAÇÕES",
       items: [
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
-        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
+        { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
         { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
       ],
     },
