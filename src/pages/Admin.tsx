@@ -138,6 +138,19 @@ const Admin = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleBulkAddItems = async () => {
+    const names = bulkItemNames.split("\n").map(n => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    for (const name of names) {
+      await createItem.mutateAsync({ name, category: bulkItemCategory });
+    }
+    setBulkItemNames("");
+    setBulkItemCategory("Geral");
+  };
+
+  // Get unique categories from existing items
+  const existingCategories = [...new Set((items || []).map(i => (i as any).category || "Geral"))].sort();
+
   const handleExpandConversation = async (convId: string) => {
     if (expandedConversation === convId) { setExpandedConversation(null); return; }
     setLoadingMessages(true);
