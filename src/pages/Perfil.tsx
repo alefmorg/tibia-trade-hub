@@ -329,6 +329,41 @@ const Perfil = () => {
               )}
             </>
           )}
+
+          {/* Transactions Tab */}
+          {activeTab === "transactions" && isOwnProfile && (
+            <div className="space-y-2">
+              <div className="card-gaming p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-semibold text-foreground">Saldo atual:</span>
+                  <span className="text-warning font-bold">{wallet?.balance || 0} Rubini Coins</span>
+                </div>
+              </div>
+              {transactions && transactions.length > 0 ? (
+                <div className="card-gaming overflow-hidden">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 hover:bg-secondary/20 transition-colors">
+                      <div className={`p-1.5 rounded-lg ${tx.amount >= 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
+                        {tx.amount >= 0 ? <ArrowDownLeft className="h-4 w-4 text-primary" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                      </div>
+                      <span className={`text-sm font-bold ${tx.amount >= 0 ? "text-primary" : "text-destructive"}`}>
+                        {tx.amount >= 0 ? "+" : ""}{tx.amount}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="card-gaming p-8 text-center">
+                  <p className="text-muted-foreground text-sm">Nenhuma transação ainda.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
