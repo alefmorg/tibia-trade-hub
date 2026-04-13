@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -132,9 +133,9 @@ const Index = () => {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {(featuredAds.length > 0 ? featuredAds.slice(0, 4) : regularAds?.slice(0, 4) || []).map((ad) => (
-                  <button
+                  <Link
                     key={ad.id}
-                    onClick={() => navigate(`/anuncio/${ad.id}`)}
+                    to={`/anuncio/${ad.id}`}
                     className="flex items-center gap-2.5 p-2.5 rounded-xl bg-secondary/50 border border-border/40 hover:border-primary/30 hover:bg-secondary/80 transition-all duration-200 text-left group"
                   >
                     {ad.image_url ? (
@@ -146,11 +147,19 @@ const Index = () => {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">{ad.title}</p>
-                      {ad.price && (
-                        <p className="text-[10px] text-primary font-semibold mt-0.5">{ad.price} {ad.currency}</p>
-                      )}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${ad.type === "selling" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+                          {ad.type === "selling" ? "Venda" : "Compra"}
+                        </span>
+                        {ad.price && (
+                          <span className="text-[10px] text-primary font-semibold">{ad.price} {ad.currency}</span>
+                        )}
+                      </div>
+                      <p className="text-[9px] text-muted-foreground truncate mt-0.5">
+                        por {ad.profiles?.username || "Anônimo"}
+                      </p>
                     </div>
-                  </button>
+                  </Link>
                 ))}
                 {(!featuredAds.length && !regularAds?.length) && (
                   <div className="col-span-2 text-center py-4">

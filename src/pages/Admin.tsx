@@ -8,6 +8,7 @@ import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/h
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
+import { useSendNotification } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,13 +18,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
+import { formatPriceWithDots } from "@/lib/price-utils";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -40,12 +42,16 @@ const Admin = () => {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
+  const [bulkItemNames, setBulkItemNames] = useState("");
+  const [bulkItemCategory, setBulkItemCategory] = useState("Geral");
+  const [itemAddMode, setItemAddMode] = useState<"single" | "bulk">("single");
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedConversation, setExpandedConversation] = useState<string | null>(null);
   const [conversationMessages, setConversationMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [notifForm, setNotifForm] = useState({ userId: "", title: "", message: "" });
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
@@ -71,6 +77,7 @@ const Admin = () => {
   const [foForm, setFoForm] = useState({ filter_group: "", label: "", value: "", sort_order: "0" });
   const [editingFo, setEditingFo] = useState<string | null>(null);
 
+  const sendNotification = useSendNotification();
   const { data: allWallets } = useAllWallets();
   const addBalance = useAddBalance();
   const { data: highlightPlans } = useHighlightPlans();
@@ -131,6 +138,19 @@ const Admin = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleBulkAddItems = async () => {
+    const names = bulkItemNames.split("\n").map(n => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    for (const name of names) {
+      await createItem.mutateAsync({ name, category: bulkItemCategory });
+    }
+    setBulkItemNames("");
+    setBulkItemCategory("Geral");
+  };
+
+  // Get unique categories from existing items
+  const existingCategories = [...new Set((items || []).map(i => (i as any).category || "Geral"))].sort();
+
   const handleExpandConversation = async (convId: string) => {
     if (expandedConversation === convId) { setExpandedConversation(null); return; }
     setLoadingMessages(true);
@@ -188,11 +208,17 @@ const Admin = () => {
       ],
     },
     {
+      title: "COMUNICAÇÃO",
+      items: [
+        { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
+      ],
+    },
+    {
       title: "CONFIGURAÇÕES",
       items: [
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
-        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
+        { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
         { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
       ],
     },
@@ -519,32 +545,83 @@ const Admin = () => {
             {tab === "items" && (
               <>
                 <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Adicionar Item</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Nome</Label>
-                      <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Categoria</Label>
-                      <Input value={newItemCategory} onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Equipamentos" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
-                      <div className="flex items-center gap-2">
-                        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                        <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileInputRef.current?.click()}>
-                          <Upload className="h-3.5 w-3.5 mr-1" /> {newItemImage ? "Trocar" : "Upload"}
-                        </Button>
-                        {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
-                      </div>
-                    </div>
-                    <div className="flex items-end">
-                      <Button onClick={handleAddItem} disabled={createItem.isPending || !newItemName.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
-                        {createItem.isPending ? "Salvando..." : "Adicionar"}
-                      </Button>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Adicionar Itens</h3>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant={itemAddMode === "single" ? "default" : "outline"} onClick={() => setItemAddMode("single")} className="text-xs h-7">Individual</Button>
+                      <Button size="sm" variant={itemAddMode === "bulk" ? "default" : "outline"} onClick={() => setItemAddMode("bulk")} className="text-xs h-7">Em Massa</Button>
                     </div>
                   </div>
+
+                  {itemAddMode === "single" ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Nome</Label>
+                        <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Categoria</Label>
+                        <Select value={newItemCategory} onValueChange={setNewItemCategory}>
+                          <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                            <SelectItem value="__new">+ Nova categoria...</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {newItemCategory === "__new" && (
+                          <Input value="" onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
+                        <div className="flex items-center gap-2">
+                          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                          <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="h-3.5 w-3.5 mr-1" /> {newItemImage ? "Trocar" : "Upload"}
+                          </Button>
+                          {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
+                        </div>
+                      </div>
+                      <div className="flex items-end">
+                        <Button onClick={handleAddItem} disabled={createItem.isPending || !newItemName.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                          {createItem.isPending ? "Salvando..." : "Adicionar"}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground font-body">Categoria (para todos)</Label>
+                          <Select value={bulkItemCategory} onValueChange={setBulkItemCategory}>
+                            <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                              <SelectItem value="__new">+ Nova categoria...</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {bulkItemCategory === "__new" && (
+                            <Input value="" onChange={(e) => setBulkItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Nomes dos itens (um por linha)</Label>
+                        <Textarea
+                          value={bulkItemNames}
+                          onChange={(e) => setBulkItemNames(e.target.value)}
+                          placeholder={"Golden Armor\nMagic Plate Armor\nDemon Helmet\nThunder Hammer"}
+                          className="bg-secondary/80 border-border min-h-[120px] font-mono text-sm"
+                        />
+                        <p className="text-[10px] text-muted-foreground font-body">
+                          {bulkItemNames.split("\n").filter(n => n.trim()).length} itens para adicionar
+                        </p>
+                      </div>
+                      <Button onClick={handleBulkAddItems} disabled={createItem.isPending || !bulkItemNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                        {createItem.isPending ? "Adicionando..." : `Adicionar ${bulkItemNames.split("\n").filter(n => n.trim()).length} itens`}
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
                   <Table>
@@ -737,7 +814,7 @@ const Admin = () => {
                     </div>
                     {!adForm.acceptOffers && (
                       <div className="flex gap-2">
-                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: e.target.value })} placeholder="15" className="bg-secondary/80 border-border flex-1" />
+                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
                         <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
                           <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -1128,6 +1205,58 @@ const Admin = () => {
                       )}
                     </TableBody>
                   </Table>
+                </div>
+              </div>
+            )}
+
+            {/* NOTIFICATIONS TAB */}
+            {tab === "notifications" && (
+              <div className="space-y-4">
+                <div className="bg-card/80 border border-border/60 rounded-xl p-5 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body">
+                    <Bell className="h-4 w-4 text-primary" /> Enviar Notificação
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Destinatário</Label>
+                      <Select value={notifForm.userId || "all"} onValueChange={(v) => setNotifForm({ ...notifForm, userId: v === "all" ? "" : v })}>
+                        <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Todos os usuários" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">📢 Todos os usuários (broadcast)</SelectItem>
+                          {profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Título</Label>
+                      <Input value={notifForm.title} onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })} placeholder="Atualização importante" className="bg-secondary/80 border-border" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground font-body">Mensagem</Label>
+                    <Textarea value={notifForm.message} onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })} placeholder="Escreva a notificação..." className="bg-secondary/80 border-border min-h-[80px]" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={() => {
+                        if (!notifForm.title || !notifForm.message) return;
+                        sendNotification.mutate({
+                          userId: notifForm.userId || undefined,
+                          title: notifForm.title,
+                          message: notifForm.message,
+                        });
+                        setNotifForm({ userId: "", title: "", message: "" });
+                      }}
+                      disabled={sendNotification.isPending || !notifForm.title || !notifForm.message}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Bell className="h-4 w-4 mr-1" />
+                      {sendNotification.isPending ? "Enviando..." : "Enviar Notificação"}
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground font-body">
+                      {notifForm.userId ? `Para: ${getProfileName(notifForm.userId)}` : "Para: Todos os usuários"}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

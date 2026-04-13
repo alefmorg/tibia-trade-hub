@@ -9,10 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useWallet, useHighlightPlans, useHighlightAd } from "@/hooks/useWallet";
+import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -26,13 +26,14 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [activeTab, setActiveTab] = useState<"ads" | "favorites">("ads");
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
 
   const { data: wallet } = useWallet();
   const { data: plans } = useHighlightPlans();
   const highlightAd = useHighlightAd();
+  const { data: transactions } = useWalletTransactions();
 
   const activePlans = (plans || []).filter(p => p.active);
 
@@ -214,11 +215,18 @@ const Perfil = () => {
               Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
             </Button>
             {isOwnProfile && (
-              <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
-                className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
-                <Heart className="h-3.5 w-3.5 mr-1" />
-                Favoritos
-              </Button>
+              <>
+                <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
+                  className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
+                  <Heart className="h-3.5 w-3.5 mr-1" />
+                  Favoritos
+                </Button>
+                <Button size="sm" variant={activeTab === "transactions" ? "default" : "outline"} onClick={() => setActiveTab("transactions")}
+                  className={activeTab === "transactions" ? "bg-primary text-primary-foreground" : "border-border"}>
+                  <History className="h-3.5 w-3.5 mr-1" />
+                  Histórico
+                </Button>
+              </>
             )}
           </div>
 
@@ -320,6 +328,41 @@ const Perfil = () => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Transactions Tab */}
+          {activeTab === "transactions" && isOwnProfile && (
+            <div className="space-y-2">
+              <div className="card-gaming p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-warning" />
+                  <span className="text-sm font-semibold text-foreground">Saldo atual:</span>
+                  <span className="text-warning font-bold">{wallet?.balance || 0} Rubini Coins</span>
+                </div>
+              </div>
+              {transactions && transactions.length > 0 ? (
+                <div className="card-gaming overflow-hidden">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 hover:bg-secondary/20 transition-colors">
+                      <div className={`p-1.5 rounded-lg ${tx.amount >= 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
+                        {tx.amount >= 0 ? <ArrowDownLeft className="h-4 w-4 text-primary" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                      </div>
+                      <span className={`text-sm font-bold ${tx.amount >= 0 ? "text-primary" : "text-destructive"}`}>
+                        {tx.amount >= 0 ? "+" : ""}{tx.amount}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="card-gaming p-8 text-center">
+                  <p className="text-muted-foreground text-sm">Nenhuma transação ainda.</p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
