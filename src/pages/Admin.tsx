@@ -1208,6 +1208,58 @@ const Admin = () => {
                 </div>
               </div>
             )}
+
+            {/* NOTIFICATIONS TAB */}
+            {tab === "notifications" && (
+              <div className="space-y-4">
+                <div className="bg-card/80 border border-border/60 rounded-xl p-5 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body">
+                    <Bell className="h-4 w-4 text-primary" /> Enviar Notificação
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Destinatário</Label>
+                      <Select value={notifForm.userId || "all"} onValueChange={(v) => setNotifForm({ ...notifForm, userId: v === "all" ? "" : v })}>
+                        <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Todos os usuários" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">📢 Todos os usuários (broadcast)</SelectItem>
+                          {profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Título</Label>
+                      <Input value={notifForm.title} onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })} placeholder="Atualização importante" className="bg-secondary/80 border-border" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground font-body">Mensagem</Label>
+                    <Textarea value={notifForm.message} onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })} placeholder="Escreva a notificação..." className="bg-secondary/80 border-border min-h-[80px]" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={() => {
+                        if (!notifForm.title || !notifForm.message) return;
+                        sendNotification.mutate({
+                          userId: notifForm.userId || undefined,
+                          title: notifForm.title,
+                          message: notifForm.message,
+                        });
+                        setNotifForm({ userId: "", title: "", message: "" });
+                      }}
+                      disabled={sendNotification.isPending || !notifForm.title || !notifForm.message}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Bell className="h-4 w-4 mr-1" />
+                      {sendNotification.isPending ? "Enviando..." : "Enviar Notificação"}
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground font-body">
+                      {notifForm.userId ? `Para: ${getProfileName(notifForm.userId)}` : "Para: Todos os usuários"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
