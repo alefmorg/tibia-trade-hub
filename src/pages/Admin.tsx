@@ -814,7 +814,7 @@ const Admin = () => {
                     </div>
                     {!adForm.acceptOffers && (
                       <div className="flex gap-2">
-                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: e.target.value })} placeholder="15" className="bg-secondary/80 border-border flex-1" />
+                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
                         <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
                           <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
                           <SelectContent>
