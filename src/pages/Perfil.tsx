@@ -215,11 +215,18 @@ const Perfil = () => {
               Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
             </Button>
             {isOwnProfile && (
-              <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
-                className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
-                <Heart className="h-3.5 w-3.5 mr-1" />
-                Favoritos
-              </Button>
+              <>
+                <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
+                  className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
+                  <Heart className="h-3.5 w-3.5 mr-1" />
+                  Favoritos
+                </Button>
+                <Button size="sm" variant={activeTab === "transactions" ? "default" : "outline"} onClick={() => setActiveTab("transactions")}
+                  className={activeTab === "transactions" ? "bg-primary text-primary-foreground" : "border-border"}>
+                  <History className="h-3.5 w-3.5 mr-1" />
+                  Histórico
+                </Button>
+              </>
             )}
           </div>
 
