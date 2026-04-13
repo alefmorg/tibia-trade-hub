@@ -8,6 +8,7 @@ import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/h
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
+import { useSendNotification } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,13 +18,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
+import { formatPriceWithDots } from "@/lib/price-utils";
 import {
-  Ban, BarChart3, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
