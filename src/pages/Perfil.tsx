@@ -9,10 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useWallet, useHighlightPlans, useHighlightAd } from "@/hooks/useWallet";
+import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [activeTab, setActiveTab] = useState<"ads" | "favorites">("ads");
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
 
