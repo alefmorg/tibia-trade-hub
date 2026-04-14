@@ -234,6 +234,11 @@ const Perfil = () => {
                   <History className="h-3.5 w-3.5 mr-1" />
                   Histórico
                 </Button>
+                <Button size="sm" variant={activeTab === "deposit" ? "default" : "outline"} onClick={() => setActiveTab("deposit")}
+                  className={activeTab === "deposit" ? "bg-warning text-warning-foreground" : "border-border"}>
+                  <Wallet className="h-3.5 w-3.5 mr-1" />
+                  Depositar
+                </Button>
               </>
             )}
           </div>
