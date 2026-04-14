@@ -148,7 +148,7 @@ export const useAdminData = (enabled: boolean) => {
   });
 
   const updateTradeSettings = useMutation({
-    mutationFn: (days: number) => callAdminAction("updateTradeSettings", { days }),
+    mutationFn: (payload: Record<string, unknown>) => callAdminAction("updateTradeSettings", payload),
     onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Configuração salva!"); },
     onError: (err: any) => toast.error(err.message || "Erro ao salvar configuração"),
   });
