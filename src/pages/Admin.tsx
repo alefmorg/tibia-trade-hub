@@ -319,7 +319,7 @@ const Admin = () => {
                 />
                 <Button
                   size="sm"
-                  onClick={() => updateTradeSettings.mutate(Number(adDurationDays))}
+                  onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })}
                   disabled={updateTradeSettings.isPending || !adDurationDays}
                   className="bg-primary text-primary-foreground h-8 px-3 text-xs"
                 >
