@@ -200,6 +200,7 @@ const Anuncio = () => {
                     {isFavorited ? "Remover favorito" : "Favoritar"}
                   </Button>
                 </div>
+              )}
             </div>
 
             {user && <OffersPanel />}
