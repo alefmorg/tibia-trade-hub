@@ -9,6 +9,8 @@ import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, 
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { useSendNotification } from "@/hooks/useNotifications";
+import { useAllDeposits, useApproveDeposit, useRejectDeposit, useDepositConfig } from "@/hooks/useDeposits";
+import { useRaffles, useRaffleNumbers, useRaffleMutations } from "@/hooks/useRaffles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +24,10 @@ import { formatPriceWithDots } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
-  Settings, PanelLeft,
+  Settings, PanelLeft, Ticket, Wallet, ImagePlus,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
