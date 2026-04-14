@@ -165,11 +165,13 @@ const Admin = () => {
   const handleBulkAddItems = async () => {
     const names = bulkItemNames.split("\n").map(n => n.trim()).filter(Boolean);
     if (names.length === 0) return;
-    for (const name of names) {
-      await createItem.mutateAsync({ name, category: bulkItemCategory });
+    for (let i = 0; i < names.length; i++) {
+      const imageFile = bulkItemImages[i] || undefined;
+      await createItem.mutateAsync({ name: names[i], imageFile, category: bulkItemCategory });
     }
     setBulkItemNames("");
     setBulkItemCategory("Geral");
+    setBulkItemImages({});
   };
 
   // Get unique categories from existing items
