@@ -8,7 +8,6 @@ import OfferDialog from "@/components/OfferDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, Flame, Globe, Heart, MessageCircle, Shield, Star, Tag, User } from "lucide-react";
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
