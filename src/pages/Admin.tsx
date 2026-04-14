@@ -232,7 +232,6 @@ const Admin = () => {
         { key: "plans" as TabKey, label: "Planos Destaque", icon: Star },
         { key: "raffles" as TabKey, label: "Rifas", icon: Ticket },
       ],
-      ],
     },
     {
       title: "COMUNICAÇÃO",
