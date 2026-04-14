@@ -443,8 +443,8 @@ const Perfil = () => {
                 </div>
               )}
             </div>
-            </div>
           )}
+        </div>
         </div>
       </div>
 
