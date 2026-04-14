@@ -9,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
+import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDeposits";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -26,9 +27,11 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions">("ads");
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
+  const [depositGold, setDepositGold] = useState("");
+  const [depositScreenshot, setDepositScreenshot] = useState<File | null>(null);
 
   const { data: wallet } = useWallet();
   const { data: plans } = useHighlightPlans();
@@ -36,6 +39,11 @@ const Perfil = () => {
   const { data: transactions } = useWalletTransactions();
 
   const activePlans = (plans || []).filter(p => p.active);
+
+  const { data: depositConfig } = useDepositConfig();
+  const { data: myDeposits } = useMyDeposits();
+  const createDeposit = useCreateDeposit();
+  const rate = depositConfig?.gold_to_coins_rate || 1;
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileUserId],
