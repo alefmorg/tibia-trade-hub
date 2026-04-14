@@ -645,6 +645,33 @@ const Admin = () => {
                           {bulkItemNames.split("\n").filter(n => n.trim()).length} itens para adicionar
                         </p>
                       </div>
+                      {bulkItemNames.split("\n").filter(n => n.trim()).length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground font-body">Imagens (opcional, uma por item)</Label>
+                          {bulkItemNames.split("\n").filter(n => n.trim()).map((name, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground w-6 text-right font-body">{idx + 1}.</span>
+                              <span className="text-foreground truncate flex-1 font-body">{name.trim()}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                ref={el => { bulkFileRefs.current[idx] = el; }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) setBulkItemImages(prev => ({ ...prev, [idx]: file }));
+                                }}
+                              />
+                              <Button type="button" variant="outline" size="sm" className="border-border h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
+                                <ImagePlus className="h-3 w-3 mr-1" />{bulkItemImages[idx] ? "Trocar" : "Img"}
+                              </Button>
+                              {bulkItemImages[idx] && (
+                                <img src={URL.createObjectURL(bulkItemImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <Button onClick={handleBulkAddItems} disabled={createItem.isPending || !bulkItemNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
                         {createItem.isPending ? "Adicionando..." : `Adicionar ${bulkItemNames.split("\n").filter(n => n.trim()).length} itens`}
                       </Button>
