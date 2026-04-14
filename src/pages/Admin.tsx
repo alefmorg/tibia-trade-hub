@@ -114,6 +114,13 @@ const Admin = () => {
   }, [tradeSettings]);
 
   useEffect(() => {
+    if (depositConfig) {
+      setDepositCharName(depositConfig.deposit_char_name || "");
+      setGoldToCoinsRate(String(depositConfig.gold_to_coins_rate || 1));
+    }
+  }, [depositConfig]);
+
+  useEffect(() => {
     if (!loading && (!user || !isAdmin)) navigate("/");
   }, [loading, user, isAdmin, navigate]);
 
