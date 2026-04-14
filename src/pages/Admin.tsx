@@ -55,6 +55,21 @@ const Admin = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [notifForm, setNotifForm] = useState({ userId: "", title: "", message: "" });
 
+  const { data: allDeposits } = useAllDeposits();
+  const approveDeposit = useApproveDeposit();
+  const rejectDeposit = useRejectDeposit();
+  const { data: depositConfig } = useDepositConfig();
+  const [depositCharName, setDepositCharName] = useState("");
+  const [goldToCoinsRate, setGoldToCoinsRate] = useState("1");
+
+  const { data: allRaffles } = useRaffles();
+  const raffleMut = useRaffleMutations();
+  const [raffleForm, setRaffleForm] = useState({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" });
+  const [editingRaffle, setEditingRaffle] = useState<string | null>(null);
+
+  const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
+  const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
+
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
     world: "", pvp_type: "Optional PvP", category: "item",
