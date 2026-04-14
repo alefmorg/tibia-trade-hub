@@ -200,22 +200,12 @@ const Anuncio = () => {
                     {isFavorited ? "Remover favorito" : "Favoritar"}
                   </Button>
                 </div>
-              )}
+            </div>
 
             {user && <OffersPanel />}
           </div>
         </div>
       </div>
-
-      {ad && (
-        <OfferDialog
-          open={offerOpen}
-          onOpenChange={setOfferOpen}
-          adId={ad.id}
-          adTitle={ad.title}
-          currency={ad.currency}
-        />
-      )}
     </div>
   );
 };
