@@ -444,8 +444,8 @@ const Perfil = () => {
               )}
             </div>
           )}
+        </div>
       </div>
-    </div>
 
       {/* Highlight Dialog */}
       <Dialog open={highlightDialogOpen} onOpenChange={setHighlightDialogOpen}>
