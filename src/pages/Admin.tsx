@@ -9,6 +9,8 @@ import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, 
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { useSendNotification } from "@/hooks/useNotifications";
+import { useAllDeposits, useApproveDeposit, useRejectDeposit, useDepositConfig } from "@/hooks/useDeposits";
+import { useRaffles, useRaffleNumbers, useRaffleMutations } from "@/hooks/useRaffles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +24,10 @@ import { formatPriceWithDots } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
-  Settings, PanelLeft,
+  Settings, PanelLeft, Ticket, Wallet, ImagePlus,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -52,6 +54,21 @@ const Admin = () => {
   const [conversationMessages, setConversationMessages] = useState<any[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [notifForm, setNotifForm] = useState({ userId: "", title: "", message: "" });
+
+  const { data: allDeposits } = useAllDeposits();
+  const approveDeposit = useApproveDeposit();
+  const rejectDeposit = useRejectDeposit();
+  const { data: depositConfig } = useDepositConfig();
+  const [depositCharName, setDepositCharName] = useState("");
+  const [goldToCoinsRate, setGoldToCoinsRate] = useState("1");
+
+  const { data: allRaffles } = useRaffles();
+  const raffleMut = useRaffleMutations();
+  const [raffleForm, setRaffleForm] = useState({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" });
+  const [editingRaffle, setEditingRaffle] = useState<string | null>(null);
+
+  const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
+  const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
@@ -95,6 +112,13 @@ const Admin = () => {
   useEffect(() => {
     if (tradeSettings?.ad_duration_days) setAdDurationDays(String(tradeSettings.ad_duration_days));
   }, [tradeSettings]);
+
+  useEffect(() => {
+    if (depositConfig) {
+      setDepositCharName(depositConfig.deposit_char_name || "");
+      setGoldToCoinsRate(String(depositConfig.gold_to_coins_rate || 1));
+    }
+  }, [depositConfig]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) navigate("/");
@@ -141,11 +165,13 @@ const Admin = () => {
   const handleBulkAddItems = async () => {
     const names = bulkItemNames.split("\n").map(n => n.trim()).filter(Boolean);
     if (names.length === 0) return;
-    for (const name of names) {
-      await createItem.mutateAsync({ name, category: bulkItemCategory });
+    for (let i = 0; i < names.length; i++) {
+      const imageFile = bulkItemImages[i] || undefined;
+      await createItem.mutateAsync({ name: names[i], imageFile, category: bulkItemCategory });
     }
     setBulkItemNames("");
     setBulkItemCategory("Geral");
+    setBulkItemImages({});
   };
 
   // Get unique categories from existing items
@@ -204,7 +230,9 @@ const Admin = () => {
       title: "MONETIZAÇÃO",
       items: [
         { key: "wallet" as TabKey, label: "Saldo / Coins", icon: Coins },
+        { key: "deposits" as TabKey, label: "Depósitos", icon: Wallet, badge: allDeposits?.filter(d => d.status === "pending").length || undefined },
         { key: "plans" as TabKey, label: "Planos Destaque", icon: Star },
+        { key: "raffles" as TabKey, label: "Rifas", icon: Ticket },
       ],
     },
     {
@@ -291,7 +319,7 @@ const Admin = () => {
                 />
                 <Button
                   size="sm"
-                  onClick={() => updateTradeSettings.mutate(Number(adDurationDays))}
+                  onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })}
                   disabled={updateTradeSettings.isPending || !adDurationDays}
                   className="bg-primary text-primary-foreground h-8 px-3 text-xs"
                 >
@@ -617,6 +645,33 @@ const Admin = () => {
                           {bulkItemNames.split("\n").filter(n => n.trim()).length} itens para adicionar
                         </p>
                       </div>
+                      {bulkItemNames.split("\n").filter(n => n.trim()).length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground font-body">Imagens (opcional, uma por item)</Label>
+                          {bulkItemNames.split("\n").filter(n => n.trim()).map((name, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground w-6 text-right font-body">{idx + 1}.</span>
+                              <span className="text-foreground truncate flex-1 font-body">{name.trim()}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                ref={el => { bulkFileRefs.current[idx] = el; }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) setBulkItemImages(prev => ({ ...prev, [idx]: file }));
+                                }}
+                              />
+                              <Button type="button" variant="outline" size="sm" className="border-border h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
+                                <ImagePlus className="h-3 w-3 mr-1" />{bulkItemImages[idx] ? "Trocar" : "Img"}
+                              </Button>
+                              {bulkItemImages[idx] && (
+                                <img src={URL.createObjectURL(bulkItemImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <Button onClick={handleBulkAddItems} disabled={createItem.isPending || !bulkItemNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
                         {createItem.isPending ? "Adicionando..." : `Adicionar ${bulkItemNames.split("\n").filter(n => n.trim()).length} itens`}
                       </Button>
@@ -1257,6 +1312,199 @@ const Admin = () => {
                       {notifForm.userId ? `Para: ${getProfileName(notifForm.userId)}` : "Para: Todos os usuários"}
                     </p>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* DEPOSITS TAB */}
+            {tab === "deposits" && (
+              <div className="space-y-4">
+                {/* Deposit Config */}
+                <div className="bg-card/80 border border-border/60 rounded-xl p-5 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body"><Settings className="h-4 w-4 text-primary" /> Configuração de Depósito</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Nome do Personagem</Label>
+                      <Input value={depositCharName} onChange={(e) => setDepositCharName(e.target.value)} placeholder="RubinBank" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Taxa (gold → coins)</Label>
+                      <Input type="number" value={goldToCoinsRate} onChange={(e) => setGoldToCoinsRate(e.target.value)} placeholder="1000" className="bg-secondary/80 border-border" />
+                      <p className="text-[10px] text-muted-foreground font-body">Ex: 1000 = 1000 gold = 1 coin</p>
+                    </div>
+                    <div className="flex items-end">
+                      <Button onClick={() => {
+                        updateTradeSettings.mutate({ deposit_char_name: depositCharName, gold_to_coins_rate: Number(goldToCoinsRate) } as any);
+                      }} className="bg-primary text-primary-foreground w-full">Salvar</Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pending deposits */}
+                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border/60 bg-secondary/20 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-foreground font-body">Solicitações de Depósito</h3>
+                    <span className="text-xs text-warning font-semibold">{allDeposits?.filter(d => d.status === "pending").length || 0} pendentes</span>
+                  </div>
+                  <Table>
+                    <TableHeader><TableRow className="border-border/60">
+                      <TableHead className="text-muted-foreground text-xs">Usuário</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Gold</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Coins</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Print</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Status</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Data</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
+                    </TableRow></TableHeader>
+                    <TableBody>
+                      {(allDeposits || []).map((dep) => (
+                        <TableRow key={dep.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                          <TableCell className="text-foreground text-sm font-body">{getProfileName(dep.user_id)}</TableCell>
+                          <TableCell className="text-muted-foreground text-sm font-body">{dep.amount_gold.toLocaleString("pt-BR")}</TableCell>
+                          <TableCell><span className="text-warning font-semibold font-body">{dep.amount_coins}</span></TableCell>
+                          <TableCell>
+                            <a href={dep.screenshot_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs">
+                              <img src={dep.screenshot_url} alt="Print" className="h-10 w-10 object-cover rounded border border-border cursor-pointer" />
+                            </a>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${dep.status === "pending" ? "bg-warning/15 text-warning" : dep.status === "approved" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                              {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</TableCell>
+                          <TableCell>
+                            {dep.status === "pending" && (
+                              <div className="flex items-center gap-0.5">
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10" onClick={() => approveDeposit.mutate(dep.id)} disabled={approveDeposit.isPending}>
+                                  <Check className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10" onClick={() => rejectDeposit.mutate({ depositId: dep.id })} disabled={rejectDeposit.isPending}>
+                                  <X className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(!allDeposits || allDeposits.length === 0) && (
+                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground text-sm py-6 font-body">Nenhum depósito</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {/* RAFFLES TAB */}
+            {tab === "raffles" && (
+              <div className="space-y-4">
+                <div className="bg-card/80 border border-border/60 rounded-xl p-5 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body">
+                    <Ticket className="h-4 w-4 text-warning" /> {editingRaffle ? "Editar Rifa" : "Nova Rifa"}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Título</Label>
+                      <Input value={raffleForm.title} onChange={(e) => setRaffleForm({ ...raffleForm, title: e.target.value })} placeholder="Rifa Golden Armor" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Preço por número (coins)</Label>
+                      <Input type="number" value={raffleForm.price_per_number} onChange={(e) => setRaffleForm({ ...raffleForm, price_per_number: e.target.value })} placeholder="10" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Total de números</Label>
+                      <Input type="number" value={raffleForm.total_numbers} onChange={(e) => setRaffleForm({ ...raffleForm, total_numbers: e.target.value })} placeholder="100" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Data do sorteio</Label>
+                      <Input type="date" value={raffleForm.draw_date} onChange={(e) => setRaffleForm({ ...raffleForm, draw_date: e.target.value })} className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Ref. Loteria Federal</Label>
+                      <Input value={raffleForm.federal_lottery_ref} onChange={(e) => setRaffleForm({ ...raffleForm, federal_lottery_ref: e.target.value })} placeholder="Concurso 5XXX" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">URL da imagem</Label>
+                      <Input value={raffleForm.image_url} onChange={(e) => setRaffleForm({ ...raffleForm, image_url: e.target.value })} placeholder="https://..." className="bg-secondary/80 border-border" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground font-body">Descrição</Label>
+                    <Textarea value={raffleForm.description} onChange={(e) => setRaffleForm({ ...raffleForm, description: e.target.value })} placeholder="Detalhes da rifa..." className="bg-secondary/80 border-border min-h-[60px]" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => {
+                      if (!raffleForm.title || !raffleForm.price_per_number) return;
+                      const data = {
+                        title: raffleForm.title,
+                        description: raffleForm.description || undefined,
+                        image_url: raffleForm.image_url || undefined,
+                        price_per_number: Number(raffleForm.price_per_number),
+                        total_numbers: Number(raffleForm.total_numbers) || 100,
+                        draw_date: raffleForm.draw_date ? new Date(raffleForm.draw_date).toISOString() : undefined,
+                        federal_lottery_ref: raffleForm.federal_lottery_ref || undefined,
+                      };
+                      if (editingRaffle) { raffleMut.update.mutate({ id: editingRaffle, ...data }); setEditingRaffle(null); }
+                      else raffleMut.create.mutate(data);
+                      setRaffleForm({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" });
+                    }} disabled={!raffleForm.title || !raffleForm.price_per_number} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      {editingRaffle ? "Salvar" : "Criar Rifa"}
+                    </Button>
+                    {editingRaffle && <Button variant="outline" onClick={() => { setEditingRaffle(null); setRaffleForm({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" }); }}>Cancelar</Button>}
+                  </div>
+                </div>
+
+                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader><TableRow className="border-border/60 bg-secondary/30">
+                      <TableHead className="text-muted-foreground text-xs">Título</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Preço</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Números</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Status</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Sorteio</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
+                    </TableRow></TableHeader>
+                    <TableBody>
+                      {(allRaffles || []).map((r) => (
+                        <TableRow key={r.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                          <TableCell className="text-foreground font-medium font-body">{r.title}</TableCell>
+                          <TableCell><span className="text-warning font-semibold font-body">{r.price_per_number} coins</span></TableCell>
+                          <TableCell className="text-muted-foreground font-body">{r.total_numbers}</TableCell>
+                          <TableCell>
+                            <Select value={r.status} onValueChange={(v) => raffleMut.update.mutate({ id: r.id, status: v })}>
+                              <SelectTrigger className="w-28 h-7 text-xs bg-secondary border-border"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="active">Ativa</SelectItem>
+                                <SelectItem value="completed">Finalizada</SelectItem>
+                                <SelectItem value="cancelled">Cancelada</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-xs font-body">{r.draw_date ? new Date(r.draw_date).toLocaleDateString("pt-BR") : "—"}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-0.5">
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10" onClick={() => {
+                                setEditingRaffle(r.id);
+                                setRaffleForm({
+                                  title: r.title, description: r.description || "", image_url: r.image_url || "",
+                                  price_per_number: String(r.price_per_number), total_numbers: String(r.total_numbers),
+                                  draw_date: r.draw_date ? r.draw_date.slice(0, 10) : "", federal_lottery_ref: r.federal_lottery_ref || "",
+                                });
+                              }}><Eye className="h-3.5 w-3.5" /></Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+                                onClick={() => { if (confirm(`Remover "${r.title}"?`)) raffleMut.remove.mutate(r.id); }}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(!allRaffles || allRaffles.length === 0) && (
+                        <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground text-sm py-6 font-body">Nenhuma rifa</TableCell></TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             )}

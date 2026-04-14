@@ -130,6 +130,45 @@ export type Database = {
           },
         ]
       }
+      deposit_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_coins: number
+          amount_gold: number
+          created_at: string
+          id: string
+          reviewed_by: string | null
+          screenshot_url: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_coins: number
+          amount_gold: number
+          created_at?: string
+          id?: string
+          reviewed_by?: string | null
+          screenshot_url: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_coins?: number
+          amount_gold?: number
+          created_at?: string
+          id?: string
+          reviewed_by?: string | null
+          screenshot_url?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           ad_id: string
@@ -418,6 +457,86 @@ export type Database = {
         }
         Relationships: []
       }
+      raffle_numbers: {
+        Row: {
+          created_at: string
+          id: string
+          number: number
+          raffle_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          number: number
+          raffle_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          number?: number
+          raffle_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raffle_numbers_raffle_id_fkey"
+            columns: ["raffle_id"]
+            isOneToOne: false
+            referencedRelation: "raffles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      raffles: {
+        Row: {
+          created_at: string
+          description: string | null
+          draw_date: string | null
+          federal_lottery_ref: string | null
+          id: string
+          image_url: string | null
+          price_per_number: number
+          status: string
+          title: string
+          total_numbers: number
+          updated_at: string
+          winner_number: number | null
+          winner_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          draw_date?: string | null
+          federal_lottery_ref?: string | null
+          id?: string
+          image_url?: string | null
+          price_per_number: number
+          status?: string
+          title: string
+          total_numbers?: number
+          updated_at?: string
+          winner_number?: number | null
+          winner_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          draw_date?: string | null
+          federal_lottery_ref?: string | null
+          id?: string
+          image_url?: string | null
+          price_per_number?: number
+          status?: string
+          title?: string
+          total_numbers?: number
+          updated_at?: string
+          winner_number?: number | null
+          winner_user_id?: string | null
+        }
+        Relationships: []
+      }
       site_banners: {
         Row: {
           active: boolean
@@ -452,18 +571,24 @@ export type Database = {
         Row: {
           ad_duration_days: number
           created_at: string
+          deposit_char_name: string | null
+          gold_to_coins_rate: number | null
           id: string
           updated_at: string
         }
         Insert: {
           ad_duration_days?: number
           created_at?: string
+          deposit_char_name?: string | null
+          gold_to_coins_rate?: number | null
           id?: string
           updated_at?: string
         }
         Update: {
           ad_duration_days?: number
           created_at?: string
+          deposit_char_name?: string | null
+          gold_to_coins_rate?: number | null
           id?: string
           updated_at?: string
         }
@@ -546,6 +671,11 @@ export type Database = {
       add_balance: {
         Args: { p_amount: number; p_reason?: string; p_user_id: string }
         Returns: undefined
+      }
+      approve_deposit: { Args: { p_deposit_id: string }; Returns: undefined }
+      buy_raffle_number: {
+        Args: { p_quantity?: number; p_raffle_id: string }
+        Returns: number[]
       }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       get_ad_duration_days: { Args: never; Returns: number }
