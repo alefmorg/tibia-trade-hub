@@ -374,7 +374,75 @@ const Perfil = () => {
                 <div className="card-gaming p-8 text-center">
                   <p className="text-muted-foreground text-sm">Nenhuma transação ainda.</p>
                 </div>
+          )}
+
+          {/* Deposit Tab */}
+          {activeTab === "deposit" && isOwnProfile && (
+            <div className="space-y-4">
+              <div className="card-gaming p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-warning" /> Depositar Rubini Coins
+                </h3>
+                {depositConfig?.deposit_char_name ? (
+                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 text-xs text-muted-foreground space-y-1">
+                    <p>1. Envie gold para o personagem: <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span></p>
+                    <p>2. Taxa: <span className="text-warning font-semibold">{rate} gold = 1 coin</span></p>
+                    <p>3. Tire um print da transferência e envie abaixo</p>
+                    <p>4. Aguarde a aprovação do admin</p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Sistema de depósito ainda não configurado.</p>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Quantidade de Gold enviado</Label>
+                    <Input type="number" value={depositGold} onChange={(e) => setDepositGold(e.target.value)} placeholder="10000" className="bg-secondary border-border" />
+                    {depositGold && rate > 0 && (
+                      <p className="text-[10px] text-warning font-semibold">= {Math.floor(Number(depositGold) / rate)} Rubini Coins</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Print do envio</Label>
+                    <input type="file" accept="image/*" onChange={(e) => setDepositScreenshot(e.target.files?.[0] || null)} className="text-xs text-muted-foreground file:mr-2 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-secondary file:text-foreground file:text-xs file:cursor-pointer" />
+                  </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (!depositGold || !depositScreenshot || rate <= 0) return;
+                    const coins = Math.floor(Number(depositGold) / rate);
+                    if (coins < 1) { toast.error("Quantidade muito baixa"); return; }
+                    createDeposit.mutate({ amountGold: Number(depositGold), amountCoins: coins, screenshotFile: depositScreenshot }, {
+                      onSuccess: () => { setDepositGold(""); setDepositScreenshot(null); }
+                    });
+                  }}
+                  disabled={createDeposit.isPending || !depositGold || !depositScreenshot}
+                  className="bg-warning text-warning-foreground hover:bg-warning/90"
+                >
+                  <Upload className="h-4 w-4 mr-1" />
+                  {createDeposit.isPending ? "Enviando..." : "Enviar Solicitação"}
+                </Button>
+              </div>
+
+              {myDeposits && myDeposits.length > 0 && (
+                <div className="card-gaming overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border/40">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase">Seus Depósitos</h4>
+                  </div>
+                  {myDeposits.map((dep) => (
+                    <div key={dep.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0">
+                      <img src={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">{dep.amount_gold.toLocaleString("pt-BR")} gold → {dep.amount_coins} coins</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</p>
+                      </div>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${dep.status === "pending" ? "bg-warning/15 text-warning" : dep.status === "approved" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                        {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               )}
+            </div>
             </div>
           )}
         </div>
