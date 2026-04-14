@@ -16,7 +16,7 @@ const Anuncio = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [offerOpen, setOfferOpen] = useState(false);
+  const [_offerOpen, _setOfferOpen] = useState(false);
 
   const { data: ad, isLoading } = useQuery({
     queryKey: ["ad", id],
@@ -190,16 +190,17 @@ const Anuncio = () => {
                     <MessageCircle className="h-3.5 w-3.5 mr-1" />
                     Enviar mensagem
                   </Button>
-                  <Button onClick={() => setOfferOpen(true)} variant="outline" className="w-full border-border" size="sm">
-                    Fazer oferta
-                  </Button>
+                  <OfferDialog adId={ad.id} adTitle={ad.title}>
+                    <Button variant="outline" className="w-full border-border" size="sm">
+                      Fazer oferta
+                    </Button>
+                  </OfferDialog>
                   <Button onClick={() => toggleFav.mutate()} variant="ghost" className={`w-full ${isFavorited ? "text-destructive" : "text-muted-foreground"}`} size="sm">
                     <Heart className={`h-3.5 w-3.5 mr-1 ${isFavorited ? "fill-current" : ""}`} />
                     {isFavorited ? "Remover favorito" : "Favoritar"}
                   </Button>
                 </div>
               )}
-            </div>
 
             {user && <OffersPanel />}
           </div>
