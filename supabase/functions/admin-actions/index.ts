@@ -97,15 +97,19 @@ Deno.serve(async (req) => {
       }
 
       case "updateTradeSettings": {
-        const { days } = payload ?? {};
-        if (typeof days !== "number" || Number.isNaN(days)) throw new Error("Valor inválido");
+        const { days, deposit_char_name, gold_to_coins_rate } = payload ?? {};
         const { data: existing, error: selectError } = await adminClient.from("trade_settings").select("id").limit(1).maybeSingle();
         ensureNoError(selectError);
+        const updateData: Record<string, unknown> = {};
+        if (typeof days === "number" && !Number.isNaN(days)) updateData.ad_duration_days = days;
+        if (typeof deposit_char_name === "string") updateData.deposit_char_name = deposit_char_name;
+        if (typeof gold_to_coins_rate === "number") updateData.gold_to_coins_rate = gold_to_coins_rate;
+        if (Object.keys(updateData).length === 0) throw new Error("Nenhum dado para atualizar");
         if (existing?.id) {
-          const { error } = await adminClient.from("trade_settings").update({ ad_duration_days: days }).eq("id", existing.id);
+          const { error } = await adminClient.from("trade_settings").update(updateData).eq("id", existing.id);
           ensureNoError(error);
         } else {
-          const { error } = await adminClient.from("trade_settings").insert({ ad_duration_days: days });
+          const { error } = await adminClient.from("trade_settings").insert(updateData);
           ensureNoError(error);
         }
         return jsonResponse({ success: true });
