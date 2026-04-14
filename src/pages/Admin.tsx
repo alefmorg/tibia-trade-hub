@@ -228,7 +228,10 @@ const Admin = () => {
       title: "MONETIZAÇÃO",
       items: [
         { key: "wallet" as TabKey, label: "Saldo / Coins", icon: Coins },
+        { key: "deposits" as TabKey, label: "Depósitos", icon: Wallet, badge: allDeposits?.filter(d => d.status === "pending").length || undefined },
         { key: "plans" as TabKey, label: "Planos Destaque", icon: Star },
+        { key: "raffles" as TabKey, label: "Rifas", icon: Ticket },
+      ],
       ],
     },
     {
