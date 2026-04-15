@@ -374,6 +374,8 @@ const Perfil = () => {
                 <div className="card-gaming p-8 text-center">
                   <p className="text-muted-foreground text-sm">Nenhuma transação ainda.</p>
                 </div>
+              )}
+            </div>
           )}
 
           {/* Deposit Tab */}
