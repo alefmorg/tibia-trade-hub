@@ -184,21 +184,8 @@ const Perfil = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-start justify-between gap-3">
-  <div>
-    <h1 className="text-lg font-semibold text-foreground">
-      {profile.username}
-    </h1>
-
-    <div className="mt-1">
-      <span
-        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${roleBadgeClass}`}
-      >
-        {roleLabel}
-      </span>
-    </div>
-  </div>
-
+                    <div className="flex items-center gap-3">
+  <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
   {isOwnProfile && wallet && (
     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/10 border border-warning/20">
       <Coins className="h-3 w-3 text-warning" />
