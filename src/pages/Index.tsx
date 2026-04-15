@@ -15,6 +15,7 @@ import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { useRaffles } from "@/hooks/useRaffles";
 
 const adTypes = ["Vendendo", "Comprando"];
 
@@ -46,6 +47,7 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { data: activeRaffles } = useRaffles(true);
 
   const { data: ads, isLoading } = useAds({
     search,
@@ -169,26 +171,40 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right: Raffle/Promo Banner */}
-            {banners && banners.length > 0 ? (
-              <a
-                href={banners[0].link_url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
+            {/* Right: Raffle Banner */}
+            {activeRaffles && activeRaffles.length > 0 ? (
+              <Link
+                to={`/rifa/${activeRaffles[0].id}`}
                 className="block w-full rounded-2xl overflow-hidden border border-warning/30 bg-gradient-to-br from-warning/5 to-warning/10 transition-all duration-200 hover:border-warning/50 hover:shadow-[0_0_20px_hsl(var(--warning)/0.15)] group relative"
               >
-                {banners[0].image_url ? (
-                  <img src={banners[0].image_url} alt={banners[0].title || "Rifa"} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                {activeRaffles[0].image_url ? (
+                  <img src={activeRaffles[0].image_url} alt={activeRaffles[0].title} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                 ) : (
                   <div className="h-full min-h-[140px] flex flex-col items-center justify-center px-6 gap-2">
                     <span className="text-2xl">🎰</span>
-                    <p className="text-sm font-bold text-warning">{banners[0].title || "Rifa Ativa!"}</p>
+                    <p className="text-sm font-bold text-warning">{activeRaffles[0].title}</p>
+                    <p className="text-xs text-muted-foreground">{activeRaffles[0].price_per_number} coins por número</p>
                     <span className="text-xs text-muted-foreground">Clique para participar</span>
                   </div>
                 )}
                 <div className="absolute top-2 right-2 bg-warning/90 text-warning-foreground text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   🔥 Rifa
                 </div>
+              </Link>
+            ) : banners && banners.length > 0 ? (
+              <a
+                href={banners[0].link_url || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full rounded-2xl overflow-hidden border border-border/60 bg-card/80 transition-all duration-200 hover:border-primary/30 group relative"
+              >
+                {banners[0].image_url ? (
+                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[140px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                ) : (
+                  <div className="h-full min-h-[140px] flex flex-col items-center justify-center px-6 gap-2">
+                    <p className="text-sm font-bold text-foreground">{banners[0].title || "Banner"}</p>
+                  </div>
+                )}
               </a>
             ) : (
               <div className="bg-card/80 border border-border/60 rounded-2xl flex flex-col items-center justify-center min-h-[140px] gap-2">
