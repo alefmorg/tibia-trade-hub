@@ -352,25 +352,25 @@ const Admin = () => {
             {/* STATS / DASHBOARD */}
             {tab === "stats" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   {[
-                    { label: "Anúncios", value: stats.totalAds, sub: `${stats.activeAds} ativos`, icon: Package, color: "text-primary" },
-                    { label: "Destaques", value: stats.featuredAds, sub: "promovidos", icon: Star, color: "text-warning" },
-                    { label: "Vendas", value: stats.sellingAds, sub: "de venda", icon: Package, color: "text-destructive" },
-                    { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary" },
-                    { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning" },
-                    { label: "Ofertas", value: stats.totalOffers, sub: `${stats.pendingOffers} pendentes`, icon: HandCoins, color: "text-destructive" },
-                    { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary" },
-                    { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground" },
-                    { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary" },
-                    { label: "Banidos", value: stats.bannedUsers, sub: "usuários", icon: Ban, color: "text-destructive" },
+                    { label: "Anúncios", value: stats.totalAds, sub: `${stats.activeAds} ativos`, icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
+                    { label: "Destaques", value: stats.featuredAds, sub: "promovidos", icon: Star, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
+                    { label: "Vendas", value: stats.sellingAds, sub: "de venda", icon: Package, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
+                    { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
+                    { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
+                    { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
+                    { label: "Ofertas", value: stats.totalOffers, sub: `${stats.pendingOffers} pendentes`, icon: HandCoins, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
+                    { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
+                    { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground", bg: "from-secondary/50 to-secondary/80", border: "border-border/60" },
+                    { label: "Banidos", value: stats.bannedUsers, sub: "usuários", icon: Ban, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
                   ].map((s) => (
-                    <div key={s.label} className="bg-card/80 border border-border/60 rounded-xl p-4 hover:border-border transition-colors">
-                      <div className="flex items-center justify-between mb-2">
+                    <div key={s.label} className={`bg-gradient-to-br ${s.bg} border ${s.border} rounded-2xl p-4 hover:shadow-md transition-all duration-200`}>
+                      <div className="flex items-center justify-between mb-3">
                         <s.icon className={`h-4 w-4 ${s.color}`} />
                       </div>
-                      <p className={`font-pixel text-xl ${s.color}`}>{s.value}</p>
-                      <p className="text-xs text-foreground font-medium font-body mt-0.5">{s.label}</p>
+                      <p className={`font-pixel text-2xl ${s.color}`}>{s.value}</p>
+                      <p className="text-xs text-foreground font-medium font-body mt-1">{s.label}</p>
                       <p className="text-[10px] text-muted-foreground font-body">{s.sub}</p>
                     </div>
                   ))}
