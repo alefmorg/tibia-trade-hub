@@ -47,6 +47,7 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { data: activeRaffles } = useRaffles(true);
 
   const { data: ads, isLoading } = useAds({
     search,
