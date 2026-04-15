@@ -1474,7 +1474,7 @@ const Admin = () => {
                 {/* Raffles List as Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {(allRaffles || []).map((r) => {
-                    const raffleNums = numbers?.[r.id];
+                    const raffleNums = undefined; // numbers loaded on raffle detail page
                     return (
                       <div key={r.id} className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden hover:border-warning/30 transition-all">
                         {/* Header */}
