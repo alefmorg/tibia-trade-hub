@@ -1318,81 +1318,104 @@ const Admin = () => {
 
             {/* DEPOSITS TAB */}
             {tab === "deposits" && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {/* Deposit Config */}
-                <div className="bg-card/80 border border-border/60 rounded-xl p-5 space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body"><Settings className="h-4 w-4 text-primary" /> Configuração de Depósito</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Nome do Personagem</Label>
-                      <Input value={depositCharName} onChange={(e) => setDepositCharName(e.target.value)} placeholder="RubinBank" className="bg-secondary/80 border-border" />
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border/60 bg-gradient-to-r from-primary/5 to-transparent flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center border border-primary/25">
+                      <Settings className="h-4 w-4 text-primary" />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Taxa (gold → coins)</Label>
-                      <Input type="number" value={goldToCoinsRate} onChange={(e) => setGoldToCoinsRate(e.target.value)} placeholder="1000" className="bg-secondary/80 border-border" />
-                      <p className="text-[10px] text-muted-foreground font-body">Ex: 1000 = 1000 gold = 1 coin</p>
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground font-body">Configuração de Depósito</h3>
+                      <p className="text-[10px] text-muted-foreground">Defina o personagem e a taxa de conversão</p>
                     </div>
-                    <div className="flex items-end">
-                      <Button onClick={() => {
-                        updateTradeSettings.mutate({ deposit_char_name: depositCharName, gold_to_coins_rate: Number(goldToCoinsRate) } as any);
-                      }} className="bg-primary text-primary-foreground w-full">Salvar</Button>
+                  </div>
+                  <div className="p-5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Nome do Personagem</Label>
+                        <Input value={depositCharName} onChange={(e) => setDepositCharName(e.target.value)} placeholder="RubinBank" className="bg-secondary/80 border-border" />
+                        <p className="text-[10px] text-muted-foreground">Personagem que recebe o gold</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Taxa (gold → 1 coin)</Label>
+                        <Input type="number" value={goldToCoinsRate} onChange={(e) => setGoldToCoinsRate(e.target.value)} placeholder="1000" className="bg-secondary/80 border-border" />
+                        <p className="text-[10px] text-muted-foreground">Ex: 1000 = cada 1000 gold = 1 coin</p>
+                      </div>
+                      <div className="flex items-end">
+                        <Button onClick={() => {
+                          updateTradeSettings.mutate({ deposit_char_name: depositCharName, gold_to_coins_rate: Number(goldToCoinsRate) } as any);
+                        }} className="bg-primary text-primary-foreground w-full h-10">
+                          <Check className="h-4 w-4 mr-1" /> Salvar Configuração
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Pending deposits */}
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border/60 bg-secondary/20 flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-foreground font-body">Solicitações de Depósito</h3>
-                    <span className="text-xs text-warning font-semibold">{allDeposits?.filter(d => d.status === "pending").length || 0} pendentes</span>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-4 text-center">
+                    <p className="font-pixel text-xl text-warning">{allDeposits?.filter(d => d.status === "pending").length || 0}</p>
+                    <p className="text-[10px] text-muted-foreground font-body">Pendentes</p>
                   </div>
-                  <Table>
-                    <TableHeader><TableRow className="border-border/60">
-                      <TableHead className="text-muted-foreground text-xs">Usuário</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Gold</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Coins</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Print</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Status</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Data</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                    </TableRow></TableHeader>
-                    <TableBody>
-                      {(allDeposits || []).map((dep) => (
-                        <TableRow key={dep.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                          <TableCell className="text-foreground text-sm font-body">{getProfileName(dep.user_id)}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm font-body">{dep.amount_gold.toLocaleString("pt-BR")}</TableCell>
-                          <TableCell><span className="text-warning font-semibold font-body">{dep.amount_coins}</span></TableCell>
-                          <TableCell>
-                            <a href={dep.screenshot_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs">
-                              <img src={dep.screenshot_url} alt="Print" className="h-10 w-10 object-cover rounded border border-border cursor-pointer" />
-                            </a>
-                          </TableCell>
-                          <TableCell>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${dep.status === "pending" ? "bg-warning/15 text-warning" : dep.status === "approved" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
+                    <p className="font-pixel text-xl text-primary">{allDeposits?.filter(d => d.status === "approved").length || 0}</p>
+                    <p className="text-[10px] text-muted-foreground font-body">Aprovados</p>
+                  </div>
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
+                    <p className="font-pixel text-xl text-destructive">{allDeposits?.filter(d => d.status === "rejected").length || 0}</p>
+                    <p className="text-[10px] text-muted-foreground font-body">Rejeitados</p>
+                  </div>
+                </div>
+
+                {/* Deposits List */}
+                <div className="space-y-3">
+                  {(allDeposits || []).map((dep) => (
+                    <div key={dep.id} className={`bg-card/80 border rounded-2xl overflow-hidden transition-all ${dep.status === "pending" ? "border-warning/30" : "border-border/60"}`}>
+                      <div className="flex items-center gap-4 p-4">
+                        {/* Screenshot */}
+                        <a href={dep.screenshot_url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                          <img src={dep.screenshot_url} alt="Comprovante" className="h-16 w-16 object-cover rounded-xl border border-border/40 hover:border-primary/40 transition-colors cursor-pointer" />
+                        </a>
+                        
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm font-semibold text-foreground font-body">{getProfileName(dep.user_id)}</p>
+                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${dep.status === "pending" ? "bg-warning/15 text-warning" : dep.status === "approved" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
                               {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
                             </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                          <TableCell>
-                            {dep.status === "pending" && (
-                              <div className="flex items-center gap-0.5">
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10" onClick={() => approveDeposit.mutate(dep.id)} disabled={approveDeposit.isPending}>
-                                  <Check className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10" onClick={() => rejectDeposit.mutate({ depositId: dep.id })} disabled={rejectDeposit.isPending}>
-                                  <X className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {(!allDeposits || allDeposits.length === 0) && (
-                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground text-sm py-6 font-body">Nenhum depósito</TableCell></TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">💰 <strong className="text-foreground">{dep.amount_gold.toLocaleString("pt-BR")}</strong> gold</span>
+                            <span className="text-border">→</span>
+                            <span className="flex items-center gap-1"><Coins className="h-3 w-3 text-warning" /><strong className="text-warning">{dep.amount_coins}</strong> coins</span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-1">{new Date(dep.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                        </div>
+
+                        {/* Actions */}
+                        {dep.status === "pending" && (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 rounded-xl text-xs" onClick={() => approveDeposit.mutate(dep.id)} disabled={approveDeposit.isPending}>
+                              <Check className="h-3.5 w-3.5 mr-1" /> Aprovar
+                            </Button>
+                            <Button size="sm" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10 h-9 px-4 rounded-xl text-xs" onClick={() => rejectDeposit.mutate({ depositId: dep.id })} disabled={rejectDeposit.isPending}>
+                              <X className="h-3.5 w-3.5 mr-1" /> Rejeitar
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+                {(!allDeposits || allDeposits.length === 0) && (
+                  <div className="text-center py-12 bg-card/50 rounded-2xl border border-border/60">
+                    <Wallet className="h-8 w-8 text-primary/20 mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm font-body">Nenhum depósito</p>
+                  </div>
+                )}
               </div>
             )}
 
