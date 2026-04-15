@@ -7,7 +7,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Coins, Crown, Hash, Ticket, Trophy, Users } from "lucide-react";
+import { ArrowLeft, Coins, Crown, Hash, Ticket, Trophy, Users, Calendar, Sparkles, TrendingUp, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const RifaPage = () => {
@@ -28,39 +28,108 @@ const RifaPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container py-8 max-w-4xl">
-          <h1 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Ticket className="h-5 w-5 text-warning" />
-            Rifas Ativas
-          </h1>
-          <p className="text-xs text-muted-foreground mb-4">
-            🎰 Sorteio baseado na Loteria Federal. Compre números com Rubini Coins!
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(raffles || []).map((r) => (
-              <Link key={r.id} to={`/rifa/${r.id}`} className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden hover:border-warning/30 transition-all group">
-                {r.image_url ? (
-                  <img src={r.image_url} alt={r.title} className="h-40 w-full object-cover group-hover:scale-[1.02] transition-transform" />
-                ) : (
-                  <div className="h-40 bg-gradient-to-br from-warning/5 to-warning/10 flex items-center justify-center">
-                    <Ticket className="h-12 w-12 text-warning/30" />
-                  </div>
-                )}
-                <div className="p-4 space-y-2">
-                  <h3 className="font-semibold text-foreground">{r.title}</h3>
-                  {r.description && <p className="text-xs text-muted-foreground line-clamp-2">{r.description}</p>}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Coins className="h-3 w-3 text-warning" />{r.price_per_number} coins/nº</span>
-                    <span className="flex items-center gap-1"><Hash className="h-3 w-3" />{r.total_numbers} números</span>
-                  </div>
-                  {r.draw_date && <p className="text-[10px] text-muted-foreground">Sorteio: {new Date(r.draw_date).toLocaleDateString("pt-BR")}</p>}
+        <div className="container py-8 max-w-5xl">
+          {/* Hero */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-warning/10 via-warning/5 to-primary/5 border border-warning/20 p-8 mb-8">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-warning/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 rounded-2xl bg-warning/15 flex items-center justify-center border border-warning/30 shadow-lg shadow-warning/10">
+                <Ticket className="h-10 w-10 text-warning" />
+              </div>
+              <div className="text-center md:text-left flex-1">
+                <h1 className="text-2xl font-bold text-foreground mb-1 flex items-center gap-2 justify-center md:justify-start">
+                  <Sparkles className="h-5 w-5 text-warning" />
+                  Rifas Ativas
+                </h1>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  Participe das rifas e concorra a prêmios incríveis! Sorteio baseado na <span className="text-warning font-semibold">Loteria Federal</span> para total transparência.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="bg-card/80 border border-border/60 rounded-xl px-4 py-3 text-center">
+                  <p className="font-pixel text-lg text-warning">{raffles?.length || 0}</p>
+                  <p className="text-[10px] text-muted-foreground">Rifas ativas</p>
                 </div>
-              </Link>
-            ))}
-            {(!raffles || raffles.length === 0) && (
-              <div className="col-span-2 text-center py-12 text-muted-foreground">Nenhuma rifa ativa no momento.</div>
-            )}
+              </div>
+            </div>
           </div>
+
+          {/* Raffle Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {(raffles || []).map((r) => {
+              return (
+                <Link key={r.id} to={`/rifa/${r.id}`} className="group relative bg-card/80 border border-border/60 rounded-2xl overflow-hidden hover:border-warning/40 hover:shadow-[0_0_30px_hsl(var(--warning)/0.1)] transition-all duration-300">
+                  {/* Image */}
+                  <div className="relative">
+                    {r.image_url ? (
+                      <img src={r.image_url} alt={r.title} className="h-44 w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                    ) : (
+                      <div className="h-44 bg-gradient-to-br from-warning/10 via-primary/5 to-background flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-2xl bg-warning/10 flex items-center justify-center border border-warning/20">
+                          <Trophy className="h-8 w-8 text-warning/40" />
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3 bg-warning/90 text-warning-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      Rifa
+                    </div>
+                    {r.status === "active" && (
+                      <div className="absolute bottom-3 left-3 bg-primary/90 text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full">
+                        ● Ativa
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 space-y-3">
+                    <h3 className="font-bold text-foreground text-base group-hover:text-warning transition-colors">{r.title}</h3>
+                    {r.description && <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{r.description}</p>}
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-warning/5 border border-warning/15 rounded-xl px-3 py-2 flex items-center gap-2">
+                        <Coins className="h-3.5 w-3.5 text-warning" />
+                        <div>
+                          <p className="text-xs font-bold text-warning">{r.price_per_number}</p>
+                          <p className="text-[9px] text-muted-foreground">coins/nº</p>
+                        </div>
+                      </div>
+                      <div className="bg-primary/5 border border-primary/15 rounded-xl px-3 py-2 flex items-center gap-2">
+                        <Hash className="h-3.5 w-3.5 text-primary" />
+                        <div>
+                          <p className="text-xs font-bold text-primary">{r.total_numbers}</p>
+                          <p className="text-[9px] text-muted-foreground">números</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {r.draw_date && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 rounded-lg px-3 py-2">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>Sorteio: {new Date(r.draw_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                      </div>
+                    )}
+
+                    <Button className="w-full bg-warning text-warning-foreground hover:bg-warning/90 rounded-xl font-semibold group-hover:shadow-lg group-hover:shadow-warning/20 transition-all">
+                      <Ticket className="h-4 w-4 mr-2" />
+                      Participar
+                    </Button>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {(!raffles || raffles.length === 0) && (
+            <div className="text-center py-20 bg-card/50 rounded-2xl border border-border/60">
+              <div className="w-16 h-16 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-4 border border-warning/20">
+                <Ticket className="h-8 w-8 text-warning/30" />
+              </div>
+              <p className="text-muted-foreground text-sm mb-1">Nenhuma rifa ativa no momento</p>
+              <p className="text-muted-foreground/60 text-xs">Volte em breve para novas oportunidades!</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -70,7 +139,15 @@ const RifaPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container py-8 max-w-4xl"><Skeleton className="h-96 rounded-2xl" /></div>
+        <div className="container py-8 max-w-5xl space-y-4">
+          <Skeleton className="h-8 w-40 rounded-xl" />
+          <Skeleton className="h-80 rounded-2xl" />
+          <div className="grid grid-cols-3 gap-4">
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -80,8 +157,11 @@ const RifaPage = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-16 text-center">
-          <p className="text-muted-foreground">Rifa não encontrada.</p>
-          <Link to="/rifa" className="text-primary hover:underline text-sm mt-2 inline-block">Ver rifas</Link>
+          <div className="w-16 h-16 rounded-2xl bg-warning/10 flex items-center justify-center mx-auto mb-4 border border-warning/20">
+            <Ticket className="h-8 w-8 text-warning/30" />
+          </div>
+          <p className="text-muted-foreground mb-2">Rifa não encontrada.</p>
+          <Link to="/rifa" className="text-primary hover:underline text-sm">← Ver todas as rifas</Link>
         </div>
       </div>
     );
@@ -91,6 +171,7 @@ const RifaPage = () => {
   const myNumbers = numbers?.filter(n => n.user_id === user?.id) || [];
   const totalCost = quantity * raffle.price_per_number;
   const availableCount = raffle.total_numbers - soldNumbers;
+  const progressPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
 
   const handleBuy = () => {
     buyNumbers.mutate(
@@ -102,62 +183,113 @@ const RifaPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container py-6 max-w-4xl">
-        <Link to="/rifa" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Voltar às rifas
+      <div className="container py-6 max-w-5xl">
+        <Link to="/rifa" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors group">
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" /> Voltar às rifas
         </Link>
+
+        {/* Hero Banner */}
+        <div className="relative rounded-3xl overflow-hidden mb-6">
+          {raffle.image_url ? (
+            <img src={raffle.image_url} alt={raffle.title} className="w-full h-56 md:h-72 object-cover" />
+          ) : (
+            <div className="h-56 md:h-72 bg-gradient-to-br from-warning/15 via-primary/5 to-background flex items-center justify-center">
+              <div className="w-24 h-24 rounded-3xl bg-warning/10 flex items-center justify-center border border-warning/20">
+                <Trophy className="h-12 w-12 text-warning/30" />
+              </div>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full mb-3 inline-block ${raffle.status === "active" ? "bg-primary/20 text-primary border border-primary/30" : raffle.status === "completed" ? "bg-warning/20 text-warning border border-warning/30" : "bg-destructive/20 text-destructive border border-destructive/30"}`}>
+                  {raffle.status === "active" ? "🟢 Ativa" : raffle.status === "completed" ? "🏆 Finalizada" : "❌ Cancelada"}
+                </span>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mt-2">{raffle.title}</h1>
+                {raffle.description && <p className="text-sm text-muted-foreground mt-2 max-w-xl">{raffle.description}</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-card/80 border border-warning/20 rounded-2xl p-4 text-center hover:border-warning/40 transition-colors">
+            <Coins className="h-5 w-5 text-warning mx-auto mb-2" />
+            <p className="font-pixel text-xl text-warning">{raffle.price_per_number}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">coins por número</p>
+          </div>
+          <div className="bg-card/80 border border-primary/20 rounded-2xl p-4 text-center hover:border-primary/40 transition-colors">
+            <Hash className="h-5 w-5 text-primary mx-auto mb-2" />
+            <p className="font-pixel text-xl text-primary">{raffle.total_numbers}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">números total</p>
+          </div>
+          <div className="bg-card/80 border border-border/60 rounded-2xl p-4 text-center hover:border-primary/40 transition-colors">
+            <Users className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
+            <p className="font-pixel text-xl text-foreground">{soldNumbers}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">vendidos</p>
+          </div>
+          <div className="bg-card/80 border border-border/60 rounded-2xl p-4 text-center hover:border-primary/40 transition-colors">
+            <TrendingUp className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
+            <p className="font-pixel text-xl text-foreground">{availableCount}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">disponíveis</p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
-              {raffle.image_url ? (
-                <img src={raffle.image_url} alt={raffle.title} className="w-full h-64 object-cover" />
-              ) : (
-                <div className="h-64 bg-gradient-to-br from-warning/5 to-warning/10 flex items-center justify-center">
-                  <Trophy className="h-16 w-16 text-warning/20" />
+          <div className="lg:col-span-2 space-y-5">
+            {/* Federal Lottery Info */}
+            {raffle.federal_lottery_ref && (
+              <div className="bg-gradient-to-r from-warning/5 to-warning/10 border border-warning/25 rounded-2xl p-5 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-warning/15 flex items-center justify-center shrink-0 border border-warning/25">
+                  <span className="text-xl">🎰</span>
                 </div>
-              )}
-              <div className="p-5 space-y-3">
-                <div className="flex items-start justify-between">
-                  <h1 className="text-xl font-bold text-foreground">{raffle.title}</h1>
-                  <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${raffle.status === "active" ? "bg-primary/15 text-primary" : raffle.status === "completed" ? "bg-warning/15 text-warning" : "bg-destructive/15 text-destructive"}`}>
-                    {raffle.status === "active" ? "Ativa" : raffle.status === "completed" ? "Finalizada" : "Cancelada"}
-                  </span>
+                <div>
+                  <p className="text-sm font-semibold text-warning mb-1">Loteria Federal</p>
+                  <p className="text-xs text-muted-foreground">Referência: <span className="text-foreground font-medium">{raffle.federal_lottery_ref}</span></p>
+                  <p className="text-[10px] text-muted-foreground mt-1">O resultado é baseado na Loteria Federal para garantir total transparência no sorteio.</p>
                 </div>
-                {raffle.description && <p className="text-sm text-muted-foreground">{raffle.description}</p>}
-                
-                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5 text-warning" />{raffle.price_per_number} coins por número</span>
-                  <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" />{raffle.total_numbers} números total</span>
-                  <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{soldNumbers} vendidos</span>
-                </div>
-
-                {raffle.federal_lottery_ref && (
-                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-3">
-                    <p className="text-xs text-muted-foreground">
-                      🎰 <span className="font-semibold text-warning">Loteria Federal:</span> {raffle.federal_lottery_ref}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground mt-1">O resultado é baseado na Loteria Federal para garantir transparência.</p>
-                  </div>
-                )}
-
-                {raffle.draw_date && (
-                  <p className="text-xs text-muted-foreground">📅 Sorteio: {new Date(raffle.draw_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}</p>
-                )}
-
-                {raffle.winner_number != null && (
-                  <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 text-center">
-                    <Crown className="h-6 w-6 text-warning mx-auto mb-2" />
-                    <p className="text-sm font-bold text-warning">Número vencedor: {raffle.winner_number}</p>
-                  </div>
-                )}
               </div>
-            </div>
+            )}
+
+            {raffle.draw_date && (
+              <div className="bg-card/80 border border-border/60 rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                  <Calendar className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Data do sorteio</p>
+                  <p className="text-sm font-semibold text-foreground">{new Date(raffle.draw_date).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Winner */}
+            {raffle.winner_number != null && (
+              <div className="bg-gradient-to-r from-warning/10 to-warning/5 border border-warning/30 rounded-2xl p-6 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-warning/20 flex items-center justify-center mx-auto mb-3 border border-warning/30">
+                  <Crown className="h-8 w-8 text-warning" />
+                </div>
+                <p className="text-lg font-bold text-warning mb-1">🎉 Número vencedor</p>
+                <p className="font-pixel text-4xl text-warning">{raffle.winner_number}</p>
+              </div>
+            )}
 
             {/* Number Grid */}
             <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-foreground mb-3">Números</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Hash className="h-4 w-4 text-primary" />
+                  Quadro de Números
+                </h3>
+                <div className="flex gap-4 text-[10px] text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-secondary/80 border border-border/60" /> Disponível</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-primary/25 border border-primary/40" /> Seu</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-destructive/15 border border-destructive/25" /> Vendido</span>
+                </div>
+              </div>
               <div className="grid grid-cols-10 gap-1.5">
                 {Array.from({ length: raffle.total_numbers }, (_, i) => i + 1).map((num) => {
                   const sold = numbers?.find(n => n.number === num);
@@ -165,12 +297,12 @@ const RifaPage = () => {
                   return (
                     <div
                       key={num}
-                      className={`aspect-square flex items-center justify-center rounded-lg text-[10px] font-bold border transition-all ${
+                      className={`aspect-square flex items-center justify-center rounded-lg text-[10px] font-bold border transition-all duration-200 ${
                         isMine
-                          ? "bg-primary/20 border-primary/40 text-primary"
+                          ? "bg-primary/25 border-primary/40 text-primary shadow-[0_0_6px_hsl(var(--primary)/0.15)]"
                           : sold
-                          ? "bg-destructive/10 border-destructive/20 text-destructive/60"
-                          : "bg-secondary/50 border-border/40 text-muted-foreground hover:border-primary/30"
+                          ? "bg-destructive/10 border-destructive/20 text-destructive/50"
+                          : "bg-secondary/60 border-border/50 text-muted-foreground hover:border-warning/30 hover:bg-warning/5 hover:text-warning cursor-default"
                       }`}
                       title={isMine ? "Seu número" : sold ? "Vendido" : "Disponível"}
                     >
@@ -179,62 +311,113 @@ const RifaPage = () => {
                   );
                 })}
               </div>
-              <div className="flex gap-4 mt-3 text-[10px] text-muted-foreground">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-secondary/50 border border-border/40" /> Disponível</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-primary/20 border border-primary/40" /> Seu</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-destructive/10 border border-destructive/20" /> Vendido</span>
-              </div>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <div className="bg-card/80 border border-border/60 rounded-2xl p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Comprar Números</h3>
-              
+            {/* Progress Card */}
+            <div className="bg-card/80 border border-border/60 rounded-2xl p-5 space-y-4">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                Progresso
+              </h3>
+              <div className="relative">
+                <div className="w-full bg-secondary/80 rounded-full h-4 border border-border/40">
+                  <div
+                    className="bg-gradient-to-r from-warning to-warning/80 h-4 rounded-full transition-all duration-700 ease-out flex items-center justify-end pr-2"
+                    style={{ width: `${Math.max(progressPct, 8)}%` }}
+                  >
+                    {progressPct > 15 && <span className="text-[9px] font-bold text-warning-foreground">{progressPct}%</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{soldNumbers} vendidos</span>
+                <span>{availableCount} restantes</span>
+              </div>
+            </div>
+
+            {/* Buy Card */}
+            <div className="bg-card/80 border border-warning/20 rounded-2xl p-5 space-y-4">
+              <h3 className="text-xs font-semibold text-warning uppercase tracking-wider flex items-center gap-2">
+                <Ticket className="h-3.5 w-3.5" />
+                Comprar Números
+              </h3>
+
               {user ? (
                 <>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-warning/10 border border-warning/20">
-                    <Coins className="h-3 w-3 text-warning" />
-                    <span className="text-xs font-semibold text-warning">Saldo: {wallet?.balance || 0}</span>
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-warning/10 border border-warning/20">
+                    <Coins className="h-4 w-4 text-warning" />
+                    <div>
+                      <p className="text-xs font-bold text-warning">{wallet?.balance || 0} coins</p>
+                      <p className="text-[9px] text-muted-foreground">Seu saldo</p>
+                    </div>
                   </div>
 
                   {raffle.status === "active" && availableCount > 0 ? (
-                    <Button onClick={() => setBuyDialogOpen(true)} className="w-full bg-warning text-warning-foreground hover:bg-warning/90">
-                      <Ticket className="h-4 w-4 mr-1" />
+                    <Button onClick={() => setBuyDialogOpen(true)} className="w-full bg-warning text-warning-foreground hover:bg-warning/90 rounded-xl font-semibold h-12 text-sm shadow-lg shadow-warning/20 hover:shadow-warning/30 transition-all">
+                      <Ticket className="h-5 w-5 mr-2" />
                       Comprar Números
                     </Button>
                   ) : raffle.status !== "active" ? (
-                    <p className="text-xs text-muted-foreground text-center py-2">Rifa encerrada</p>
+                    <div className="text-center py-4 bg-secondary/30 rounded-xl">
+                      <Clock className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
+                      <p className="text-xs text-muted-foreground">Rifa encerrada</p>
+                    </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground text-center py-2">Todos os números vendidos!</p>
+                    <div className="text-center py-4 bg-warning/5 rounded-xl border border-warning/20">
+                      <Sparkles className="h-5 w-5 text-warning mx-auto mb-1" />
+                      <p className="text-xs text-warning font-semibold">Esgotado!</p>
+                      <p className="text-[10px] text-muted-foreground">Todos os números vendidos</p>
+                    </div>
                   )}
 
                   {myNumbers.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-foreground mb-1">Seus números ({myNumbers.length}):</p>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold text-foreground flex items-center gap-2">
+                        <Sparkles className="h-3 w-3 text-primary" />
+                        Seus números ({myNumbers.length})
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
                         {myNumbers.map(n => (
-                          <span key={n.id} className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-bold">{n.number}</span>
+                          <span key={n.id} className="text-[10px] bg-primary/20 text-primary px-2.5 py-1 rounded-lg font-bold border border-primary/30">{n.number}</span>
                         ))}
                       </div>
                     </div>
                   )}
                 </>
               ) : (
-                <div className="text-center py-4">
-                  <p className="text-xs text-muted-foreground mb-2">Faça login para comprar números</p>
-                  <Link to="/login"><Button size="sm" className="bg-primary text-primary-foreground">Entrar</Button></Link>
+                <div className="text-center py-6 space-y-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto border border-primary/20">
+                    <Users className="h-6 w-6 text-primary/40" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Faça login para comprar números</p>
+                  <Link to="/login">
+                    <Button size="sm" className="bg-primary text-primary-foreground rounded-xl">Entrar</Button>
+                  </Link>
                 </div>
               )}
             </div>
 
-            <div className="bg-card/80 border border-border/60 rounded-2xl p-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Progresso</h3>
-              <div className="w-full bg-secondary rounded-full h-3 mb-2">
-                <div className="bg-warning h-3 rounded-full transition-all" style={{ width: `${(soldNumbers / raffle.total_numbers) * 100}%` }} />
+            {/* How it works */}
+            <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Como funciona</h3>
+              <div className="space-y-3">
+                {[
+                  { icon: "💰", text: "Tenha Rubini Coins na sua carteira" },
+                  { icon: "🎟️", text: "Compre números aleatórios" },
+                  { icon: "🎰", text: "Aguarde o sorteio pela Loteria Federal" },
+                  { icon: "🏆", text: "Se seu número for sorteado, você ganha!" },
+                ].map((step, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="text-base shrink-0 mt-0.5">{step.icon}</span>
+                    <div>
+                      <p className="text-xs text-foreground">{step.text}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-xs text-muted-foreground">{soldNumbers}/{raffle.total_numbers} vendidos ({Math.round((soldNumbers / raffle.total_numbers) * 100)}%)</p>
             </div>
           </div>
         </div>
@@ -242,10 +425,12 @@ const RifaPage = () => {
 
       {/* Buy Dialog */}
       <Dialog open={buyDialogOpen} onOpenChange={setBuyDialogOpen}>
-        <DialogContent className="bg-card border-border max-w-sm">
+        <DialogContent className="bg-card border-border max-w-sm rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2">
-              <Ticket className="h-5 w-5 text-warning" />
+              <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center border border-warning/25">
+                <Ticket className="h-4 w-4 text-warning" />
+              </div>
               Comprar Números
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -253,31 +438,50 @@ const RifaPage = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">Quantidade</label>
-              <Input
-                type="number"
-                min={1}
-                max={availableCount}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(availableCount, Number(e.target.value))))}
-                className="bg-secondary border-border"
-              />
-              <p className="text-[10px] text-muted-foreground">{availableCount} disponíveis</p>
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground font-medium">Quantidade</label>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-10 w-10 p-0" onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>-</Button>
+                <Input
+                  type="number"
+                  min={1}
+                  max={availableCount}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.min(availableCount, Number(e.target.value))))}
+                  className="bg-secondary border-border text-center h-10 font-bold"
+                />
+                <Button variant="outline" size="sm" className="h-10 w-10 p-0" onClick={() => setQuantity(Math.min(availableCount, quantity + 1))} disabled={quantity >= availableCount}>+</Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">{availableCount} números disponíveis</p>
             </div>
-            <div className="bg-secondary/50 rounded-xl p-3 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Custo total:</span>
-              <span className="text-sm font-bold text-warning flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{totalCost} coins</span>
+
+            <div className="bg-warning/5 border border-warning/20 rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Preço unitário:</span>
+                <span className="text-sm text-muted-foreground">{raffle.price_per_number} coins</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-warning/15 pt-2">
+                <span className="text-sm font-semibold text-foreground">Custo total:</span>
+                <span className="text-base font-bold text-warning flex items-center gap-1"><Coins className="h-4 w-4" />{totalCost} coins</span>
+              </div>
             </div>
+
             {(wallet?.balance || 0) < totalCost && (
-              <p className="text-xs text-destructive">Saldo insuficiente! Deposite mais coins.</p>
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 flex items-center gap-2">
+                <span className="text-destructive text-lg">⚠️</span>
+                <div>
+                  <p className="text-xs text-destructive font-semibold">Saldo insuficiente!</p>
+                  <p className="text-[10px] text-muted-foreground">Deposite mais coins na sua carteira.</p>
+                </div>
+              </div>
             )}
+
             <Button
               onClick={handleBuy}
               disabled={buyNumbers.isPending || (wallet?.balance || 0) < totalCost || quantity < 1}
-              className="w-full bg-warning text-warning-foreground hover:bg-warning/90"
+              className="w-full bg-warning text-warning-foreground hover:bg-warning/90 h-12 rounded-xl font-semibold text-sm"
             >
-              {buyNumbers.isPending ? "Comprando..." : `Comprar ${quantity} número${quantity > 1 ? "s" : ""}`}
+              {buyNumbers.isPending ? "Comprando..." : `🎟️ Comprar ${quantity} número${quantity > 1 ? "s" : ""}`}
             </Button>
           </div>
         </DialogContent>
