@@ -388,7 +388,6 @@ const Perfil = () => {
                 {depositConfig?.deposit_char_name ? (
                   <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 text-xs text-muted-foreground space-y-1">
                     <p>1. Envie gold para o personagem: <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span></p>
-                    <p>2. Taxa: <span className="text-warning font-semibold">{rate} gold = 1 coin</span></p>
                     <p>3. Tire um print da transferência e envie abaixo</p>
                     <p>4. Aguarde a aprovação do admin</p>
                   </div>
