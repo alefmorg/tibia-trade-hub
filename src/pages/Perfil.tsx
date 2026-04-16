@@ -45,6 +45,15 @@ const Perfil = () => {
   const createDeposit = useCreateDeposit();
   const rate = depositConfig?.gold_to_coins_rate || 1;
 
+  const { data: userRole } = useQuery({
+    queryKey: ["user-role", profileUserId],
+    enabled: !!profileUserId,
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", profileUserId!).maybeSingle();
+      return (data?.role as string) || "user";
+    },
+  });
+
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileUserId],
     enabled: !!profileUserId,
