@@ -252,6 +252,7 @@ const Admin = () => {
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
         { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
+        { key: "logs" as TabKey, label: "Logs / Atividade", icon: FileText },
       ],
     },
   ];
