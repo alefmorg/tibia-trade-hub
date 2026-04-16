@@ -384,16 +384,9 @@ const RifaPage = () => {
                   )}
 
                   {myNumbers.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-foreground flex items-center gap-2">
-                        <Sparkles className="h-3 w-3 text-primary" />
-                        Seus números ({myNumbers.length})
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {myNumbers.map(n => (
-                          <span key={n.id} className="text-[10px] bg-primary/20 text-primary px-2.5 py-1 rounded-lg font-bold border border-primary/30">{n.number}</span>
-                        ))}
-                      </div>
+                    <div className="text-center py-2 bg-primary/5 rounded-xl border border-primary/20">
+                      <p className="text-xs text-primary font-semibold">{myNumbers.length} número{myNumbers.length > 1 ? "s" : ""} comprado{myNumbers.length > 1 ? "s" : ""}</p>
+                      <p className="text-[10px] text-muted-foreground">Veja acima seus números</p>
                     </div>
                   )}
                 </>
