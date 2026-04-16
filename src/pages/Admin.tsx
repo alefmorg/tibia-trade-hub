@@ -1578,11 +1578,34 @@ const Admin = () => {
                             <p className="text-[10px] text-muted-foreground bg-secondary/30 rounded-lg px-2.5 py-1.5">🎰 {r.federal_lottery_ref}</p>
                           )}
 
-                          {/* Winner input for completed */}
+                          {/* Winner input */}
                           {r.status === "completed" && r.winner_number != null && (
                             <div className="bg-warning/10 border border-warning/25 rounded-lg p-2.5 text-center">
                               <p className="text-[10px] text-muted-foreground">Vencedor:</p>
                               <p className="font-pixel text-lg text-warning">Nº {r.winner_number}</p>
+                            </div>
+                          )}
+                          {r.status !== "cancelled" && r.winner_number == null && (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                min={1}
+                                max={r.total_numbers}
+                                placeholder="Nº vencedor"
+                                value={winnerNumberInput[r.id] || ""}
+                                onChange={(e) => setWinnerNumberInput(prev => ({ ...prev, [r.id]: e.target.value }))}
+                                className="bg-secondary/80 border-border h-8 text-xs flex-1"
+                              />
+                              <Button size="sm" className="h-8 bg-warning text-warning-foreground text-xs" disabled={!winnerNumberInput[r.id]}
+                                onClick={() => {
+                                  const num = Number(winnerNumberInput[r.id]);
+                                  if (num >= 1 && num <= r.total_numbers) {
+                                    raffleMut.update.mutate({ id: r.id, winner_number: num, status: "completed" });
+                                    setWinnerNumberInput(prev => { const n = { ...prev }; delete n[r.id]; return n; });
+                                  }
+                                }}>
+                                🏆 Definir
+                              </Button>
                             </div>
                           )}
 
