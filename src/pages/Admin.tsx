@@ -716,10 +716,33 @@ const Admin = () => {
                     </div>
                   )}
                 </div>
+                {selectedItems.size > 0 && (
+                  <div className="flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">
+                    <p className="text-sm text-foreground font-body">{selectedItems.size} item(ns) selecionado(s)</p>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
+                      if (confirm(`Remover ${selectedItems.size} item(ns)?`)) {
+                        selectedItems.forEach(id => deleteItem.mutate(id));
+                        setSelectedItems(new Set());
+                      }
+                    }}>
+                      <Trash2 className="h-3 w-3 mr-1" />Remover selecionados
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelectedItems(new Set())}>Limpar</Button>
+                  </div>
+                )}
                 <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-border/60 bg-secondary/30">
+                        <TableHead className="text-muted-foreground text-xs w-10">
+                          <button onClick={() => {
+                            const allItemIds = (items || []).map(i => i.id);
+                            if (selectedItems.size === allItemIds.length) setSelectedItems(new Set());
+                            else setSelectedItems(new Set(allItemIds));
+                          }}>
+                            {selectedItems.size === (items || []).length && (items || []).length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                          </button>
+                        </TableHead>
                         <TableHead className="text-muted-foreground text-xs w-16">Imagem</TableHead>
                         <TableHead className="text-muted-foreground text-xs">Nome</TableHead>
                         <TableHead className="text-muted-foreground text-xs">Categoria</TableHead>
@@ -729,7 +752,16 @@ const Admin = () => {
                     </TableHeader>
                     <TableBody>
                       {items?.map((item) => (
-                        <TableRow key={item.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                        <TableRow key={item.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${selectedItems.has(item.id) ? "bg-primary/5" : ""}`}>
+                          <TableCell>
+                            <button onClick={() => {
+                              const next = new Set(selectedItems);
+                              if (next.has(item.id)) next.delete(item.id); else next.add(item.id);
+                              setSelectedItems(next);
+                            }}>
+                              {selectedItems.has(item.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                            </button>
+                          </TableCell>
                           <TableCell>
                             {item.image_url ? <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" /> :
                               <div className="h-8 w-8 bg-secondary rounded flex items-center justify-center"><Image className="h-3.5 w-3.5 text-muted-foreground" /></div>}
