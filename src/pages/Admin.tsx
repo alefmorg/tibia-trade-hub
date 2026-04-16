@@ -420,10 +420,33 @@ const Admin = () => {
 
             {/* ADS TAB */}
             {tab === "ads" && (
-              <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
+              <div className="space-y-3">
+                {selectedAds.size > 0 && (
+                  <div className="flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">
+                    <p className="text-sm text-foreground font-body">{selectedAds.size} selecionado{selectedAds.size > 1 ? "s" : ""}</p>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
+                      if (confirm(`Remover ${selectedAds.size} anúncio(s)?`)) {
+                        selectedAds.forEach(id => deleteAd.mutate(id));
+                        setSelectedAds(new Set());
+                      }
+                    }}>
+                      <Trash2 className="h-3 w-3 mr-1" />Remover selecionados
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelectedAds(new Set())}>Limpar</Button>
+                  </div>
+                )}
+                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border/60 bg-secondary/30">
+                      <TableHead className="text-muted-foreground text-xs w-10">
+                        <button onClick={() => {
+                          if (selectedAds.size === filteredAds.length) setSelectedAds(new Set());
+                          else setSelectedAds(new Set(filteredAds.map(a => a.id)));
+                        }}>
+                          {selectedAds.size === filteredAds.length && filteredAds.length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                        </button>
+                      </TableHead>
                       <TableHead className="text-muted-foreground text-xs">Img</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Título</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Tipo</TableHead>
@@ -438,7 +461,16 @@ const Admin = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredAds.map((ad) => (
-                      <TableRow key={ad.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                      <TableRow key={ad.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${selectedAds.has(ad.id) ? "bg-primary/5" : ""}`}>
+                        <TableCell>
+                          <button onClick={() => {
+                            const next = new Set(selectedAds);
+                            if (next.has(ad.id)) next.delete(ad.id); else next.add(ad.id);
+                            setSelectedAds(next);
+                          }}>
+                            {selectedAds.has(ad.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                          </button>
+                        </TableCell>
                         <TableCell>
                           {ad.image_url ? <img src={ad.image_url} alt="" className="h-8 w-8 object-contain rounded" /> : <div className="h-8 w-8 bg-secondary rounded flex items-center justify-center"><Image className="h-3 w-3 text-muted-foreground" /></div>}
                         </TableCell>
@@ -483,6 +515,7 @@ const Admin = () => {
                   </TableBody>
                 </Table>
                 {filteredAds.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum anúncio encontrado</p>}
+              </div>
               </div>
             )}
 
