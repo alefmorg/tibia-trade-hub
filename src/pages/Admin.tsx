@@ -27,7 +27,7 @@ import {
   Settings, PanelLeft, Ticket, Wallet, ImagePlus,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
