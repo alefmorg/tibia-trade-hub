@@ -24,10 +24,10 @@ import { formatPriceWithDots } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
-  Settings, PanelLeft, Ticket, Wallet, ImagePlus,
+  Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square,
 } from "lucide-react";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles";
+type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -69,6 +69,10 @@ const Admin = () => {
 
   const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [winnerNumberInput, setWinnerNumberInput] = useState<Record<string, string>>({});
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
@@ -248,6 +252,7 @@ const Admin = () => {
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
         { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
+        { key: "logs" as TabKey, label: "Logs / Atividade", icon: FileText },
       ],
     },
   ];
@@ -415,10 +420,33 @@ const Admin = () => {
 
             {/* ADS TAB */}
             {tab === "ads" && (
-              <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
+              <div className="space-y-3">
+                {selectedAds.size > 0 && (
+                  <div className="flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">
+                    <p className="text-sm text-foreground font-body">{selectedAds.size} selecionado{selectedAds.size > 1 ? "s" : ""}</p>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
+                      if (confirm(`Remover ${selectedAds.size} anúncio(s)?`)) {
+                        selectedAds.forEach(id => deleteAd.mutate(id));
+                        setSelectedAds(new Set());
+                      }
+                    }}>
+                      <Trash2 className="h-3 w-3 mr-1" />Remover selecionados
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelectedAds(new Set())}>Limpar</Button>
+                  </div>
+                )}
+                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border/60 bg-secondary/30">
+                      <TableHead className="text-muted-foreground text-xs w-10">
+                        <button onClick={() => {
+                          if (selectedAds.size === filteredAds.length) setSelectedAds(new Set());
+                          else setSelectedAds(new Set(filteredAds.map(a => a.id)));
+                        }}>
+                          {selectedAds.size === filteredAds.length && filteredAds.length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                        </button>
+                      </TableHead>
                       <TableHead className="text-muted-foreground text-xs">Img</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Título</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Tipo</TableHead>
@@ -433,7 +461,16 @@ const Admin = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredAds.map((ad) => (
-                      <TableRow key={ad.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                      <TableRow key={ad.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${selectedAds.has(ad.id) ? "bg-primary/5" : ""}`}>
+                        <TableCell>
+                          <button onClick={() => {
+                            const next = new Set(selectedAds);
+                            if (next.has(ad.id)) next.delete(ad.id); else next.add(ad.id);
+                            setSelectedAds(next);
+                          }}>
+                            {selectedAds.has(ad.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                          </button>
+                        </TableCell>
                         <TableCell>
                           {ad.image_url ? <img src={ad.image_url} alt="" className="h-8 w-8 object-contain rounded" /> : <div className="h-8 w-8 bg-secondary rounded flex items-center justify-center"><Image className="h-3 w-3 text-muted-foreground" /></div>}
                         </TableCell>
@@ -478,6 +515,7 @@ const Admin = () => {
                   </TableBody>
                 </Table>
                 {filteredAds.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum anúncio encontrado</p>}
+              </div>
               </div>
             )}
 
@@ -678,10 +716,33 @@ const Admin = () => {
                     </div>
                   )}
                 </div>
+                {selectedItems.size > 0 && (
+                  <div className="flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">
+                    <p className="text-sm text-foreground font-body">{selectedItems.size} item(ns) selecionado(s)</p>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
+                      if (confirm(`Remover ${selectedItems.size} item(ns)?`)) {
+                        selectedItems.forEach(id => deleteItem.mutate(id));
+                        setSelectedItems(new Set());
+                      }
+                    }}>
+                      <Trash2 className="h-3 w-3 mr-1" />Remover selecionados
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelectedItems(new Set())}>Limpar</Button>
+                  </div>
+                )}
                 <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-border/60 bg-secondary/30">
+                        <TableHead className="text-muted-foreground text-xs w-10">
+                          <button onClick={() => {
+                            const allItemIds = (items || []).map(i => i.id);
+                            if (selectedItems.size === allItemIds.length) setSelectedItems(new Set());
+                            else setSelectedItems(new Set(allItemIds));
+                          }}>
+                            {selectedItems.size === (items || []).length && (items || []).length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                          </button>
+                        </TableHead>
                         <TableHead className="text-muted-foreground text-xs w-16">Imagem</TableHead>
                         <TableHead className="text-muted-foreground text-xs">Nome</TableHead>
                         <TableHead className="text-muted-foreground text-xs">Categoria</TableHead>
@@ -691,7 +752,16 @@ const Admin = () => {
                     </TableHeader>
                     <TableBody>
                       {items?.map((item) => (
-                        <TableRow key={item.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
+                        <TableRow key={item.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${selectedItems.has(item.id) ? "bg-primary/5" : ""}`}>
+                          <TableCell>
+                            <button onClick={() => {
+                              const next = new Set(selectedItems);
+                              if (next.has(item.id)) next.delete(item.id); else next.add(item.id);
+                              setSelectedItems(next);
+                            }}>
+                              {selectedItems.has(item.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                            </button>
+                          </TableCell>
                           <TableCell>
                             {item.image_url ? <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" /> :
                               <div className="h-8 w-8 bg-secondary rounded flex items-center justify-center"><Image className="h-3.5 w-3.5 text-muted-foreground" /></div>}
@@ -1540,11 +1610,34 @@ const Admin = () => {
                             <p className="text-[10px] text-muted-foreground bg-secondary/30 rounded-lg px-2.5 py-1.5">🎰 {r.federal_lottery_ref}</p>
                           )}
 
-                          {/* Winner input for completed */}
+                          {/* Winner input */}
                           {r.status === "completed" && r.winner_number != null && (
                             <div className="bg-warning/10 border border-warning/25 rounded-lg p-2.5 text-center">
                               <p className="text-[10px] text-muted-foreground">Vencedor:</p>
                               <p className="font-pixel text-lg text-warning">Nº {r.winner_number}</p>
+                            </div>
+                          )}
+                          {r.status !== "cancelled" && r.winner_number == null && (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                min={1}
+                                max={r.total_numbers}
+                                placeholder="Nº vencedor"
+                                value={winnerNumberInput[r.id] || ""}
+                                onChange={(e) => setWinnerNumberInput(prev => ({ ...prev, [r.id]: e.target.value }))}
+                                className="bg-secondary/80 border-border h-8 text-xs flex-1"
+                              />
+                              <Button size="sm" className="h-8 bg-warning text-warning-foreground text-xs" disabled={!winnerNumberInput[r.id]}
+                                onClick={() => {
+                                  const num = Number(winnerNumberInput[r.id]);
+                                  if (num >= 1 && num <= r.total_numbers) {
+                                    raffleMut.update.mutate({ id: r.id, winner_number: num, status: "completed" });
+                                    setWinnerNumberInput(prev => { const n = { ...prev }; delete n[r.id]; return n; });
+                                  }
+                                }}>
+                                🏆 Definir
+                              </Button>
                             </div>
                           )}
 
@@ -1583,6 +1676,123 @@ const Admin = () => {
                     <p className="text-muted-foreground/60 text-xs mt-1">Crie sua primeira rifa acima</p>
                   </div>
                 )}
+              </div>
+            )}
+            {/* LOGS TAB */}
+            {tab === "logs" && (
+              <div className="space-y-5">
+                <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body mb-4">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Log de Atividades Recentes
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-4">Ações administrativas e eventos do sistema.</p>
+
+                  <div className="space-y-2">
+                    {/* Recent deposits */}
+                    {(allDeposits || []).slice(0, 5).map((dep) => (
+                      <div key={`dep-${dep.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${dep.status === "approved" ? "bg-primary/15 text-primary" : dep.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
+                          💰
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground font-medium font-body">
+                            Depósito de <span className="text-primary">{getProfileName(dep.user_id)}</span>: {dep.amount_gold.toLocaleString("pt-BR")} gold → {dep.amount_coins} coins
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleString("pt-BR")}</p>
+                        </div>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${dep.status === "approved" ? "bg-primary/15 text-primary" : dep.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
+                          {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
+                        </span>
+                      </div>
+                    ))}
+
+                    {/* Recent offers */}
+                    {allOffers.slice(0, 5).map((offer) => (
+                      <div key={`offer-${offer.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${offer.status === "accepted" ? "bg-primary/15" : offer.status === "rejected" ? "bg-destructive/15" : "bg-warning/15"}`}>
+                          🤝
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground font-medium font-body">
+                            Oferta de <span className="text-primary">{getProfileName(offer.sender_id)}</span> em "{getAdTitle(offer.ad_id)}": {offer.amount} {offer.currency}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(offer.created_at).toLocaleString("pt-BR")}</p>
+                        </div>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${offer.status === "accepted" ? "bg-primary/15 text-primary" : offer.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
+                          {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
+                        </span>
+                      </div>
+                    ))}
+
+                    {/* Recent conversations */}
+                    {allConversations.slice(0, 5).map((conv) => (
+                      <div key={`conv-${conv.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-secondary/50">
+                          💬
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground font-medium font-body">
+                            Conversa entre <span className="text-primary">{getProfileName(conv.buyer_id)}</span> e <span className="text-primary">{getProfileName(conv.seller_id)}</span> sobre "{getAdTitle(conv.ad_id)}"
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(conv.updated_at).toLocaleString("pt-BR")}</p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Recent ads */}
+                    {(ads || []).slice(0, 5).map((ad) => (
+                      <div key={`ad-${ad.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-secondary/50">
+                          📦
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-foreground font-medium font-body">
+                            Anúncio "{ad.title}" por <span className="text-primary">{(ad as any).profiles?.username || "?"}</span>
+                            <span className={`ml-1 text-[10px] ${ad.type === "selling" ? "text-destructive" : "text-primary"}`}>({ad.type === "selling" ? "venda" : "compra"})</span>
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(ad.created_at).toLocaleString("pt-BR")}</p>
+                        </div>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${ad.status === "active" ? "bg-primary/15 text-primary" : ad.status === "sold" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground"}`}>
+                          {ad.status === "active" ? "Ativo" : ad.status === "sold" ? "Vendido" : "Inativo"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {(!allDeposits || allDeposits.length === 0) && allOffers.length === 0 && (!ads || ads.length === 0) && (
+                    <div className="text-center py-12">
+                      <FileText className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                      <p className="text-muted-foreground text-sm font-body">Nenhuma atividade registrada</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body mb-4">
+                    <Settings className="h-4 w-4 text-primary" />
+                    Ações Rápidas
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("ads")}>
+                      <Package className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Gerenciar Anúncios</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("users")}>
+                      <Users className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Gerenciar Usuários</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("deposits")}>
+                      <Wallet className="h-5 w-5 text-warning" />
+                      <span className="text-xs font-body">Ver Depósitos</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("notifications")}>
+                      <Bell className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Enviar Notificação</span>
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

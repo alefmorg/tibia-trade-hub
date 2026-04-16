@@ -277,40 +277,50 @@ const RifaPage = () => {
               </div>
             )}
 
-            {/* Number Grid */}
+            {/* My Numbers */}
+            {myNumbers.length > 0 && (
+              <div className="bg-card/80 border border-primary/20 rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    Seus Números ({myNumbers.length})
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {myNumbers.map(n => (
+                    <div key={n.id} className="bg-primary/15 border border-primary/30 text-primary px-3 py-1.5 rounded-xl text-sm font-bold shadow-[0_0_8px_hsl(var(--primary)/0.1)]">
+                      #{n.number}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Summary Info - no grid showing individual numbers */}
             <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Hash className="h-4 w-4 text-primary" />
-                  Quadro de Números
+                  Resumo dos Números
                 </h3>
-                <div className="flex gap-4 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-secondary/80 border border-border/60" /> Disponível</span>
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-primary/25 border border-primary/40" /> Seu</span>
-                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-md bg-destructive/15 border border-destructive/25" /> Vendido</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-secondary/60 border border-border/40 rounded-xl p-4 text-center">
+                  <p className="font-pixel text-2xl text-foreground">{raffle.total_numbers}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Total</p>
+                </div>
+                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
+                  <p className="font-pixel text-2xl text-destructive">{soldNumbers}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Vendidos</p>
+                </div>
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
+                  <p className="font-pixel text-2xl text-primary">{availableCount}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Disponíveis</p>
                 </div>
               </div>
-              <div className="grid grid-cols-10 gap-1.5">
-                {Array.from({ length: raffle.total_numbers }, (_, i) => i + 1).map((num) => {
-                  const sold = numbers?.find(n => n.number === num);
-                  const isMine = sold?.user_id === user?.id;
-                  return (
-                    <div
-                      key={num}
-                      className={`aspect-square flex items-center justify-center rounded-lg text-[10px] font-bold border transition-all duration-200 ${
-                        isMine
-                          ? "bg-primary/25 border-primary/40 text-primary shadow-[0_0_6px_hsl(var(--primary)/0.15)]"
-                          : sold
-                          ? "bg-destructive/10 border-destructive/20 text-destructive/50"
-                          : "bg-secondary/60 border-border/50 text-muted-foreground hover:border-warning/30 hover:bg-warning/5 hover:text-warning cursor-default"
-                      }`}
-                      title={isMine ? "Seu número" : sold ? "Vendido" : "Disponível"}
-                    >
-                      {num}
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-[10px] text-muted-foreground mt-3 text-center">
+                Os números são atribuídos aleatoriamente ao comprar. O sorteio é pela <span className="text-warning font-semibold">Loteria Federal</span>.
+              </p>
             </div>
           </div>
 
@@ -374,16 +384,9 @@ const RifaPage = () => {
                   )}
 
                   {myNumbers.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-foreground flex items-center gap-2">
-                        <Sparkles className="h-3 w-3 text-primary" />
-                        Seus números ({myNumbers.length})
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {myNumbers.map(n => (
-                          <span key={n.id} className="text-[10px] bg-primary/20 text-primary px-2.5 py-1 rounded-lg font-bold border border-primary/30">{n.number}</span>
-                        ))}
-                      </div>
+                    <div className="text-center py-2 bg-primary/5 rounded-xl border border-primary/20">
+                      <p className="text-xs text-primary font-semibold">{myNumbers.length} número{myNumbers.length > 1 ? "s" : ""} comprado{myNumbers.length > 1 ? "s" : ""}</p>
+                      <p className="text-[10px] text-muted-foreground">Veja acima seus números</p>
                     </div>
                   )}
                 </>

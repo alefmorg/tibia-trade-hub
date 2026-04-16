@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Shield, ShieldAlert, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
@@ -44,6 +44,15 @@ const Perfil = () => {
   const { data: myDeposits } = useMyDeposits();
   const createDeposit = useCreateDeposit();
   const rate = depositConfig?.gold_to_coins_rate || 1;
+
+  const { data: userRole } = useQuery({
+    queryKey: ["user-role", profileUserId],
+    enabled: !!profileUserId,
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", profileUserId!).maybeSingle();
+      return (data?.role as string) || "user";
+    },
+  });
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileUserId],
@@ -185,14 +194,22 @@ const Perfil = () => {
                 ) : (
                   <>
                     <div className="flex items-center gap-3">
-  <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
-  {isOwnProfile && wallet && (
-    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/10 border border-warning/20">
-      <Coins className="h-3 w-3 text-warning" />
-      <span className="text-xs font-semibold text-warning">{wallet.balance}</span>
-    </div>
-  )}
-</div>
+                      <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
+                      {userRole && userRole !== "user" && (
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                          userRole === "admin"
+                            ? "bg-primary/15 text-primary border border-primary/30"
+                            : "bg-warning/15 text-warning border border-warning/30"
+                        }`}>
+                          {userRole === "admin" ? <Shield className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
+                          {userRole === "admin" ? "Admin" : "Moderador"}
+                        </span>
+                      )}
+                      {isOwnProfile && wallet && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/10 border border-warning/20">
+                          <Coins className="h-3 w-3 text-warning" />
+                          <span className="text-xs font-semibold text-warning">{wallet.balance}</span>
+                        </div>
                       )}
                     </div>
                     {profile.bio && <p className="text-sm text-muted-foreground mt-1 font-body">{profile.bio}</p>}
