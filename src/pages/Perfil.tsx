@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Shield, ShieldAlert, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
