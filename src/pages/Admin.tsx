@@ -69,6 +69,10 @@ const Admin = () => {
 
   const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [winnerNumberInput, setWinnerNumberInput] = useState<Record<string, string>>({});
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
