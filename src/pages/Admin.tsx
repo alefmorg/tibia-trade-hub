@@ -43,9 +43,11 @@ const Admin = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
+  const [newCategoryInput, setNewCategoryInput] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [bulkItemNames, setBulkItemNames] = useState("");
   const [bulkItemCategory, setBulkItemCategory] = useState("Geral");
+  const [bulkNewCategoryInput, setBulkNewCategoryInput] = useState("");
   const [itemAddMode, setItemAddMode] = useState<"single" | "bulk">("single");
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
