@@ -21,7 +21,7 @@ const ensureNoError = (error: { message: string } | null) => {
   if (error) throw new Error(error.message);
 };
 
-const deleteInChunks = async (table: string, column: string, ids: string[], adminClient: ReturnType<typeof createClient>) => {
+const deleteInChunks = async (table: string, column: string, ids: string[], adminClient: any) => {
   if (!ids.length) return;
   for (let i = 0; i < ids.length; i += 100) {
     const chunk = ids.slice(i, i + 100);
