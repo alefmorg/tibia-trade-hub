@@ -43,9 +43,11 @@ const Admin = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
+  const [newCategoryInput, setNewCategoryInput] = useState("");
   const [newItemImage, setNewItemImage] = useState<File | null>(null);
   const [bulkItemNames, setBulkItemNames] = useState("");
   const [bulkItemCategory, setBulkItemCategory] = useState("Geral");
+  const [bulkNewCategoryInput, setBulkNewCategoryInput] = useState("");
   const [itemAddMode, setItemAddMode] = useState<"single" | "bulk">("single");
   const [adDurationDays, setAdDurationDays] = useState("7");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -161,20 +163,23 @@ const Admin = () => {
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
-    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined, category: newItemCategory });
-    setNewItemName(""); setNewItemImage(null); setImagePreview(null); setNewItemCategory("Geral");
+    const finalCategory = newItemCategory === "__new" ? (newCategoryInput.trim() || "Geral") : newItemCategory;
+    await createItem.mutateAsync({ name: newItemName.trim(), imageFile: newItemImage || undefined, category: finalCategory });
+    setNewItemName(""); setNewItemImage(null); setImagePreview(null);
+    setNewItemCategory("Geral"); setNewCategoryInput("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleBulkAddItems = async () => {
     const names = bulkItemNames.split("\n").map(n => n.trim()).filter(Boolean);
     if (names.length === 0) return;
+    const finalCategory = bulkItemCategory === "__new" ? (bulkNewCategoryInput.trim() || "Geral") : bulkItemCategory;
     for (let i = 0; i < names.length; i++) {
       const imageFile = bulkItemImages[i] || undefined;
-      await createItem.mutateAsync({ name: names[i], imageFile, category: bulkItemCategory });
+      await createItem.mutateAsync({ name: names[i], imageFile, category: finalCategory });
     }
     setBulkItemNames("");
-    setBulkItemCategory("Geral");
+    setBulkItemCategory("Geral"); setBulkNewCategoryInput("");
     setBulkItemImages({});
   };
 
@@ -635,7 +640,13 @@ const Admin = () => {
                           </SelectContent>
                         </Select>
                         {newItemCategory === "__new" && (
-                          <Input value="" onChange={(e) => setNewItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                          <Input
+                            value={newCategoryInput}
+                            onChange={(e) => setNewCategoryInput(e.target.value)}
+                            placeholder="Nome da nova categoria"
+                            className="bg-secondary/80 border-border mt-1"
+                            autoFocus
+                          />
                         )}
                       </div>
                       <div className="space-y-1.5">
@@ -667,7 +678,13 @@ const Admin = () => {
                             </SelectContent>
                           </Select>
                           {bulkItemCategory === "__new" && (
-                            <Input value="" onChange={(e) => setBulkItemCategory(e.target.value)} placeholder="Nome da nova categoria" className="bg-secondary/80 border-border mt-1" />
+                            <Input
+                              value={bulkNewCategoryInput}
+                              onChange={(e) => setBulkNewCategoryInput(e.target.value)}
+                              placeholder="Nome da nova categoria"
+                              className="bg-secondary/80 border-border mt-1"
+                              autoFocus
+                            />
                           )}
                         </div>
                       </div>
