@@ -222,6 +222,32 @@
       0 12px 30px hsl(var(--warning) / 0.22);
   }
 
+  @keyframes tier-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.55), 0 4px 10px hsl(0 0% 0% / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px hsl(var(--primary) / 0), 0 4px 10px hsl(0 0% 0% / 0.4);
+    }
+  }
+
+  @keyframes tier-pulse-warning {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--warning) / 0.6), 0 4px 10px hsl(0 0% 0% / 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px hsl(var(--warning) / 0), 0 4px 10px hsl(0 0% 0% / 0.4);
+    }
+  }
+
+  .tier-badge {
+    animation: tier-pulse 2s ease-in-out infinite;
+  }
+
+  .tier-badge-featured {
+    animation: tier-pulse-warning 2s ease-in-out infinite;
+  }
+
   .trade-card-list,
   .trade-card-list-featured {
     display: grid;
