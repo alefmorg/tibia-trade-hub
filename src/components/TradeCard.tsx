@@ -140,8 +140,16 @@ const TradeCard = ({
             )}
           </div>
           {tier != null && tier !== undefined && (
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 inline-flex items-center rounded-full border border-primary/40 bg-background px-2 py-0.5 text-[9px] font-bold text-primary shadow-md whitespace-nowrap">
-              Tier {tier}
+            <span
+              className={cn(
+                "absolute -top-1 -right-1 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-background text-[10px] font-bold shadow-lg",
+                featured
+                  ? "bg-warning text-warning-foreground"
+                  : "bg-primary text-primary-foreground"
+              )}
+              title={`Tier ${tier}`}
+            >
+              T{tier}
             </span>
           )}
         </div>
