@@ -87,10 +87,20 @@ const TradeCard = ({
   return (
     <article
       className={cn(
-        "trade-card trade-card-grid group flex flex-col overflow-hidden",
+        "trade-card trade-card-grid group flex flex-col overflow-hidden relative",
         featured && "trade-card-featured"
       )}
     >
+      {/* Glow ambiente no hover */}
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.18),transparent_60%)]",
+          featured && "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--warning)/0.22),transparent_60%)]"
+        )}
+      />
+
       <div className="flex items-start justify-between gap-3 px-3 pt-3">
         <span
           className={cn(
@@ -109,25 +119,36 @@ const TradeCard = ({
         </span>
       </div>
 
-      <div className="px-4 pt-8 pb-4 text-center flex flex-col items-center justify-center min-h-[188px]">
-        <h3 className="font-semibold text-[15px] leading-snug text-foreground mb-4 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[44px] flex items-center justify-center">
+      <div className="px-4 pt-6 pb-4 text-center flex flex-col items-center justify-center min-h-[188px] relative z-10">
+        {/* Item em círculo */}
+        <div className="relative mb-4">
+          <div
+            className={cn(
+              "trade-card-item-orb",
+              featured && "trade-card-item-orb-featured"
+            )}
+          >
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={title}
+                className="h-14 w-14 object-contain pixelated drop-shadow-[0_4px_10px_hsl(0_0%_0%/0.6)]"
+                loading="lazy"
+              />
+            ) : (
+              <div className="h-14 w-14 rounded-full bg-secondary/50" />
+            )}
+          </div>
+          {tier != null && tier !== undefined && (
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 inline-flex items-center rounded-full border border-primary/40 bg-background px-2 py-0.5 text-[9px] font-bold text-primary shadow-md whitespace-nowrap">
+              Tier {tier}
+            </span>
+          )}
+        </div>
+
+        <h3 className="font-semibold text-[14px] leading-snug text-foreground mb-3 group-hover:text-primary transition-colors font-body max-w-[180px] min-h-[36px] flex items-center justify-center">
           {title}
         </h3>
-
-        {imageUrl && (
-          <div className="flex justify-center items-center mb-4 h-16">
-            <img
-              src={imageUrl}
-              alt={title}
-              className="h-16 w-16 object-contain pixelated drop-shadow-[0_8px_18px_hsl(var(--background)/0.45)]"
-              loading="lazy"
-            />
-          </div>
-        )}
-
-        {tier != null && tier !== undefined && (
-          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary mb-3">Tier {tier}</span>
-        )}
 
         <p className="font-body font-bold text-foreground">
           {isAcceptingOffers ? (
