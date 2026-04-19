@@ -1,3 +1,4 @@
+import "./lib/env"; // valida envs antes de qualquer coisa
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
