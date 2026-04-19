@@ -279,8 +279,8 @@ const Index = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
               placeholder="Busque por itens, equipamentos, armas..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-11 bg-secondary/80 border-border h-12 rounded-xl text-base focus:border-primary/40 focus:bg-secondary transition-all duration-200"
             />
           </div>
@@ -384,7 +384,7 @@ const Index = () => {
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {ads?.length || 0} resultados
+                  {ads.length} resultados{hasNextPage ? "+" : ""}
                 </span>
                 {activeFilterCount > 0 && (
                   <span className="bg-primary/15 text-primary text-xs px-2 py-0.5 rounded-full font-semibold">
