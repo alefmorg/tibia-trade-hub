@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
@@ -9,7 +9,7 @@ import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from 
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAds } from "@/hooks/useAds";
+import { useInfiniteAds } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +34,7 @@ const FilterChip = ({ label, active, color, onClick }: { label: string; active: 
 );
 
 const Index = () => {
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
@@ -49,7 +50,19 @@ const Index = () => {
   const { data: filterOptions } = useFilterOptions(undefined, true);
   const { data: activeRaffles } = useRaffles(true);
 
-  const { data: ads, isLoading } = useAds({
+  // Debounce da busca para não disparar query a cada tecla.
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const {
+    data: adsPages,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAds({
     search,
     type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
     pvpType: pvpFilter,
@@ -59,25 +72,43 @@ const Index = () => {
     sortBy,
   });
 
-  const filterGroups = (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
-    if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
-    acc[fo.filter_group]!.push(fo);
-    return acc;
-  }, {});
+  const ads = useMemo(() => adsPages?.pages.flatMap((p) => p.items) ?? [], [adsPages]);
+
+  const filterGroups = useMemo(() => {
+    return (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
+      if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
+      acc[fo.filter_group]!.push(fo);
+      return acc;
+    }, {});
+  }, [filterOptions]);
 
   const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilter, ...Object.values(customFilters)].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setTypeFilter(undefined);
     setPvpFilter(undefined);
     setWorldFilter(undefined);
     setCategoryFilter(undefined);
     setCustomFilters({});
     setOnlyWithPrice(false);
-  };
+  }, []);
 
-  const featuredAds = ads?.filter(ad => ad.featured) || [];
-  const regularAds = ads?.filter(ad => !ad.featured) || [];
+  const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
+  const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
+
+  // Sentinel para scroll infinito.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }, { rootMargin: "400px" });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -248,8 +279,8 @@ const Index = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
               placeholder="Busque por itens, equipamentos, armas..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-11 bg-secondary/80 border-border h-12 rounded-xl text-base focus:border-primary/40 focus:bg-secondary transition-all duration-200"
             />
           </div>
@@ -353,7 +384,7 @@ const Index = () => {
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {ads?.length || 0} resultados
+                  {ads.length} resultados{hasNextPage ? "+" : ""}
                 </span>
                 {activeFilterCount > 0 && (
                   <span className="bg-primary/15 text-primary text-xs px-2 py-0.5 rounded-full font-semibold">
@@ -417,6 +448,15 @@ const Index = () => {
                     </Button>
                   </div>
                 )}
+                {/* Sentinel para scroll infinito */}
+                <div ref={sentinelRef} className="h-10 flex items-center justify-center">
+                  {isFetchingNextPage && (
+                    <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                  )}
+                  {!hasNextPage && ads.length > 0 && (
+                    <span className="text-xs text-muted-foreground/50">— fim dos resultados —</span>
+                  )}
+                </div>
               </>
             )}
           </main>
