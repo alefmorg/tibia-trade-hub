@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
 import OffersPanel from "@/components/OffersPanel";
@@ -9,7 +9,7 @@ import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from 
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAds } from "@/hooks/useAds";
+import { useInfiniteAds } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +34,7 @@ const FilterChip = ({ label, active, color, onClick }: { label: string; active: 
 );
 
 const Index = () => {
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
@@ -49,7 +50,19 @@ const Index = () => {
   const { data: filterOptions } = useFilterOptions(undefined, true);
   const { data: activeRaffles } = useRaffles(true);
 
-  const { data: ads, isLoading } = useAds({
+  // Debounce da busca para não disparar query a cada tecla.
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const {
+    data: adsPages,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteAds({
     search,
     type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
     pvpType: pvpFilter,
@@ -59,25 +72,43 @@ const Index = () => {
     sortBy,
   });
 
-  const filterGroups = (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
-    if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
-    acc[fo.filter_group]!.push(fo);
-    return acc;
-  }, {});
+  const ads = useMemo(() => adsPages?.pages.flatMap((p) => p.items) ?? [], [adsPages]);
+
+  const filterGroups = useMemo(() => {
+    return (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
+      if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
+      acc[fo.filter_group]!.push(fo);
+      return acc;
+    }, {});
+  }, [filterOptions]);
 
   const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilter, ...Object.values(customFilters)].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setTypeFilter(undefined);
     setPvpFilter(undefined);
     setWorldFilter(undefined);
     setCategoryFilter(undefined);
     setCustomFilters({});
     setOnlyWithPrice(false);
-  };
+  }, []);
 
-  const featuredAds = ads?.filter(ad => ad.featured) || [];
-  const regularAds = ads?.filter(ad => !ad.featured) || [];
+  const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
+  const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
+
+  // Sentinel para scroll infinito.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }, { rootMargin: "400px" });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-background">
