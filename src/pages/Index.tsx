@@ -448,6 +448,15 @@ const Index = () => {
                     </Button>
                   </div>
                 )}
+                {/* Sentinel para scroll infinito */}
+                <div ref={sentinelRef} className="h-10 flex items-center justify-center">
+                  {isFetchingNextPage && (
+                    <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                  )}
+                  {!hasNextPage && ads.length > 0 && (
+                    <span className="text-xs text-muted-foreground/50">— fim dos resultados —</span>
+                  )}
+                </div>
               </>
             )}
           </main>
