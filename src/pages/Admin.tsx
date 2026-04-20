@@ -24,8 +24,9 @@ import { formatPriceWithDots } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
-  Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square,
+  Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
 } from "lucide-react";
+import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 
 type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
 
