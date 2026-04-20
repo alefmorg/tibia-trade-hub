@@ -19,6 +19,46 @@ import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDe
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+interface StatTileProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  accent?: "default" | "warning";
+  capitalize?: boolean;
+}
+
+const StatTile = ({ icon, label, value, accent = "default", capitalize = false }: StatTileProps) => {
+  const isWarn = accent === "warning";
+  return (
+    <div
+      className={`group/stat relative overflow-hidden rounded-xl border px-3.5 py-3 transition-colors ${
+        isWarn
+          ? "border-warning/30 bg-warning/[0.04] hover:border-warning/50"
+          : "border-border/70 bg-secondary/30 hover:border-primary/30"
+      }`}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-0 group-hover/stat:opacity-100 transition-opacity"
+        style={{
+          background: isWarn
+            ? "radial-gradient(80% 100% at 0% 0%, hsl(var(--warning) / 0.08), transparent 60%)"
+            : "radial-gradient(80% 100% at 0% 0%, hsl(var(--primary) / 0.08), transparent 60%)",
+        }}
+      />
+      <div className="relative">
+        <p className={`text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${isWarn ? "text-warning/80" : "text-muted-foreground"}`}>
+          <span className={isWarn ? "text-warning" : "text-primary/70"}>{icon}</span>
+          {label}
+        </p>
+        <p className={`mt-1 text-base font-bold ${isWarn ? "text-warning" : "text-foreground"} ${capitalize ? "capitalize truncate" : ""}`}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, profile: myProfile } = useAuth();
