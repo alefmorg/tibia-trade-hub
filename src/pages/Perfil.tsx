@@ -19,6 +19,46 @@ import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDe
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+interface StatTileProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  accent?: "default" | "warning";
+  capitalize?: boolean;
+}
+
+const StatTile = ({ icon, label, value, accent = "default", capitalize = false }: StatTileProps) => {
+  const isWarn = accent === "warning";
+  return (
+    <div
+      className={`group/stat relative overflow-hidden rounded-xl border px-3.5 py-3 transition-colors ${
+        isWarn
+          ? "border-warning/30 bg-warning/[0.04] hover:border-warning/50"
+          : "border-border/70 bg-secondary/30 hover:border-primary/30"
+      }`}
+    >
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-0 group-hover/stat:opacity-100 transition-opacity"
+        style={{
+          background: isWarn
+            ? "radial-gradient(80% 100% at 0% 0%, hsl(var(--warning) / 0.08), transparent 60%)"
+            : "radial-gradient(80% 100% at 0% 0%, hsl(var(--primary) / 0.08), transparent 60%)",
+        }}
+      />
+      <div className="relative">
+        <p className={`text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${isWarn ? "text-warning/80" : "text-muted-foreground"}`}>
+          <span className={isWarn ? "text-warning" : "text-primary/70"}>{icon}</span>
+          {label}
+        </p>
+        <p className={`mt-1 text-base font-bold ${isWarn ? "text-warning" : "text-foreground"} ${capitalize ? "capitalize truncate" : ""}`}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user, profile: myProfile } = useAuth();
@@ -167,98 +207,135 @@ const Perfil = () => {
             </div>
           </div>
         ) : profile ? (
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
-            {/* Banner gradiente sutil */}
-            <div
-              aria-hidden
-              className="absolute inset-x-0 top-0 h-28"
-              style={{
-                background:
-                  "radial-gradient(120% 100% at 0% 0%, hsl(var(--primary) / 0.18), transparent 55%), radial-gradient(120% 100% at 100% 0%, hsl(var(--warning) / 0.10), transparent 55%), linear-gradient(180deg, hsl(var(--secondary)) 0%, transparent 100%)",
-              }}
-            />
-            <div className="absolute inset-x-0 top-28 h-px bg-border/60" aria-hidden />
+          <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-secondary/30 shadow-[0_20px_60px_-20px_hsl(0_0%_0%/0.6)]">
+            {/* Banner artístico */}
+            <div className="relative h-36 sm:h-44 overflow-hidden">
+              <div
+                aria-hidden
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(60% 120% at 15% 0%, hsl(var(--primary) / 0.35), transparent 60%), radial-gradient(50% 120% at 85% 10%, hsl(var(--primary) / 0.18), transparent 60%), linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--card)) 100%)",
+                }}
+              />
+              {/* Grid pattern */}
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-[0.06]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                  maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+                }}
+              />
+              {/* Glow orb */}
+              <div
+                aria-hidden
+                className="absolute -top-16 -right-16 h-48 w-48 rounded-full blur-3xl"
+                style={{ background: "hsl(var(--primary) / 0.25)" }}
+              />
+              {/* Edit btn float */}
+              {isOwnProfile && !editing && (
+                <div className="absolute top-4 right-4 z-20">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(true)}
+                    className="h-8 bg-background/60 backdrop-blur-md border-border/80 text-xs hover:bg-background/80"
+                  >
+                    Editar perfil
+                  </Button>
+                </div>
+              )}
+              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            </div>
 
-            <div className="relative p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-start gap-6">
-                <div className="relative">
-                  <Avatar className="h-24 w-24 ring-4 ring-background border-2 border-primary/40 shadow-[0_8px_24px_hsl(0_0%_0%/0.4)]">
+            <div className="relative px-6 sm:px-8 pb-7">
+              {/* Avatar suspenso */}
+              <div className="relative -mt-14 sm:-mt-16 flex flex-col sm:flex-row sm:items-end sm:gap-5">
+                <div className="relative shrink-0">
+                  <div
+                    className="absolute -inset-1 rounded-full opacity-70 blur-md"
+                    aria-hidden
+                    style={{ background: "conic-gradient(from 180deg, hsl(var(--primary) / 0.6), transparent, hsl(var(--primary) / 0.4))" }}
+                  />
+                  <Avatar className="relative h-28 w-28 sm:h-32 sm:w-32 ring-4 ring-card border-2 border-primary/50 shadow-[0_12px_30px_hsl(0_0%_0%/0.5)]">
                     {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                    <AvatarFallback className="bg-primary/15 text-primary text-2xl font-pixel">
+                    <AvatarFallback className="bg-gradient-to-br from-primary/25 to-primary/5 text-primary text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {badges.some((b) => b.badge_type === "premium_verified") && (
                     <span
                       title="Premium Verificado"
-                      className="absolute -bottom-1 -right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-lg"
+                      className="absolute bottom-1 right-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground border-[3px] border-card shadow-[0_4px_14px_hsl(var(--primary)/0.5)]"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     </span>
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0 w-full">
-                  {editing ? (
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Nome de usuário</Label>
-                        <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} className="bg-secondary border-border" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Bio</Label>
-                        <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Fale sobre você..." className="bg-secondary border-border min-h-[60px]" />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="bg-primary text-primary-foreground">
-                          <Save className="h-3.5 w-3.5 mr-1" />
-                          {updateProfile.isPending ? "Salvando..." : "Salvar"}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="border-border">Cancelar</Button>
-                      </div>
-                    </div>
-                  ) : (
+                <div className="mt-4 sm:mt-0 sm:pb-2 flex-1 min-w-0">
+                  {!editing && (
                     <>
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                        <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">{profile.username}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-pixel text-foreground tracking-tight leading-none">
+                          {profile.username}
+                        </h1>
+                      </div>
+                      <div className="mt-2.5">
                         <UserBadges badges={badges} role={userRole} size="md" />
                       </div>
-
-                      {profile.bio && (
-                        <p className="text-sm text-muted-foreground mt-2 font-body max-w-prose">{profile.bio}</p>
-                      )}
-
-                      {/* Stats compactas */}
-                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Anúncios</p>
-                          <p className="text-sm font-bold text-foreground mt-0.5">{totalAds}</p>
-                        </div>
-                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Membro desde</p>
-                          <p className="text-sm font-bold text-foreground mt-0.5 capitalize truncate">{memberSince}</p>
-                        </div>
-                        {isOwnProfile && (
-                          <div className="rounded-xl border border-warning/30 bg-warning/5 px-3 py-2">
-                            <p className="text-[10px] text-warning/80 uppercase tracking-wider flex items-center gap-1"><Coins className="h-3 w-3" />Saldo</p>
-                            <p className="text-sm font-bold text-warning mt-0.5">{wallet?.balance ?? 0}</p>
-                          </div>
-                        )}
-                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Selos</p>
-                          <p className="text-sm font-bold text-foreground mt-0.5">{badges.length}</p>
-                        </div>
-                      </div>
-
-                      {isOwnProfile && (
-                        <Button size="sm" variant="outline" className="mt-4 border-border text-xs" onClick={() => setEditing(true)}>
-                          Editar perfil
-                        </Button>
-                      )}
                     </>
                   )}
                 </div>
               </div>
+
+              {/* Bio + edit form */}
+              <div className="mt-5">
+                {editing ? (
+                  <div className="space-y-3 max-w-xl">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">Nome de usuário</Label>
+                      <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} className="bg-secondary/60 border-border h-10" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">Bio</Label>
+                      <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Fale sobre você..." className="bg-secondary/60 border-border min-h-[80px]" />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="bg-primary text-primary-foreground">
+                        <Save className="h-3.5 w-3.5 mr-1" />
+                        {updateProfile.isPending ? "Salvando..." : "Salvar"}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="border-border">Cancelar</Button>
+                    </div>
+                  </div>
+                ) : (
+                  profile.bio && (
+                    <p className="text-sm text-foreground/80 font-body max-w-prose leading-relaxed">
+                      {profile.bio}
+                    </p>
+                  )
+                )}
+              </div>
+
+              {/* Stats premium */}
+              {!editing && (
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <StatTile icon={<Package className="h-3.5 w-3.5" />} label="Anúncios" value={totalAds} />
+                  <StatTile icon={<Calendar className="h-3.5 w-3.5" />} label="Membro desde" value={memberSince} capitalize />
+                  {isOwnProfile ? (
+                    <StatTile icon={<Coins className="h-3.5 w-3.5" />} label="Saldo" value={wallet?.balance ?? 0} accent="warning" />
+                  ) : (
+                    <StatTile icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
+                  )}
+                  {isOwnProfile && (
+                    <StatTile icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ) : (
