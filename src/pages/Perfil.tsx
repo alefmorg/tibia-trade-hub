@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Shield, ShieldAlert, UserCog } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
+import UserBadges from "@/components/UserBadges";
+import { useUserBadges } from "@/hooks/useUserBadges";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
@@ -44,6 +46,8 @@ const Perfil = () => {
   const { data: myDeposits } = useMyDeposits();
   const createDeposit = useCreateDeposit();
   const rate = depositConfig?.gold_to_coins_rate || 1;
+
+  const { data: badges = [] } = useUserBadges(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
@@ -163,67 +167,97 @@ const Perfil = () => {
             </div>
           </div>
         ) : profile ? (
-          <div className="card-gaming p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start gap-6">
-              <Avatar className="h-20 w-20 border-2 border-primary/30">
-                {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                  {profile.username.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+            {/* Banner gradiente sutil */}
+            <div
+              aria-hidden
+              className="absolute inset-x-0 top-0 h-28"
+              style={{
+                background:
+                  "radial-gradient(120% 100% at 0% 0%, hsl(var(--primary) / 0.18), transparent 55%), radial-gradient(120% 100% at 100% 0%, hsl(var(--warning) / 0.10), transparent 55%), linear-gradient(180deg, hsl(var(--secondary)) 0%, transparent 100%)",
+              }}
+            />
+            <div className="absolute inset-x-0 top-28 h-px bg-border/60" aria-hidden />
 
-              <div className="flex-1 min-w-0">
-                {editing ? (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Nome de usuário</Label>
-                      <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} className="bg-secondary border-border" />
+            <div className="relative p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-start gap-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24 ring-4 ring-background border-2 border-primary/40 shadow-[0_8px_24px_hsl(0_0%_0%/0.4)]">
+                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
+                    <AvatarFallback className="bg-primary/15 text-primary text-2xl font-pixel">
+                      {profile.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {badges.some((b) => b.badge_type === "premium_verified") && (
+                    <span
+                      title="Premium Verificado"
+                      className="absolute -bottom-1 -right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-lg"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0 w-full">
+                  {editing ? (
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Nome de usuário</Label>
+                        <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} className="bg-secondary border-border" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Bio</Label>
+                        <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Fale sobre você..." className="bg-secondary border-border min-h-[60px]" />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="bg-primary text-primary-foreground">
+                          <Save className="h-3.5 w-3.5 mr-1" />
+                          {updateProfile.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="border-border">Cancelar</Button>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Bio</Label>
-                      <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Fale sobre você..." className="bg-secondary border-border min-h-[60px]" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="bg-primary text-primary-foreground">
-                        <Save className="h-3.5 w-3.5 mr-1" />
-                        {updateProfile.isPending ? "Salvando..." : "Salvar"}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="border-border">Cancelar</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-3">
-                      <h1 className="text-lg font-semibold text-foreground">{profile.username}</h1>
-                      {userRole && userRole !== "user" && (
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                          userRole === "admin"
-                            ? "bg-primary/15 text-primary border border-primary/30"
-                            : "bg-warning/15 text-warning border border-warning/30"
-                        }`}>
-                          {userRole === "admin" ? <Shield className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
-                          {userRole === "admin" ? "Admin" : "Moderador"}
-                        </span>
+                  ) : (
+                    <>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">{profile.username}</h1>
+                        <UserBadges badges={badges} role={userRole} size="md" />
+                      </div>
+
+                      {profile.bio && (
+                        <p className="text-sm text-muted-foreground mt-2 font-body max-w-prose">{profile.bio}</p>
                       )}
-                      {isOwnProfile && wallet && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/10 border border-warning/20">
-                          <Coins className="h-3 w-3 text-warning" />
-                          <span className="text-xs font-semibold text-warning">{wallet.balance}</span>
+
+                      {/* Stats compactas */}
+                      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Anúncios</p>
+                          <p className="text-sm font-bold text-foreground mt-0.5">{totalAds}</p>
                         </div>
+                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Membro desde</p>
+                          <p className="text-sm font-bold text-foreground mt-0.5 capitalize truncate">{memberSince}</p>
+                        </div>
+                        {isOwnProfile && (
+                          <div className="rounded-xl border border-warning/30 bg-warning/5 px-3 py-2">
+                            <p className="text-[10px] text-warning/80 uppercase tracking-wider flex items-center gap-1"><Coins className="h-3 w-3" />Saldo</p>
+                            <p className="text-sm font-bold text-warning mt-0.5">{wallet?.balance ?? 0}</p>
+                          </div>
+                        )}
+                        <div className="rounded-xl border border-border/60 bg-secondary/40 px-3 py-2">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Selos</p>
+                          <p className="text-sm font-bold text-foreground mt-0.5">{badges.length}</p>
+                        </div>
+                      </div>
+
+                      {isOwnProfile && (
+                        <Button size="sm" variant="outline" className="mt-4 border-border text-xs" onClick={() => setEditing(true)}>
+                          Editar perfil
+                        </Button>
                       )}
-                    </div>
-                    {profile.bio && <p className="text-sm text-muted-foreground mt-1 font-body">{profile.bio}</p>}
-                    <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground font-body">
-                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Membro desde {memberSince}</span>
-                      <span className="flex items-center gap-1"><Package className="h-3.5 w-3.5" />{totalAds} anúncio{totalAds !== 1 ? "s" : ""}</span>
-                    </div>
-                    {isOwnProfile && (
-                      <Button size="sm" variant="outline" className="mt-3 border-border text-xs" onClick={() => setEditing(true)}>
-                        Editar perfil
-                      </Button>
-                    )}
-                  </>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>

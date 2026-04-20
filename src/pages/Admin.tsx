@@ -24,8 +24,10 @@ import { formatPriceWithDots } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
-  Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square,
+  Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
 } from "lucide-react";
+import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
+import UserBadgeControls from "@/components/admin/UserBadgeControls";
 
 type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
 
@@ -534,8 +536,8 @@ const Admin = () => {
                       <TableHead className="text-muted-foreground text-xs">Username</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Anúncios</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Cargo</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Selos</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Status</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Cadastro</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -577,13 +579,15 @@ const Admin = () => {
                             </Select>
                           </TableCell>
                           <TableCell>
+                            <UserBadgeControls userId={profile.user_id} />
+                          </TableCell>
+                          <TableCell>
                             {banned ? (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-semibold">Banido</span>
                             ) : (
                               <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">Ativo</span>
                             )}
                           </TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(profile.created_at).toLocaleDateString("pt-BR")}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-0.5">
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/perfil/${profile.user_id}`)}>

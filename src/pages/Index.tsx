@@ -156,93 +156,132 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Banners Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left: Featured Items Showcase */}
-            <div className="bg-card/80 border border-border/60 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" />
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Itens em Destaque</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {(featuredAds.length > 0 ? featuredAds.slice(0, 4) : regularAds?.slice(0, 4) || []).map((ad) => (
-                  <Link
-                    key={ad.id}
-                    to={`/anuncio/${ad.id}`}
-                    className="flex items-center gap-2.5 p-2.5 rounded-xl bg-secondary/50 border border-border/40 hover:border-primary/30 hover:bg-secondary/80 transition-all duration-200 text-left group"
-                  >
-                    {ad.image_url ? (
-                      <img src={ad.image_url} alt={ad.title} className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border/40" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                        <Flame className="w-4 h-4 text-primary/60" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">{ad.title}</p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${ad.type === "selling" ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
-                          {ad.type === "selling" ? "Venda" : "Compra"}
-                        </span>
-                        {ad.price && (
-                          <span className="text-[10px] text-primary font-semibold">{ad.price} {ad.currency}</span>
+          {/* Banners Row: Destaques + Rifa */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            {/* Featured Items Showcase */}
+            <div className="lg:col-span-3 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
+              {/* Glow decorativo */}
+              <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-warning/10 blur-3xl" />
+              <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
+
+              <div className="relative p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-warning/15 border border-warning/30">
+                      <Flame className="h-3.5 w-3.5 text-warning" />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
+                      <p className="text-[10px] text-muted-foreground/80">Selecionados pela comunidade</p>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
+                    Top {Math.min(6, (featuredAds.length || regularAds?.length || 0))}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {(featuredAds.length > 0 ? featuredAds.slice(0, 6) : regularAds?.slice(0, 6) || []).map((ad) => (
+                    <Link
+                      key={ad.id}
+                      to={`/anuncio/${ad.id}`}
+                      className="group relative overflow-hidden rounded-xl border border-border/50 bg-secondary/40 p-2.5 transition-all duration-200 hover:border-warning/40 hover:bg-secondary/70 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_hsl(var(--warning)/0.12)]"
+                    >
+                      {ad.featured && (
+                        <span className="absolute top-1.5 right-1.5 z-10 text-[8px] font-bold text-warning bg-background/80 backdrop-blur-sm border border-warning/30 px-1.5 py-0.5 rounded uppercase tracking-wider">★</span>
+                      )}
+                      <div className="flex flex-col items-center text-center gap-1.5">
+                        <div className="relative">
+                          <div className="absolute inset-0 rounded-full bg-warning/0 group-hover:bg-warning/15 blur-md transition-all duration-300" />
+                          {ad.image_url ? (
+                            <img src={ad.image_url} alt={ad.title} className="relative w-12 h-12 rounded-lg object-contain pixelated" loading="lazy" />
+                          ) : (
+                            <div className="relative w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                              <Flame className="w-5 h-5 text-primary/60" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-[11px] font-semibold text-foreground truncate w-full group-hover:text-warning transition-colors">{ad.title}</p>
+                        {ad.price ? (
+                          <span className="text-[10px] text-primary font-bold">{ad.price} {ad.currency}</span>
+                        ) : (
+                          <span className="text-[9px] text-warning/80 font-semibold uppercase tracking-wider">Ofertas</span>
                         )}
                       </div>
-                      <p className="text-[9px] text-muted-foreground truncate mt-0.5">
-                        por {ad.profiles?.username || "Anônimo"}
-                      </p>
+                    </Link>
+                  ))}
+                  {(!featuredAds.length && !regularAds?.length) && (
+                    <div className="col-span-3 text-center py-8">
+                      <p className="text-xs text-muted-foreground/60">Nenhum item em destaque ainda</p>
                     </div>
-                  </Link>
-                ))}
-                {(!featuredAds.length && !regularAds?.length) && (
-                  <div className="col-span-2 text-center py-4">
-                    <p className="text-xs text-muted-foreground/60">Nenhum item em destaque</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Right: Raffle Banner */}
+            {/* Raffle / Banner */}
             {activeRaffles && activeRaffles.length > 0 ? (
               <Link
                 to={`/rifa/${activeRaffles[0].id}`}
-                className="block w-full rounded-2xl overflow-hidden border border-warning/30 bg-gradient-to-br from-warning/10 via-warning/5 to-primary/5 transition-all duration-300 hover:border-warning/50 hover:shadow-[0_0_30px_hsl(var(--warning)/0.15)] group relative"
+                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-primary/30 bg-card group transition-all duration-300 hover:border-primary/60 hover:shadow-[0_0_40px_hsl(var(--primary)/0.18)]"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent z-10" />
+                {/* Background image ou pattern */}
                 {activeRaffles[0].image_url ? (
-                  <img src={activeRaffles[0].image_url} alt={activeRaffles[0].title} className="w-full h-full min-h-[200px] object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+                  <>
+                    <img
+                      src={activeRaffles[0].image_url}
+                      alt={activeRaffles[0].title}
+                      className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
+                  </>
                 ) : (
-                  <div className="h-full min-h-[200px] flex items-center justify-center relative">
-                    <div className="absolute inset-0 overflow-hidden">
-                      <div className="absolute -top-8 -right-8 w-32 h-32 bg-warning/10 rounded-full blur-2xl" />
-                      <div className="absolute -bottom-8 -left-8 w-28 h-28 bg-primary/10 rounded-full blur-2xl" />
-                    </div>
-                    <div className="w-16 h-16 rounded-2xl bg-warning/15 flex items-center justify-center border border-warning/25 shadow-lg shadow-warning/10 z-20">
-                      <span className="text-3xl">🎰</span>
-                    </div>
-                  </div>
+                  <>
+                    <div aria-hidden className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-primary/15 blur-3xl" />
+                    <div aria-hidden className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-warning/10 blur-3xl" />
+                  </>
                 )}
-                <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                  <div className="flex items-end justify-between">
+
+                <div className="relative p-5 flex flex-col justify-between min-h-[220px]">
+                  <div className="flex items-start justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      Rifa Ativa
+                    </span>
+                    {!activeRaffles[0].image_url && (
+                      <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center border border-primary/30 shadow-lg shadow-primary/10">
+                        <span className="text-2xl">🎰</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-bold text-foreground group-hover:text-warning transition-colors">{activeRaffles[0].title}</p>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-[10px] text-warning font-semibold bg-warning/10 border border-warning/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          💰 {activeRaffles[0].price_per_number} coins/nº
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {activeRaffles[0].total_numbers} números
-                        </span>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Sorteio</p>
+                      <h3 className="text-base font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        {activeRaffles[0].title}
+                      </h3>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-[10px]">
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground/80 uppercase tracking-wider">Preço</span>
+                        <span className="text-warning font-bold text-sm">{activeRaffles[0].price_per_number} <span className="text-[9px]">coins</span></span>
+                      </div>
+                      <div className="w-px h-8 bg-border" />
+                      <div className="flex flex-col">
+                        <span className="text-muted-foreground/80 uppercase tracking-wider">Números</span>
+                        <span className="text-foreground font-bold text-sm">{activeRaffles[0].total_numbers}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-warning-foreground bg-warning/90 px-3 py-1.5 rounded-xl uppercase tracking-wider group-hover:bg-warning transition-colors shadow-lg shadow-warning/20">
-                      Participar →
-                    </span>
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <span className="text-[10px] text-muted-foreground/70">Boa sorte! 🍀</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-xl uppercase tracking-wider group-hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                        Participar →
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Ativa</span>
                 </div>
               </Link>
             ) : banners && banners.length > 0 ? (
@@ -250,19 +289,22 @@ const Index = () => {
                 href={banners[0].link_url || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full rounded-2xl overflow-hidden border border-border/60 bg-card/80 transition-all duration-200 hover:border-primary/30 group relative min-h-[200px]"
+                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group min-h-[220px]"
               >
                 {banners[0].image_url ? (
-                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[200px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[220px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
                 ) : (
-                  <div className="h-full min-h-[200px] flex flex-col items-center justify-center px-6 gap-2">
+                  <div className="h-full min-h-[220px] flex flex-col items-center justify-center px-6 gap-2">
                     <p className="text-sm font-bold text-foreground">{banners[0].title || "Banner"}</p>
                   </div>
                 )}
               </a>
             ) : (
-              <Link to="/rifa" className="block bg-card/80 border border-border/60 rounded-2xl flex flex-col items-center justify-center min-h-[200px] gap-3 hover:border-warning/30 transition-all group">
-                <div className="w-14 h-14 rounded-2xl bg-warning/10 flex items-center justify-center border border-warning/20 group-hover:bg-warning/15 transition-colors">
+              <Link
+                to="/rifa"
+                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-border bg-card flex flex-col items-center justify-center min-h-[220px] gap-3 hover:border-primary/30 transition-all group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:bg-primary/15 transition-colors">
                   <span className="text-2xl">🎰</span>
                 </div>
                 <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">Nenhuma rifa ativa</p>

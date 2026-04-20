@@ -594,6 +594,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_type: Database["public"]["Enums"]["badge_type"]
+          created_at: string
+          custom_color: string | null
+          custom_label: string | null
+          granted_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_type: Database["public"]["Enums"]["badge_type"]
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          granted_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_type?: Database["public"]["Enums"]["badge_type"]
+          created_at?: string
+          custom_color?: string | null
+          custom_label?: string | null
+          granted_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -697,6 +727,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      badge_type:
+        | "premium_verified"
+        | "trusted_trader"
+        | "top_trader"
+        | "veteran"
+        | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -825,6 +861,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      badge_type: [
+        "premium_verified",
+        "trusted_trader",
+        "top_trader",
+        "veteran",
+        "custom",
+      ],
     },
   },
 } as const
