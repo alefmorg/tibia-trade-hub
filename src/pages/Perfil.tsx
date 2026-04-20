@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Shield, ShieldAlert, UserCog } from "lucide-react";
+import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
+import UserBadges from "@/components/UserBadges";
+import { useUserBadges } from "@/hooks/useUserBadges";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
@@ -44,6 +46,8 @@ const Perfil = () => {
   const { data: myDeposits } = useMyDeposits();
   const createDeposit = useCreateDeposit();
   const rate = depositConfig?.gold_to_coins_rate || 1;
+
+  const { data: badges = [] } = useUserBadges(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
