@@ -2,38 +2,26 @@ import { BadgeCheck, Award, Crown, Gem, Shield, ShieldAlert } from "lucide-react
 import { cn } from "@/lib/utils";
 import type { UserBadge, BadgeType } from "@/hooks/useUserBadges";
 
+/**
+ * Selos no estilo pixel/Tibia:
+ * - Tipografia pixel (Press Start 2P)
+ * - Cantos retos (sem rounded-full)
+ * - Borda dupla simulada (outline + inset)
+ * - Sem gradientes brilhantes; cores chapadas do design system
+ */
+
 interface BadgeMeta {
   label: string;
   Icon: typeof BadgeCheck;
-  className: string;
+  tone: "primary" | "warning" | "muted";
   title: string;
 }
 
 const META: Record<Exclude<BadgeType, "custom">, BadgeMeta> = {
-  premium_verified: {
-    label: "Premium",
-    Icon: BadgeCheck,
-    className: "bg-primary/15 text-primary border-primary/40",
-    title: "Conta Premium verificada",
-  },
-  trusted_trader: {
-    label: "Vendedor confiável",
-    Icon: Award,
-    className: "bg-primary/10 text-primary border-primary/25",
-    title: "Vendedor confiável",
-  },
-  top_trader: {
-    label: "Top Trader",
-    Icon: Crown,
-    className: "bg-warning/15 text-warning border-warning/35",
-    title: "Top Trader da comunidade",
-  },
-  veteran: {
-    label: "Veterano",
-    Icon: Gem,
-    className: "bg-secondary text-foreground border-border",
-    title: "Membro veterano",
-  },
+  premium_verified: { label: "PREMIUM",  Icon: BadgeCheck, tone: "primary", title: "Conta Premium verificada" },
+  trusted_trader:   { label: "TRUSTED",  Icon: Award,      tone: "primary", title: "Vendedor confiável" },
+  top_trader:       { label: "TOP",      Icon: Crown,      tone: "warning", title: "Top Trader da comunidade" },
+  veteran:          { label: "VETERAN",  Icon: Gem,        tone: "muted",   title: "Membro veterano" },
 };
 
 interface UserBadgesProps {
@@ -43,59 +31,113 @@ interface UserBadgesProps {
   showRole?: boolean;
 }
 
+const toneStyle = (tone: "primary" | "warning" | "muted") => {
+  switch (tone) {
+    case "primary":
+      return {
+        bg: "hsl(var(--primary) / 0.12)",
+        fg: "hsl(var(--primary))",
+        border: "hsl(var(--primary) / 0.55)",
+        outline: "hsl(var(--background))",
+      };
+    case "warning":
+      return {
+        bg: "hsl(var(--warning) / 0.14)",
+        fg: "hsl(var(--warning))",
+        border: "hsl(var(--warning) / 0.6)",
+        outline: "hsl(var(--background))",
+      };
+    case "muted":
+      return {
+        bg: "hsl(var(--secondary))",
+        fg: "hsl(var(--foreground))",
+        border: "hsl(var(--border))",
+        outline: "hsl(var(--background))",
+      };
+  }
+};
+
+const PixelPill = ({
+  size,
+  tone,
+  Icon,
+  label,
+  title,
+  customColor,
+}: {
+  size: "sm" | "md";
+  tone: "primary" | "warning" | "muted";
+  Icon: typeof BadgeCheck;
+  label: string;
+  title: string;
+  customColor?: string;
+}) => {
+  const t = toneStyle(tone);
+  const fg = customColor || t.fg;
+  const border = customColor ? `${customColor}` : t.border;
+  const bg = customColor ? `color-mix(in oklab, ${customColor} 14%, transparent)` : t.bg;
+
+  return (
+    <span
+      title={title}
+      className={cn(
+        "inline-flex items-center gap-1.5 font-pixel uppercase select-none",
+        size === "md" ? "text-[9px] px-2.5 py-1.5" : "text-[8px] px-2 py-1"
+      )}
+      style={{
+        color: fg,
+        background: bg,
+        border: `2px solid ${border}`,
+        // borda dupla "pixel" (outline preto fino por fora)
+        boxShadow: `0 0 0 1px ${t.outline}, inset 0 0 0 1px hsl(0 0% 0% / 0.35)`,
+        borderRadius: 2,
+        letterSpacing: "0.06em",
+        textShadow: "1px 1px 0 hsl(0 0% 0% / 0.45)",
+        imageRendering: "pixelated",
+      }}
+    >
+      <Icon className={size === "md" ? "h-3 w-3" : "h-2.5 w-2.5"} strokeWidth={2.75} />
+      {label}
+    </span>
+  );
+};
+
 const UserBadges = ({ badges, role, size = "sm", showRole = true }: UserBadgesProps) => {
   const items: { key: string; node: React.ReactNode }[] = [];
 
   if (showRole && role === "admin") {
     items.push({
       key: "role-admin",
-      node: (
-        <span className={cn(pill(size), "bg-primary/15 text-primary border-primary/40")} title="Administrador">
-          <Shield className={iconCls(size)} />
-          Admin
-        </span>
-      ),
+      node: <PixelPill size={size} tone="primary" Icon={Shield} label="ADMIN" title="Administrador" />,
     });
   } else if (showRole && role === "moderator") {
     items.push({
       key: "role-mod",
-      node: (
-        <span className={cn(pill(size), "bg-warning/15 text-warning border-warning/40")} title="Moderador">
-          <ShieldAlert className={iconCls(size)} />
-          Mod
-        </span>
-      ),
+      node: <PixelPill size={size} tone="warning" Icon={ShieldAlert} label="MOD" title="Moderador" />,
     });
   }
 
   for (const b of badges) {
     if (b.badge_type === "custom") {
-      const color = b.custom_color || "hsl(var(--primary))";
       items.push({
         key: b.id,
         node: (
-          <span
-            className={cn(pill(size), "border")}
-            style={{ background: `${color}22`, color, borderColor: `${color}66` }}
+          <PixelPill
+            size={size}
+            tone="muted"
+            Icon={Award}
+            label={(b.custom_label || "SELO").toUpperCase()}
             title={b.custom_label || "Selo"}
-          >
-            <Award className={iconCls(size)} />
-            {b.custom_label || "Selo"}
-          </span>
+            customColor={b.custom_color || undefined}
+          />
         ),
       });
     } else {
       const meta = META[b.badge_type];
       if (!meta) continue;
-      const { Icon } = meta;
       items.push({
         key: b.id,
-        node: (
-          <span className={cn(pill(size), meta.className, "border")} title={meta.title}>
-            <Icon className={iconCls(size)} />
-            {meta.label}
-          </span>
-        ),
+        node: <PixelPill size={size} tone={meta.tone} Icon={meta.Icon} label={meta.label} title={meta.title} />,
       });
     }
   }
@@ -108,12 +150,5 @@ const UserBadges = ({ badges, role, size = "sm", showRole = true }: UserBadgesPr
     </div>
   );
 };
-
-const pill = (size: "sm" | "md") =>
-  size === "md"
-    ? "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border"
-    : "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border";
-
-const iconCls = (size: "sm" | "md") => (size === "md" ? "h-3.5 w-3.5" : "h-3 w-3");
 
 export default UserBadges;
