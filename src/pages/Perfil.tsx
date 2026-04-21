@@ -9,7 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
+import {
+  Save, Package, Heart, Calendar, Star, Coins, Sparkles,
+  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X
+} from "lucide-react";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { supabase } from "@/lib/supabase-client";
@@ -18,50 +21,59 @@ import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } f
 import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDeposits";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-interface StatTileProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
-  accent?: "default" | "warning";
-  capitalize?: boolean;
-}
+/* ---------- subcomponents ---------- */
 
-const StatTile = ({ icon, label, value, accent = "default", capitalize = false }: StatTileProps) => {
-  const isWarn = accent === "warning";
-  return (
-    <div
-      className={`group/stat relative overflow-hidden rounded-xl border px-3.5 py-3 transition-colors ${
-        isWarn
-          ? "border-warning/30 bg-warning/[0.04] hover:border-warning/50"
-          : "border-border/70 bg-secondary/30 hover:border-primary/30"
-      }`}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-0 group-hover/stat:opacity-100 transition-opacity"
-        style={{
-          background: isWarn
-            ? "radial-gradient(80% 100% at 0% 0%, hsl(var(--warning) / 0.08), transparent 60%)"
-            : "radial-gradient(80% 100% at 0% 0%, hsl(var(--primary) / 0.08), transparent 60%)",
-        }}
-      />
-      <div className="relative">
-        <p className={`text-[10px] uppercase tracking-wider flex items-center gap-1.5 ${isWarn ? "text-warning/80" : "text-muted-foreground"}`}>
-          <span className={isWarn ? "text-warning" : "text-primary/70"}>{icon}</span>
-          {label}
-        </p>
-        <p className={`mt-1 text-base font-bold ${isWarn ? "text-warning" : "text-foreground"} ${capitalize ? "capitalize truncate" : ""}`}>
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-};
+const StatRow = ({
+  icon, label, value, accent,
+}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" }) => (
+  <div className="flex items-center justify-between py-2.5">
+    <span className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+      <span className={accent === "warning" ? "text-warning" : "text-primary/80"}>{icon}</span>
+      {label}
+    </span>
+    <span className={cn("text-sm font-semibold tabular-nums", accent === "warning" ? "text-warning" : "text-foreground")}>
+      {value}
+    </span>
+  </div>
+);
+
+const TabButton = ({
+  active, onClick, icon, children, tone = "default",
+}: {
+  active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode;
+  tone?: "default" | "warning";
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "relative inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-medium transition-colors",
+      "border-b-2 -mb-px",
+      active
+        ? tone === "warning"
+          ? "text-warning border-warning"
+          : "text-foreground border-primary"
+        : "text-muted-foreground border-transparent hover:text-foreground"
+    )}
+  >
+    {icon}
+    {children}
+  </button>
+);
+
+const SectionTitle = ({ children, hint }: { children: React.ReactNode; hint?: React.ReactNode }) => (
+  <div className="flex items-end justify-between mb-4">
+    <h2 className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">{children}</h2>
+    {hint}
+  </div>
+);
+
+/* ---------- page ---------- */
 
 const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user, profile: myProfile } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const isOwnProfile = !userId || userId === user?.id;
   const profileUserId = isOwnProfile ? user?.id : userId;
@@ -79,7 +91,6 @@ const Perfil = () => {
   const { data: plans } = useHighlightPlans();
   const highlightAd = useHighlightAd();
   const { data: transactions } = useWalletTransactions();
-
   const activePlans = (plans || []).filter(p => p.active);
 
   const { data: depositConfig } = useDepositConfig();
@@ -179,8 +190,9 @@ const Perfil = () => {
     );
   };
 
-  const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : "";
+  const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" }) : "";
   const totalAds = userAds?.length || 0;
+  const isPremium = badges.some((b) => b.badge_type === "premium_verified");
 
   if (!profileUserId) {
     return (
@@ -197,391 +209,379 @@ const Perfil = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container py-8 max-w-4xl">
+      <div className="container py-10 max-w-6xl">
         {profileLoading ? (
-          <div className="card-gaming p-8 flex items-center gap-6">
-            <Skeleton className="h-20 w-20 rounded-full" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-4 w-60" />
-            </div>
+          <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+            <Skeleton className="h-56 rounded-2xl" />
+            <Skeleton className="h-56 rounded-2xl" />
           </div>
         ) : profile ? (
-          <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-secondary/30 shadow-[0_20px_60px_-20px_hsl(0_0%_0%/0.6)]">
-            {/* Banner artístico */}
-            <div className="relative h-36 sm:h-44 overflow-hidden">
-              <div
-                aria-hidden
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(60% 120% at 15% 0%, hsl(var(--primary) / 0.35), transparent 60%), radial-gradient(50% 120% at 85% 10%, hsl(var(--primary) / 0.18), transparent 60%), linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--card)) 100%)",
-                }}
-              />
-              {/* Grid pattern */}
-              <div
-                aria-hidden
-                className="absolute inset-0 opacity-[0.06]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-                  backgroundSize: "32px 32px",
-                  maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
-                }}
-              />
-              {/* Glow orb */}
-              <div
-                aria-hidden
-                className="absolute -top-16 -right-16 h-48 w-48 rounded-full blur-3xl"
-                style={{ background: "hsl(var(--primary) / 0.25)" }}
-              />
-              {/* Edit btn float */}
-              {isOwnProfile && !editing && (
-                <div className="absolute top-4 right-4 z-20">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditing(true)}
-                    className="h-8 bg-background/60 backdrop-blur-md border-border/80 text-xs hover:bg-background/80"
-                  >
-                    Editar perfil
-                  </Button>
-                </div>
-              )}
-              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-
-            <div className="relative px-6 sm:px-8 pb-7">
-              {/* Avatar suspenso */}
-              <div className="relative -mt-14 sm:-mt-16 flex flex-col sm:flex-row sm:items-end sm:gap-5">
+          <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+            {/* ===== Identidade ===== */}
+            <section className="rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm p-6 sm:p-8">
+              <div className="flex items-start gap-5 sm:gap-6">
+                {/* Avatar */}
                 <div className="relative shrink-0">
-                  <div
-                    className="absolute -inset-1 rounded-full opacity-70 blur-md"
-                    aria-hidden
-                    style={{ background: "conic-gradient(from 180deg, hsl(var(--primary) / 0.6), transparent, hsl(var(--primary) / 0.4))" }}
-                  />
-                  <Avatar className="relative h-28 w-28 sm:h-32 sm:w-32 ring-4 ring-card border-2 border-primary/50 shadow-[0_12px_30px_hsl(0_0%_0%/0.5)]">
+                  <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border border-border">
                     {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                    <AvatarFallback className="bg-gradient-to-br from-primary/25 to-primary/5 text-primary text-3xl font-pixel">
+                    <AvatarFallback className="bg-secondary text-foreground text-2xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  {badges.some((b) => b.badge_type === "premium_verified") && (
+                  {isPremium && (
                     <span
                       title="Premium Verificado"
-                      className="absolute -bottom-1 -right-1 inline-flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground"
+                      className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center bg-primary text-primary-foreground"
                       style={{
                         borderRadius: 2,
-                        border: "2px solid hsl(var(--primary))",
-                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(0 0% 0% / 0.6), inset 0 0 0 1px hsl(0 0% 0% / 0.35)",
+                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(0 0% 0% / 0.55)",
                       }}
                     >
-                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" style={{ filter: "drop-shadow(1px 1px 0 hsl(0 0% 0% / 0.5))" }}>
+                      <svg viewBox="0 0 24 24" className="h-3 w-3" fill="currentColor">
                         <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                       </svg>
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 sm:mt-0 sm:pb-2 flex-1 min-w-0">
-                  {!editing && (
+                {/* Nome + ações */}
+                <div className="flex-1 min-w-0">
+                  {editing ? (
+                    <div className="space-y-3 max-w-md">
+                      <div>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>
+                        <Input
+                          value={editUsername}
+                          onChange={e => setEditUsername(e.target.value)}
+                          className="bg-secondary/50 border-border h-9 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Bio</Label>
+                        <Textarea
+                          value={editBio}
+                          onChange={e => setEditBio(e.target.value)}
+                          placeholder="Fale sobre você..."
+                          className="bg-secondary/50 border-border min-h-[72px] mt-1 resize-none"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="h-8 bg-primary text-primary-foreground">
+                          <Check className="h-3.5 w-3.5 mr-1" />
+                          {updateProfile.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="h-8">
+                          <X className="h-3.5 w-3.5 mr-1" /> Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
                     <>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                        <h1 className="text-2xl sm:text-3xl font-pixel text-foreground tracking-tight leading-none">
-                          {profile.username}
-                        </h1>
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="min-w-0">
+                          <h1 className="text-xl sm:text-2xl font-pixel text-foreground leading-tight truncate">
+                            {profile.username}
+                          </h1>
+                          <p className="text-[11px] text-muted-foreground mt-1 capitalize">
+                            membro desde {memberSince}
+                          </p>
+                        </div>
+                        {isOwnProfile && (
+                          <Button
+                            size="sm" variant="ghost"
+                            onClick={() => setEditing(true)}
+                            className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                          >
+                            <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
+                          </Button>
+                        )}
                       </div>
-                      <div className="mt-2.5">
-                        <UserBadges badges={badges} role={userRole} size="md" />
-                      </div>
+
+                      {badges.length > 0 || userRole === "admin" || userRole === "moderator" ? (
+                        <div className="mt-3">
+                          <UserBadges badges={badges} role={userRole} size="sm" />
+                        </div>
+                      ) : null}
+
+                      {profile.bio && (
+                        <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">
+                          {profile.bio}
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
               </div>
+            </section>
 
-              {/* Bio + edit form */}
-              <div className="mt-5">
-                {editing ? (
-                  <div className="space-y-3 max-w-xl">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">Nome de usuário</Label>
-                      <Input value={editUsername} onChange={e => setEditUsername(e.target.value)} className="bg-secondary/60 border-border h-10" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider">Bio</Label>
-                      <Textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Fale sobre você..." className="bg-secondary/60 border-border min-h-[80px]" />
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="bg-primary text-primary-foreground">
-                        <Save className="h-3.5 w-3.5 mr-1" />
-                        {updateProfile.isPending ? "Salvando..." : "Salvar"}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setEditing(false)} className="border-border">Cancelar</Button>
-                    </div>
-                  </div>
-                ) : (
-                  profile.bio && (
-                    <p className="text-sm text-foreground/80 font-body max-w-prose leading-relaxed">
-                      {profile.bio}
-                    </p>
-                  )
+            {/* ===== Painel lateral ===== */}
+            <aside className="rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm p-5">
+              <SectionTitle>Resumo</SectionTitle>
+              <div className="divide-y divide-border/50">
+                <StatRow icon={<Package className="h-3.5 w-3.5" />} label="Anúncios ativos" value={totalAds} />
+                <StatRow icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
+                <StatRow icon={<Calendar className="h-3.5 w-3.5" />} label="Desde" value={<span className="capitalize">{memberSince}</span>} />
+                {isOwnProfile && (
+                  <StatRow
+                    icon={<Coins className="h-3.5 w-3.5" />}
+                    label="Saldo"
+                    accent="warning"
+                    value={`${wallet?.balance ?? 0} RC`}
+                  />
                 )}
               </div>
 
-              {/* Stats premium */}
-              {!editing && (
-                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <StatTile icon={<Package className="h-3.5 w-3.5" />} label="Anúncios" value={totalAds} />
-                  <StatTile icon={<Calendar className="h-3.5 w-3.5" />} label="Membro desde" value={memberSince} capitalize />
-                  {isOwnProfile ? (
-                    <StatTile icon={<Coins className="h-3.5 w-3.5" />} label="Saldo" value={wallet?.balance ?? 0} accent="warning" />
-                  ) : (
-                    <StatTile icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
-                  )}
-                  {isOwnProfile && (
-                    <StatTile icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
-                  )}
+              {isOwnProfile && (
+                <div className="mt-5 pt-5 border-t border-border/50 grid grid-cols-2 gap-2">
+                  <Button
+                    size="sm" variant="outline"
+                    className="h-8 text-xs border-border"
+                    onClick={() => setActiveTab("deposit")}
+                  >
+                    <Wallet className="h-3.5 w-3.5 mr-1" /> Depositar
+                  </Button>
+                  <Link to="/criar-anuncio">
+                    <Button size="sm" className="h-8 text-xs w-full bg-primary text-primary-foreground">
+                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Anunciar
+                    </Button>
+                  </Link>
                 </div>
               )}
-            </div>
+            </aside>
           </div>
         ) : (
-          <div className="card-gaming p-8 text-center">
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">Perfil não encontrado.</p>
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="mt-8">
-          <div className="flex gap-2 mb-4">
-            <Button size="sm" variant={activeTab === "ads" ? "default" : "outline"} onClick={() => setActiveTab("ads")}
-              className={activeTab === "ads" ? "bg-primary text-primary-foreground" : "border-border"}>
-              <Package className="h-3.5 w-3.5 mr-1" />
-              Anúncios {isOwnProfile ? "seus" : `de ${profile?.username || ""}`}
-            </Button>
+        {/* ===== Tabs ===== */}
+        <div className="mt-10">
+          <div className="border-b border-border/70 flex flex-wrap items-center gap-1">
+            <TabButton active={activeTab === "ads"} onClick={() => setActiveTab("ads")} icon={<Package className="h-3.5 w-3.5" />}>
+              Anúncios {!isOwnProfile && profile?.username ? `de ${profile.username}` : ""}
+            </TabButton>
             {isOwnProfile && (
               <>
-                <Button size="sm" variant={activeTab === "favorites" ? "default" : "outline"} onClick={() => setActiveTab("favorites")}
-                  className={activeTab === "favorites" ? "bg-primary text-primary-foreground" : "border-border"}>
-                  <Heart className="h-3.5 w-3.5 mr-1" />
+                <TabButton active={activeTab === "favorites"} onClick={() => setActiveTab("favorites")} icon={<Heart className="h-3.5 w-3.5" />}>
                   Favoritos
-                </Button>
-                <Button size="sm" variant={activeTab === "transactions" ? "default" : "outline"} onClick={() => setActiveTab("transactions")}
-                  className={activeTab === "transactions" ? "bg-primary text-primary-foreground" : "border-border"}>
-                  <History className="h-3.5 w-3.5 mr-1" />
+                </TabButton>
+                <TabButton active={activeTab === "transactions"} onClick={() => setActiveTab("transactions")} icon={<History className="h-3.5 w-3.5" />}>
                   Histórico
-                </Button>
-                <Button size="sm" variant={activeTab === "deposit" ? "default" : "outline"} onClick={() => setActiveTab("deposit")}
-                  className={activeTab === "deposit" ? "bg-warning text-warning-foreground" : "border-border"}>
-                  <Wallet className="h-3.5 w-3.5 mr-1" />
+                </TabButton>
+                <TabButton active={activeTab === "deposit"} onClick={() => setActiveTab("deposit")} icon={<Wallet className="h-3.5 w-3.5" />} tone="warning">
                   Depositar
-                </Button>
+                </TabButton>
               </>
             )}
           </div>
 
-          {activeTab === "ads" && (
-            <>
-              {adsLoading ? (
-                <div className="trade-card-list">
-                  {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
-                </div>
-              ) : userAds && userAds.length > 0 ? (
-                <div className="space-y-1">
-                  {isOwnProfile && activePlans.length > 0 && (
-                    <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 mb-4 flex items-center gap-3">
-                      <Sparkles className="h-4 w-4 text-warning shrink-0" />
-                      <p className="text-xs text-muted-foreground font-body">
-                        Clique em <Star className="inline h-3 w-3 text-warning" /> no seu anúncio para destacá-lo usando Rubini Coins!
-                      </p>
-                    </div>
-                  )}
+          <div className="pt-6">
+            {activeTab === "ads" && (
+              <>
+                {adsLoading ? (
                   <div className="trade-card-list">
-                    {userAds.map((ad: any) => (
-                      <div key={ad.id} className="relative group">
-                        <TradeCard
-                          id={ad.id}
-                          title={ad.title}
-                          type={ad.type}
-                          price={ad.price}
-                          world={ad.world}
-                          pvpType={ad.pvp_type}
-                          date={ad.created_at}
-                          imageUrl={ad.image_url}
-                          likes={ad.likes_count}
-                          featured={ad.featured}
-                          tier={(ad as any).tier}
-                          profiles={ad.profiles}
-                          userId={ad.user_id}
-                        />
-                        {isOwnProfile && !ad.featured && activePlans.length > 0 && (
-                          <button
-                            onClick={() => { setSelectedAdId(ad.id); setHighlightDialogOpen(true); }}
-                            className="absolute top-2 right-2 z-10 bg-warning/90 hover:bg-warning text-warning-foreground p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
-                            title="Destacar anúncio"
-                          >
-                            <Star className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                        {ad.featured && (
-                          <div className="absolute top-2 right-2 z-10 bg-warning/20 border border-warning/30 text-warning text-[9px] font-bold px-2 py-0.5 rounded-full">
-                            ⭐ Destacado
-                          </div>
-                        )}
+                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                  </div>
+                ) : userAds && userAds.length > 0 ? (
+                  <div className="space-y-4">
+                    {isOwnProfile && activePlans.length > 0 && (
+                      <div className="rounded-xl border border-warning/25 bg-warning/[0.04] px-4 py-2.5 flex items-center gap-2.5">
+                        <Sparkles className="h-3.5 w-3.5 text-warning shrink-0" />
+                        <p className="text-xs text-muted-foreground">
+                          Passe o mouse em um anúncio e clique em <Star className="inline h-3 w-3 text-warning" /> para destacá-lo.
+                        </p>
+                      </div>
+                    )}
+                    <div className="trade-card-list">
+                      {userAds.map((ad: any) => (
+                        <div key={ad.id} className="relative group">
+                          <TradeCard
+                            id={ad.id} title={ad.title} type={ad.type} price={ad.price}
+                            world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
+                            imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
+                            tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id}
+                          />
+                          {isOwnProfile && !ad.featured && activePlans.length > 0 && (
+                            <button
+                              onClick={() => { setSelectedAdId(ad.id); setHighlightDialogOpen(true); }}
+                              className="absolute top-2 right-2 z-10 bg-warning/90 hover:bg-warning text-warning-foreground p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                              title="Destacar anúncio"
+                            >
+                              <Star className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {ad.featured && (
+                            <div className="absolute top-2 right-2 z-10 bg-warning/20 border border-warning/30 text-warning text-[9px] font-bold px-2 py-0.5 rounded-full">
+                              ⭐ Destacado
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+                    <Package className="h-8 w-8 text-muted-foreground/60 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Nenhum anúncio ativo.</p>
+                    {isOwnProfile && (
+                      <Link to="/criar-anuncio">
+                        <Button size="sm" className="mt-4 bg-primary text-primary-foreground">Criar anúncio</Button>
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === "favorites" && isOwnProfile && (
+              <>
+                {favsLoading ? (
+                  <div className="trade-card-list">
+                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                  </div>
+                ) : favoriteAds && favoriteAds.length > 0 ? (
+                  <div className="trade-card-list">
+                    {favoriteAds.map((ad: any) => (
+                      <TradeCard
+                        key={ad.id} id={ad.id} title={ad.title} type={ad.type} price={ad.price}
+                        world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
+                        imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
+                        tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+                    <Heart className="h-8 w-8 text-muted-foreground/60 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Nenhum favorito ainda.</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === "transactions" && isOwnProfile && (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-border/70 bg-card/60 px-5 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Coins className="h-4 w-4 text-warning" />
+                    <span className="text-muted-foreground">Saldo atual</span>
+                  </div>
+                  <span className="text-warning font-bold tabular-nums">{wallet?.balance || 0} RC</span>
+                </div>
+                {transactions && transactions.length > 0 ? (
+                  <div className="rounded-2xl border border-border/70 bg-card/60 overflow-hidden divide-y divide-border/50">
+                    {transactions.map((tx) => (
+                      <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-secondary/20 transition-colors">
+                        <div className={cn("p-1.5 rounded-md", tx.amount >= 0 ? "bg-primary/10" : "bg-destructive/10")}>
+                          {tx.amount >= 0 ? <ArrowDownLeft className="h-4 w-4 text-primary" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(tx.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                        <span className={cn("text-sm font-bold tabular-nums", tx.amount >= 0 ? "text-primary" : "text-destructive")}>
+                          {tx.amount >= 0 ? "+" : ""}{tx.amount}
+                        </span>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+                    <History className="h-8 w-8 text-muted-foreground/60 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Nenhuma transação ainda.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "deposit" && isOwnProfile && (
+              <div className="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+                <div className="rounded-2xl border border-border/70 bg-card/60 p-6 space-y-5">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-warning" /> Depositar Rubini Coins
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">Troque gold do jogo por créditos no site.</p>
+                  </div>
+
+                  {depositConfig?.deposit_char_name ? (
+                    <ol className="rounded-xl border border-warning/25 bg-warning/[0.04] p-4 text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
+                      <li>Envie gold para: <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span></li>
+                      <li>Tire um print da transferência</li>
+                      <li>Anexe abaixo e aguarde aprovação</li>
+                    </ol>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Sistema de depósito ainda não configurado.</p>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Gold enviado</Label>
+                      <Input type="number" value={depositGold} onChange={(e) => setDepositGold(e.target.value)} placeholder="10000" className="bg-secondary/50 border-border h-9" />
+                      {depositGold && rate > 0 && (
+                        <p className="text-[10px] text-warning font-semibold">= {Math.floor(Number(depositGold) / rate)} RC</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Print do envio</Label>
+                      <input
+                        type="file" accept="image/*"
+                        onChange={(e) => setDepositScreenshot(e.target.files?.[0] || null)}
+                        className="text-xs text-muted-foreground file:mr-2 file:px-3 file:py-1.5 file:rounded-md file:border-0 file:bg-secondary file:text-foreground file:text-xs file:cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (!depositGold || !depositScreenshot || rate <= 0) return;
+                      const coins = Math.floor(Number(depositGold) / rate);
+                      if (coins < 1) { toast.error("Quantidade muito baixa"); return; }
+                      createDeposit.mutate({ amountGold: Number(depositGold), amountCoins: coins, screenshotFile: depositScreenshot }, {
+                        onSuccess: () => { setDepositGold(""); setDepositScreenshot(null); }
+                      });
+                    }}
+                    disabled={createDeposit.isPending || !depositGold || !depositScreenshot}
+                    className="bg-warning text-warning-foreground hover:bg-warning/90"
+                  >
+                    <Upload className="h-4 w-4 mr-1" />
+                    {createDeposit.isPending ? "Enviando..." : "Enviar solicitação"}
+                  </Button>
                 </div>
-              ) : (
-                <div className="card-gaming p-8 text-center">
-                  <p className="text-muted-foreground text-sm">Nenhum anúncio ativo.</p>
-                  {isOwnProfile && (
-                    <Link to="/criar-anuncio">
-                      <Button size="sm" className="mt-3 bg-primary text-primary-foreground">Criar anúncio</Button>
-                    </Link>
+
+                <div className="rounded-2xl border border-border/70 bg-card/60 overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/50">
+                    <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Seus depósitos</h4>
+                  </div>
+                  {myDeposits && myDeposits.length > 0 ? (
+                    <div className="divide-y divide-border/50">
+                      {myDeposits.map((dep) => (
+                        <div key={dep.id} className="flex items-center gap-3 px-5 py-3">
+                          <img src={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground truncate">{dep.amount_gold.toLocaleString("pt-BR")}g → {dep.amount_coins} RC</p>
+                            <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</p>
+                          </div>
+                          <span className={cn(
+                            "text-[10px] px-2 py-0.5 rounded-full font-semibold",
+                            dep.status === "pending" ? "bg-warning/15 text-warning" :
+                            dep.status === "approved" ? "bg-primary/15 text-primary" :
+                            "bg-destructive/15 text-destructive"
+                          )}>
+                            {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum depósito ainda.</div>
                   )}
                 </div>
-              )}
-            </>
-          )}
-
-          {activeTab === "favorites" && isOwnProfile && (
-            <>
-              {favsLoading ? (
-                <div className="trade-card-list">
-                  {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
-                </div>
-              ) : favoriteAds && favoriteAds.length > 0 ? (
-                <div className="trade-card-list">
-                  {favoriteAds.map((ad: any) => (
-                    <TradeCard
-                      key={ad.id}
-                      id={ad.id}
-                      title={ad.title}
-                      type={ad.type}
-                      price={ad.price}
-                      world={ad.world}
-                      pvpType={ad.pvp_type}
-                      date={ad.created_at}
-                      imageUrl={ad.image_url}
-                      likes={ad.likes_count}
-                      featured={ad.featured}
-                      tier={(ad as any).tier}
-                      profiles={ad.profiles}
-                      userId={ad.user_id}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="card-gaming p-8 text-center">
-                  <p className="text-muted-foreground text-sm">Nenhum favorito ainda.</p>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Transactions Tab */}
-          {activeTab === "transactions" && isOwnProfile && (
-            <div className="space-y-2">
-              <div className="card-gaming p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Coins className="h-4 w-4 text-warning" />
-                  <span className="text-sm font-semibold text-foreground">Saldo atual:</span>
-                  <span className="text-warning font-bold">{wallet?.balance || 0} Rubini Coins</span>
-                </div>
               </div>
-              {transactions && transactions.length > 0 ? (
-                <div className="card-gaming overflow-hidden">
-                  {transactions.map((tx) => (
-                    <div key={tx.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 hover:bg-secondary/20 transition-colors">
-                      <div className={`p-1.5 rounded-lg ${tx.amount >= 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
-                        {tx.amount >= 0 ? <ArrowDownLeft className="h-4 w-4 text-primary" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
-                      </div>
-                      <span className={`text-sm font-bold ${tx.amount >= 0 ? "text-primary" : "text-destructive"}`}>
-                        {tx.amount >= 0 ? "+" : ""}{tx.amount}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="card-gaming p-8 text-center">
-                  <p className="text-muted-foreground text-sm">Nenhuma transação ainda.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Deposit Tab */}
-          {activeTab === "deposit" && isOwnProfile && (
-            <div className="space-y-4">
-              <div className="card-gaming p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-warning" /> Depositar Rubini Coins
-                </h3>
-                {depositConfig?.deposit_char_name ? (
-                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-3 text-xs text-muted-foreground space-y-1">
-                    <p>1. Envie gold para o personagem: <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span></p>
-                    <p>3. Tire um print da transferência e envie abaixo</p>
-                    <p>4. Aguarde a aprovação do admin</p>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Sistema de depósito ainda não configurado.</p>
-                )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Quantidade de Gold enviado</Label>
-                    <Input type="number" value={depositGold} onChange={(e) => setDepositGold(e.target.value)} placeholder="10000" className="bg-secondary border-border" />
-                    {depositGold && rate > 0 && (
-                      <p className="text-[10px] text-warning font-semibold">= {Math.floor(Number(depositGold) / rate)} Rubini Coins</p>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Print do envio</Label>
-                    <input type="file" accept="image/*" onChange={(e) => setDepositScreenshot(e.target.files?.[0] || null)} className="text-xs text-muted-foreground file:mr-2 file:px-3 file:py-1.5 file:rounded-lg file:border-0 file:bg-secondary file:text-foreground file:text-xs file:cursor-pointer" />
-                  </div>
-                </div>
-                <Button
-                  onClick={() => {
-                    if (!depositGold || !depositScreenshot || rate <= 0) return;
-                    const coins = Math.floor(Number(depositGold) / rate);
-                    if (coins < 1) { toast.error("Quantidade muito baixa"); return; }
-                    createDeposit.mutate({ amountGold: Number(depositGold), amountCoins: coins, screenshotFile: depositScreenshot }, {
-                      onSuccess: () => { setDepositGold(""); setDepositScreenshot(null); }
-                    });
-                  }}
-                  disabled={createDeposit.isPending || !depositGold || !depositScreenshot}
-                  className="bg-warning text-warning-foreground hover:bg-warning/90"
-                >
-                  <Upload className="h-4 w-4 mr-1" />
-                  {createDeposit.isPending ? "Enviando..." : "Enviar Solicitação"}
-                </Button>
-              </div>
-
-              {myDeposits && myDeposits.length > 0 && (
-                <div className="card-gaming overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border/40">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase">Seus Depósitos</h4>
-                  </div>
-                  {myDeposits.map((dep) => (
-                    <div key={dep.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0">
-                      <img src={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{dep.amount_gold.toLocaleString("pt-BR")} gold → {dep.amount_coins} coins</p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</p>
-                      </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${dep.status === "pending" ? "bg-warning/15 text-warning" : dep.status === "approved" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
-                        {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -605,11 +605,12 @@ const Perfil = () => {
                   key={plan.id}
                   onClick={() => canAfford && handleHighlight(plan.id)}
                   disabled={!canAfford || highlightAd.isPending}
-                  className={`w-full p-4 rounded-xl border text-left transition-all ${
+                  className={cn(
+                    "w-full p-4 rounded-xl border text-left transition-all",
                     canAfford
                       ? "border-warning/30 bg-warning/5 hover:border-warning/60 hover:bg-warning/10 cursor-pointer"
                       : "border-border bg-secondary/30 opacity-50 cursor-not-allowed"
-                  }`}
+                  )}
                 >
                   <div className="flex items-center justify-between">
                     <div>
