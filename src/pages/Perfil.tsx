@@ -269,9 +269,16 @@ const Perfil = () => {
                   {badges.some((b) => b.badge_type === "premium_verified") && (
                     <span
                       title="Premium Verificado"
-                      className="absolute bottom-1 right-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground border-[3px] border-card shadow-[0_4px_14px_hsl(var(--primary)/0.5)]"
+                      className="absolute -bottom-1 -right-1 inline-flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground"
+                      style={{
+                        borderRadius: 2,
+                        border: "2px solid hsl(var(--primary))",
+                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(0 0% 0% / 0.6), inset 0 0 0 1px hsl(0 0% 0% / 0.35)",
+                      }}
                     >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" style={{ filter: "drop-shadow(1px 1px 0 hsl(0 0% 0% / 0.5))" }}>
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
                     </span>
                   )}
                 </div>
