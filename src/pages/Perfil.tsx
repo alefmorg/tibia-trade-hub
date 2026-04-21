@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Save, Package, Heart, Calendar, Star, Coins, Sparkles, ArrowUpRight, ArrowDownLeft, History, Upload, Wallet } from "lucide-react";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
 import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDeposits";
