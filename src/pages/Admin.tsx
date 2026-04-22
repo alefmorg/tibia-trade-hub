@@ -1745,6 +1745,161 @@ const Admin = () => {
                 </div>
               </div>
             )}
+
+            {/* SETTINGS TAB */}
+            {tab === "settings" && (
+              <div className="space-y-5 max-w-4xl">
+                <div className="bg-gradient-to-br from-primary/5 via-card to-card border-2 border-primary/20 rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"8px 8px"}} />
+                  <div className="relative flex items-center gap-3 mb-1">
+                    <div className="w-10 h-10 rounded-md bg-primary/15 border-2 border-primary/40 flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--primary)/0.25)]">
+                      <Settings className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="font-pixel text-sm text-foreground">Configurações Gerais</h2>
+                      <p className="text-xs text-muted-foreground font-body">Ajustes que afetam todo o marketplace</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Anúncios */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Anúncios</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Duração padrão (dias)</Label>
+                      <div className="flex gap-2">
+                        <Input type="number" min="1" max="365" value={adDurationDays} onChange={(e) => setAdDurationDays(e.target.value)} className="bg-secondary/80 border-border" />
+                        <Button onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })} disabled={updateTradeSettings.isPending || !adDurationDays} className="bg-primary text-primary-foreground">
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Após este período os anúncios expiram automaticamente.</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Atalhos</Label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setTab("create-ad")}><Plus className="h-3.5 w-3.5 mr-1" />Criar anúncio</Button>
+                        <Button size="sm" variant="outline" onClick={() => setTab("filters")}><Filter className="h-3.5 w-3.5 mr-1" />Filtros</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Economia */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <ArrowRightLeft className="h-4 w-4 text-warning" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Economia &amp; Depósitos</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Personagem de depósito</Label>
+                      <Input value={depositCharName} onChange={(e) => setDepositCharName(e.target.value)} placeholder="RubinBank" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Taxa (gold por 1 coin)</Label>
+                      <Input type="number" value={goldToCoinsRate} onChange={(e) => setGoldToCoinsRate(e.target.value)} placeholder="1000" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="flex items-end">
+                      <Button onClick={() => updateTradeSettings.mutate({ deposit_char_name: depositCharName, gold_to_coins_rate: Number(goldToCoinsRate) } as any)} className="bg-primary text-primary-foreground w-full">
+                        <Check className="h-4 w-4 mr-1" /> Salvar
+                      </Button>
+                    </div>
+                    <div className="md:col-span-3 flex flex-wrap gap-2 pt-1">
+                      <Button size="sm" variant="outline" onClick={() => setTab("deposits")}><Wallet className="h-3.5 w-3.5 mr-1" />Ver depósitos ({stats.pendingDeposits} pendentes)</Button>
+                      <Button size="sm" variant="outline" onClick={() => setTab("wallet")}><Coins className="h-3.5 w-3.5 mr-1" />Saldo / Coins</Button>
+                      <Button size="sm" variant="outline" onClick={() => setTab("plans")}><Star className="h-3.5 w-3.5 mr-1" />Planos de destaque</Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comunidade */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Comunidade</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("users")}>
+                      <Users className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Usuários</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.totalUsers} total</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("notifications")}>
+                      <Bell className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Notificações</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("conversations")}>
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Conversas</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.totalConversations}</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("raffles")}>
+                      <Ticket className="h-5 w-5 text-warning" />
+                      <span className="text-xs font-body">Rifas</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Visual / Site */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Megaphone className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Aparência do site</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("nav-links")}>
+                      <Link2 className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Links de navegação</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("banners")}>
+                      <Image className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Banners / Carrossel</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("filters")}>
+                      <Filter className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Opções de filtros</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Diagnóstico */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Diagnóstico</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-primary">{stats.totalAds}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Anúncios</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-warning">{stats.featuredAds}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Destaques</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-destructive">{stats.bannedUsers}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Banidos</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-foreground">{stats.totalItems}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Itens</p>
+                    </div>
+                  </div>
+                  <div className="px-5 pb-5">
+                    <Button variant="outline" size="sm" onClick={() => setTab("logs")} className="w-full">
+                      <FileText className="h-3.5 w-3.5 mr-1" /> Ver logs completos
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
