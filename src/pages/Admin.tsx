@@ -351,7 +351,7 @@ const Admin = () => {
               </button>
               <h1 className="text-sm font-semibold text-foreground font-body">{getTabTitle()}</h1>
             </div>
-            {["ads", "users", "offers", "conversations"].includes(tab) && (
+            {["ads", "users", "conversations"].includes(tab) && (
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-secondary/80 border-border h-9 rounded-xl text-sm" />
@@ -371,10 +371,10 @@ const Admin = () => {
                     { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Ofertas", value: stats.totalOffers, sub: `${stats.pendingOffers} pendentes`, icon: HandCoins, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
+                    { label: "Depósitos", value: stats.pendingDeposits, sub: "pendentes", icon: Wallet, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
+                    { label: "Rifas Ativas", value: stats.activeRaffles, sub: "em andamento", icon: Ticket, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground", bg: "from-secondary/50 to-secondary/80", border: "border-border/60" },
-                    { label: "Banidos", value: stats.bannedUsers, sub: "usuários", icon: Ban, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
                   ].map((s) => (
                     <div key={s.label} className={`bg-gradient-to-br ${s.bg} border ${s.border} rounded-2xl p-4 hover:shadow-md transition-all duration-200`}>
                       <div className="flex items-center justify-between mb-3">
@@ -404,20 +404,36 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Resumo de Ofertas</h3>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 bg-warning/5 border border-warning/20 rounded-lg">
-                        <p className="font-pixel text-lg text-warning">{stats.pendingOffers}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Pendentes</p>
-                      </div>
-                      <div className="text-center p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                        <p className="font-pixel text-lg text-primary">{allOffers.filter((o) => o.status === "accepted").length}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Aceitas</p>
-                      </div>
-                      <div className="text-center p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
-                        <p className="font-pixel text-lg text-destructive">{allOffers.filter((o) => o.status === "rejected").length}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Recusadas</p>
-                      </div>
+                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Atalhos Rápidos</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={() => setTab("deposits")} className="flex items-center gap-2 p-3 rounded-lg bg-warning/5 border border-warning/20 hover:bg-warning/10 transition-colors text-left">
+                        <Wallet className="h-4 w-4 text-warning" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Depósitos</p>
+                          <p className="text-[10px] text-muted-foreground">{stats.pendingDeposits} aguardando</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("notifications")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
+                        <Bell className="h-4 w-4 text-primary" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Notificar</p>
+                          <p className="text-[10px] text-muted-foreground">Enviar broadcast</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("raffles")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
+                        <Ticket className="h-4 w-4 text-primary" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Rifas</p>
+                          <p className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("settings")} className="flex items-center gap-2 p-3 rounded-lg bg-secondary/40 border border-border hover:bg-secondary/60 transition-colors text-left">
+                        <Settings className="h-4 w-4 text-foreground" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Configurações</p>
+                          <p className="text-[10px] text-muted-foreground">Ajustes gerais</p>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -804,75 +820,7 @@ const Admin = () => {
               </>
             )}
 
-            {/* OFFERS TAB */}
-            {tab === "offers" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-warning">{stats.pendingOffers}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Pendentes</p>
-                  </div>
-                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-primary">{allOffers.filter((o) => o.status === "accepted").length}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Aceitas</p>
-                  </div>
-                  <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-destructive">{allOffers.filter((o) => o.status === "rejected").length}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Recusadas</p>
-                  </div>
-                </div>
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-border/60 bg-secondary/30">
-                        <TableHead className="text-muted-foreground text-xs">Remetente</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Anúncio</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Valor</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Mensagem</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Status</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Data</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredOffers.map((offer) => (
-                        <TableRow key={offer.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                          <TableCell className="text-foreground text-xs font-body">{getProfileName(offer.sender_id)}</TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[140px] truncate font-body">{getAdTitle(offer.ad_id)}</TableCell>
-                          <TableCell>
-                            <span className="flex items-center gap-1 text-foreground text-xs font-body">
-                              <img src={`/icons/${offer.currency}.png`} alt="" className="w-4 h-4 object-contain" />{offer.amount}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate font-body">{offer.message || "-"}</TableCell>
-                          <TableCell>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${offer.status === "pending" ? "bg-warning/15 text-warning" : offer.status === "accepted" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
-                              {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(offer.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-0.5">
-                              {offer.status === "pending" && (
-                                <>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "accepted" as OfferStatus })}><Check className="h-3.5 w-3.5" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-warning hover:bg-warning/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "rejected" as OfferStatus })}><X className="h-3.5 w-3.5" /></Button>
-                                </>
-                              )}
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                onClick={() => { if (confirm("Remover esta oferta?")) deleteOffer.mutate(offer.id); }}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {filteredOffers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhuma oferta encontrada</p>}
-                </div>
-              </div>
-            )}
+            {/* OFFERS TAB removed */}
 
             {/* CONVERSATIONS TAB */}
             {tab === "conversations" && (
@@ -1727,23 +1675,7 @@ const Admin = () => {
                       </div>
                     ))}
 
-                    {/* Recent offers */}
-                    {allOffers.slice(0, 5).map((offer) => (
-                      <div key={`offer-${offer.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${offer.status === "accepted" ? "bg-primary/15" : offer.status === "rejected" ? "bg-destructive/15" : "bg-warning/15"}`}>
-                          🤝
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium font-body">
-                            Oferta de <span className="text-primary">{getProfileName(offer.sender_id)}</span> em "{getAdTitle(offer.ad_id)}": {offer.amount} {offer.currency}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(offer.created_at).toLocaleString("pt-BR")}</p>
-                        </div>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${offer.status === "accepted" ? "bg-primary/15 text-primary" : offer.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
-                          {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
-                        </span>
-                      </div>
-                    ))}
+                    {/* offers log removed */}
 
                     {/* Recent conversations */}
                     {allConversations.slice(0, 5).map((conv) => (
@@ -1780,7 +1712,7 @@ const Admin = () => {
                     ))}
                   </div>
 
-                  {(!allDeposits || allDeposits.length === 0) && allOffers.length === 0 && (!ads || ads.length === 0) && (
+                  {(!allDeposits || allDeposits.length === 0) && (!ads || ads.length === 0) && (
                     <div className="text-center py-12">
                       <FileText className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
                       <p className="text-muted-foreground text-sm font-body">Nenhuma atividade registrada</p>
