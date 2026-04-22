@@ -233,7 +233,6 @@ const Admin = () => {
     {
       title: "NEGOCIAÇÕES",
       items: [
-        { key: "offers" as TabKey, label: "Ofertas", icon: HandCoins, badge: stats.pendingOffers > 0 ? stats.pendingOffers : undefined },
         { key: "conversations" as TabKey, label: "Conversas", icon: MessageCircle },
       ],
     },
