@@ -22,9 +22,10 @@ import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import {
-  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
+  Sparkles, Activity, Clock, ArrowRightLeft,
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
@@ -81,7 +82,7 @@ const Admin = () => {
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
     world: "", pvp_type: "Optional PvP", category: "item",
-    description: "", acceptOffers: false, tier: "", userId: "",
+    description: "", tier: "", userId: "",
   });
 
   const {
@@ -210,14 +211,14 @@ const Admin = () => {
     if (!selectedItem || !adForm.world) return;
     await createAdAdmin.mutateAsync({
       title: selectedItem.name, item_id: selectedItem.id, type: adForm.type,
-      price: adForm.acceptOffers ? "Aceita ofertas" : adForm.price,
+      price: adForm.price,
       currency: adForm.currency, world: adForm.world, pvp_type: adForm.pvp_type,
       category: adForm.category, description: adForm.description || undefined,
       image_url: selectedItem.image_url || undefined,
       tier: adForm.tier && adForm.tier !== "none" ? Number(adForm.tier) : null,
       user_id: adForm.userId || user.id,
     });
-    setAdForm({ itemId: "", type: "selling", price: "", currency: "kk", world: "", pvp_type: "Optional PvP", category: "item", description: "", acceptOffers: false, tier: "", userId: "" });
+    setAdForm({ itemId: "", type: "selling", price: "", currency: "kk", world: "", pvp_type: "Optional PvP", category: "item", description: "", tier: "", userId: "" });
   };
 
   const sidebarSections = [
@@ -901,22 +902,17 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs text-muted-foreground font-body">Preço</Label>
-                      <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground font-body">Aceita ofertas</span><Switch checked={adForm.acceptOffers} onCheckedChange={(v) => setAdForm({ ...adForm, acceptOffers: v })} /></div>
+                    <Label className="text-xs text-muted-foreground font-body">Preço</Label>
+                    <div className="flex gap-2">
+                      <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
+                      <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
+                        <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
+                          <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    {!adForm.acceptOffers && (
-                      <div className="flex gap-2">
-                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
-                        <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
-                          <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
-                            <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground font-body">Mundo</Label>
