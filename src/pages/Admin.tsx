@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
-import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
+import { useAdminData, type AdStatus, type AppRole } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
@@ -29,7 +29,7 @@ import {
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs" | "settings";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -86,9 +86,9 @@ const Admin = () => {
 
   const {
     profiles, userRoles, tradeSettings, adsCountByUser,
-    allOffers, allConversations, allFavorites,
+    allConversations, allFavorites,
     updateAdStatus, toggleFeatured, updateUserRole, banUser, deleteUser,
-    updateTradeSettings, updateOfferStatus, deleteOffer, deleteConversation,
+    updateTradeSettings, deleteConversation,
     getConversationMessages, createAdAdmin,
   } = useAdminData(isAdmin);
 
@@ -144,7 +144,6 @@ const Admin = () => {
   const searchTerm = search.toLowerCase();
   const filteredAds = (ads || []).filter((ad) => `${ad.title} ${ad.profiles?.username || ""} ${ad.world}`.toLowerCase().includes(searchTerm));
   const filteredProfiles = profiles.filter((p) => p.username.toLowerCase().includes(searchTerm));
-  const filteredOffers = allOffers.filter((o) => `${getProfileName(o.sender_id)} ${getAdTitle(o.ad_id)} ${o.amount} ${o.status}`.toLowerCase().includes(searchTerm));
   const filteredConversations = allConversations.filter((c) => `${getAdTitle(c.ad_id)} ${getProfileName(c.buyer_id)} ${getProfileName(c.seller_id)}`.toLowerCase().includes(searchTerm));
 
   const stats = {
@@ -153,9 +152,10 @@ const Admin = () => {
     sellingAds: ads?.filter((a) => a.type === "selling").length || 0,
     buyingAds: ads?.filter((a) => a.type === "buying").length || 0,
     totalUsers: profiles.length, totalItems: items?.length || 0,
-    totalOffers: allOffers.length, pendingOffers: allOffers.filter((o) => o.status === "pending").length,
     totalConversations: allConversations.length, totalFavorites: allFavorites || 0,
     bannedUsers: profiles.filter((p) => (p as any).banned).length,
+    pendingDeposits: allDeposits?.filter((d) => d.status === "pending").length || 0,
+    activeRaffles: allRaffles?.filter((r) => r.status === "active").length || 0,
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
