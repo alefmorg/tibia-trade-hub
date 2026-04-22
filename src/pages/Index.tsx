@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Header from "@/components/Header";
 import TradeCard from "@/components/TradeCard";
-import OffersPanel from "@/components/OffersPanel";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -156,11 +155,10 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Banners Row: Destaques + Rifa */}
+          {/* Banners Row: Destaques (TradeCards) + Rifa */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-            {/* Featured Items Showcase */}
+            {/* Featured Items Showcase — usando o mesmo TradeCard */}
             <div className="lg:col-span-3 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
-              {/* Glow decorativo */}
               <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-warning/10 blur-3xl" />
               <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
 
@@ -176,46 +174,37 @@ const Index = () => {
                     </div>
                   </div>
                   <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                    Top {Math.min(6, (featuredAds.length || regularAds?.length || 0))}
+                    Top {Math.min(3, (featuredAds.length || regularAds?.length || 0))}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {(featuredAds.length > 0 ? featuredAds.slice(0, 6) : regularAds?.slice(0, 6) || []).map((ad) => (
-                    <Link
-                      key={ad.id}
-                      to={`/anuncio/${ad.id}`}
-                      className="group relative overflow-hidden rounded-xl border border-border/50 bg-secondary/40 p-2.5 transition-all duration-200 hover:border-warning/40 hover:bg-secondary/70 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_hsl(var(--warning)/0.12)]"
-                    >
-                      {ad.featured && (
-                        <span className="absolute top-1.5 right-1.5 z-10 text-[8px] font-bold text-warning bg-background/80 backdrop-blur-sm border border-warning/30 px-1.5 py-0.5 rounded uppercase tracking-wider">★</span>
-                      )}
-                      <div className="flex flex-col items-center text-center gap-1.5">
-                        <div className="relative">
-                          <div className="absolute inset-0 rounded-full bg-warning/0 group-hover:bg-warning/15 blur-md transition-all duration-300" />
-                          {ad.image_url ? (
-                            <img src={ad.image_url} alt={ad.title} className="relative w-12 h-12 rounded-lg object-contain pixelated" loading="lazy" />
-                          ) : (
-                            <div className="relative w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                              <Flame className="w-5 h-5 text-primary/60" />
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-[11px] font-semibold text-foreground truncate w-full group-hover:text-warning transition-colors">{ad.title}</p>
-                        {ad.price ? (
-                          <span className="text-[10px] text-primary font-bold">{ad.price} {ad.currency}</span>
-                        ) : (
-                          <span className="text-[9px] text-warning/80 font-semibold uppercase tracking-wider">Ofertas</span>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                  {(!featuredAds.length && !regularAds?.length) && (
-                    <div className="col-span-3 text-center py-8">
-                      <p className="text-xs text-muted-foreground/60">Nenhum item em destaque ainda</p>
-                    </div>
-                  )}
-                </div>
+                {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).map((ad) => (
+                      <TradeCard
+                        key={ad.id}
+                        id={ad.id}
+                        title={ad.title}
+                        type={ad.type as "selling" | "buying"}
+                        price={ad.price}
+                        currency={ad.currency}
+                        world={ad.world}
+                        pvpType={ad.pvp_type}
+                        date={ad.created_at}
+                        imageUrl={ad.image_url}
+                        likes={ad.likes_count}
+                        featured={ad.featured}
+                        tier={(ad as any).tier}
+                        profiles={ad.profiles}
+                        userId={ad.user_id}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-xs text-muted-foreground/60">Nenhum item em destaque ainda</p>
+                  </div>
+                )}
               </div>
             </div>
 
