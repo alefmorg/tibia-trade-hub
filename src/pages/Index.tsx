@@ -407,7 +407,6 @@ const Index = () => {
               ))}
             </div>
 
-            {user && <OffersPanel />}
           </aside>
 
           {/* Main Content */}
