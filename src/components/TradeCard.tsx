@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
 import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
-import OfferDialog from "@/components/OfferDialog";
 
 interface TradeCardProps {
   id?: string;
@@ -207,10 +206,6 @@ const TradeCard = ({
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
-            )}
-
-            {!isOwnAd && isAcceptingOffers && id && (
-              <OfferDialog adId={id} adTitle={title} />
             )}
 
             {!isOwnAd && (

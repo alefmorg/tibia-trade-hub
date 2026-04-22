@@ -11,6 +11,8 @@ import { lazy, Suspense } from "react";
 // Code splitting: páginas secundárias só carregam quando acessadas.
 const Login = lazy(() => import("./pages/Login"));
 const Registro = lazy(() => import("./pages/Registro"));
+const EsqueciSenha = lazy(() => import("./pages/EsqueciSenha"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const CriarAnuncio = lazy(() => import("./pages/CriarAnuncio"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Perfil = lazy(() => import("./pages/Perfil"));
@@ -47,6 +49,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Registro />} />
+              <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/criar-anuncio" element={<CriarAnuncio />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/perfil" element={<Perfil />} />
