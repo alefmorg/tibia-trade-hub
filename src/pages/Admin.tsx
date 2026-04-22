@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
-import { useAdminData, type AdStatus, type AppRole, type OfferStatus } from "@/hooks/useAdmin";
+import { useAdminData, type AdStatus, type AppRole } from "@/hooks/useAdmin";
 import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
@@ -22,14 +22,15 @@ import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import {
-  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, HandCoins, Image, Link2, MessageCircle,
+  Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
+  Sparkles, Activity, Clock, ArrowRightLeft,
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
 
-type TabKey = "ads" | "users" | "items" | "offers" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs" | "settings";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -81,14 +82,14 @@ const Admin = () => {
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
     world: "", pvp_type: "Optional PvP", category: "item",
-    description: "", acceptOffers: false, tier: "", userId: "",
+    description: "", tier: "", userId: "",
   });
 
   const {
     profiles, userRoles, tradeSettings, adsCountByUser,
-    allOffers, allConversations, allFavorites,
+    allConversations, allFavorites,
     updateAdStatus, toggleFeatured, updateUserRole, banUser, deleteUser,
-    updateTradeSettings, updateOfferStatus, deleteOffer, deleteConversation,
+    updateTradeSettings, deleteConversation,
     getConversationMessages, createAdAdmin,
   } = useAdminData(isAdmin);
 
@@ -144,7 +145,6 @@ const Admin = () => {
   const searchTerm = search.toLowerCase();
   const filteredAds = (ads || []).filter((ad) => `${ad.title} ${ad.profiles?.username || ""} ${ad.world}`.toLowerCase().includes(searchTerm));
   const filteredProfiles = profiles.filter((p) => p.username.toLowerCase().includes(searchTerm));
-  const filteredOffers = allOffers.filter((o) => `${getProfileName(o.sender_id)} ${getAdTitle(o.ad_id)} ${o.amount} ${o.status}`.toLowerCase().includes(searchTerm));
   const filteredConversations = allConversations.filter((c) => `${getAdTitle(c.ad_id)} ${getProfileName(c.buyer_id)} ${getProfileName(c.seller_id)}`.toLowerCase().includes(searchTerm));
 
   const stats = {
@@ -153,9 +153,10 @@ const Admin = () => {
     sellingAds: ads?.filter((a) => a.type === "selling").length || 0,
     buyingAds: ads?.filter((a) => a.type === "buying").length || 0,
     totalUsers: profiles.length, totalItems: items?.length || 0,
-    totalOffers: allOffers.length, pendingOffers: allOffers.filter((o) => o.status === "pending").length,
     totalConversations: allConversations.length, totalFavorites: allFavorites || 0,
     bannedUsers: profiles.filter((p) => (p as any).banned).length,
+    pendingDeposits: allDeposits?.filter((d) => d.status === "pending").length || 0,
+    activeRaffles: allRaffles?.filter((r) => r.status === "active").length || 0,
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,14 +211,14 @@ const Admin = () => {
     if (!selectedItem || !adForm.world) return;
     await createAdAdmin.mutateAsync({
       title: selectedItem.name, item_id: selectedItem.id, type: adForm.type,
-      price: adForm.acceptOffers ? "Aceita ofertas" : adForm.price,
+      price: adForm.price,
       currency: adForm.currency, world: adForm.world, pvp_type: adForm.pvp_type,
       category: adForm.category, description: adForm.description || undefined,
       image_url: selectedItem.image_url || undefined,
       tier: adForm.tier && adForm.tier !== "none" ? Number(adForm.tier) : null,
       user_id: adForm.userId || user.id,
     });
-    setAdForm({ itemId: "", type: "selling", price: "", currency: "kk", world: "", pvp_type: "Optional PvP", category: "item", description: "", acceptOffers: false, tier: "", userId: "" });
+    setAdForm({ itemId: "", type: "selling", price: "", currency: "kk", world: "", pvp_type: "Optional PvP", category: "item", description: "", tier: "", userId: "" });
   };
 
   const sidebarSections = [
@@ -254,6 +255,7 @@ const Admin = () => {
     {
       title: "CONFIGURAÇÕES",
       items: [
+        { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
@@ -277,10 +279,16 @@ const Admin = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <aside className={`${sidebarOpen ? "w-60" : "w-0 overflow-hidden"} transition-all duration-300 border-r border-border/60 bg-card/50 backdrop-blur-sm shrink-0 flex flex-col`}>
-          <div className="p-4 border-b border-border/60">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="font-pixel text-xs text-foreground">Admin Panel</span>
+          <div className="px-4 py-4 border-b border-border/60 bg-gradient-to-br from-primary/10 via-card to-card relative overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"6px 6px"}} />
+            <div className="relative flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-md bg-primary/15 border-2 border-primary/40 flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--primary)/0.25)]">
+                <Shield className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-pixel text-[11px] text-foreground leading-none">Admin Panel</p>
+                <p className="text-[9px] text-muted-foreground mt-1 font-body uppercase tracking-wider">Rubin Trade</p>
+              </div>
             </div>
           </div>
 
@@ -315,29 +323,24 @@ const Admin = () => {
             ))}
           </nav>
 
-          {/* Settings shortcut */}
-          <div className="p-3 border-t border-border/60">
-            <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Duração de anúncios</p>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min="1"
-                  max="365"
-                  value={adDurationDays}
-                  onChange={(e) => setAdDurationDays(e.target.value)}
-                  className="bg-background border-border h-8 text-xs"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })}
-                  disabled={updateTradeSettings.isPending || !adDurationDays}
-                  className="bg-primary text-primary-foreground h-8 px-3 text-xs"
-                >
-                  OK
-                </Button>
+          {/* Sidebar footer: live status */}
+          <div className="p-3 border-t border-border/60 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
+                <p className="font-pixel text-sm text-primary leading-none">{stats.totalAds}</p>
+                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Anúncios</p>
+              </div>
+              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
+                <p className="font-pixel text-sm text-warning leading-none">{stats.pendingDeposits}</p>
+                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Depósitos</p>
               </div>
             </div>
+            <button
+              onClick={() => setTab("settings")}
+              className="w-full flex items-center justify-center gap-2 h-8 rounded-lg border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors font-body"
+            >
+              <Sparkles className="h-3 w-3" /> Configurações Rápidas
+            </button>
           </div>
         </aside>
 
@@ -351,7 +354,7 @@ const Admin = () => {
               </button>
               <h1 className="text-sm font-semibold text-foreground font-body">{getTabTitle()}</h1>
             </div>
-            {["ads", "users", "offers", "conversations"].includes(tab) && (
+            {["ads", "users", "conversations"].includes(tab) && (
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-secondary/80 border-border h-9 rounded-xl text-sm" />
@@ -371,10 +374,10 @@ const Admin = () => {
                     { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Ofertas", value: stats.totalOffers, sub: `${stats.pendingOffers} pendentes`, icon: HandCoins, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
+                    { label: "Depósitos", value: stats.pendingDeposits, sub: "pendentes", icon: Wallet, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
+                    { label: "Rifas Ativas", value: stats.activeRaffles, sub: "em andamento", icon: Ticket, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
                     { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground", bg: "from-secondary/50 to-secondary/80", border: "border-border/60" },
-                    { label: "Banidos", value: stats.bannedUsers, sub: "usuários", icon: Ban, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
                   ].map((s) => (
                     <div key={s.label} className={`bg-gradient-to-br ${s.bg} border ${s.border} rounded-2xl p-4 hover:shadow-md transition-all duration-200`}>
                       <div className="flex items-center justify-between mb-3">
@@ -404,20 +407,36 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Resumo de Ofertas</h3>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 bg-warning/5 border border-warning/20 rounded-lg">
-                        <p className="font-pixel text-lg text-warning">{stats.pendingOffers}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Pendentes</p>
-                      </div>
-                      <div className="text-center p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                        <p className="font-pixel text-lg text-primary">{allOffers.filter((o) => o.status === "accepted").length}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Aceitas</p>
-                      </div>
-                      <div className="text-center p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
-                        <p className="font-pixel text-lg text-destructive">{allOffers.filter((o) => o.status === "rejected").length}</p>
-                        <p className="text-[10px] text-muted-foreground font-body">Recusadas</p>
-                      </div>
+                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Atalhos Rápidos</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={() => setTab("deposits")} className="flex items-center gap-2 p-3 rounded-lg bg-warning/5 border border-warning/20 hover:bg-warning/10 transition-colors text-left">
+                        <Wallet className="h-4 w-4 text-warning" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Depósitos</p>
+                          <p className="text-[10px] text-muted-foreground">{stats.pendingDeposits} aguardando</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("notifications")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
+                        <Bell className="h-4 w-4 text-primary" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Notificar</p>
+                          <p className="text-[10px] text-muted-foreground">Enviar broadcast</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("raffles")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
+                        <Ticket className="h-4 w-4 text-primary" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Rifas</p>
+                          <p className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</p>
+                        </div>
+                      </button>
+                      <button onClick={() => setTab("settings")} className="flex items-center gap-2 p-3 rounded-lg bg-secondary/40 border border-border hover:bg-secondary/60 transition-colors text-left">
+                        <Settings className="h-4 w-4 text-foreground" />
+                        <div>
+                          <p className="text-xs font-semibold text-foreground font-body">Configurações</p>
+                          <p className="text-[10px] text-muted-foreground">Ajustes gerais</p>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -804,75 +823,7 @@ const Admin = () => {
               </>
             )}
 
-            {/* OFFERS TAB */}
-            {tab === "offers" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-warning/5 border border-warning/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-warning">{stats.pendingOffers}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Pendentes</p>
-                  </div>
-                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-primary">{allOffers.filter((o) => o.status === "accepted").length}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Aceitas</p>
-                  </div>
-                  <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
-                    <p className="font-pixel text-lg text-destructive">{allOffers.filter((o) => o.status === "rejected").length}</p>
-                    <p className="text-[10px] text-muted-foreground font-body">Recusadas</p>
-                  </div>
-                </div>
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-border/60 bg-secondary/30">
-                        <TableHead className="text-muted-foreground text-xs">Remetente</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Anúncio</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Valor</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Mensagem</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Status</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Data</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredOffers.map((offer) => (
-                        <TableRow key={offer.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                          <TableCell className="text-foreground text-xs font-body">{getProfileName(offer.sender_id)}</TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[140px] truncate font-body">{getAdTitle(offer.ad_id)}</TableCell>
-                          <TableCell>
-                            <span className="flex items-center gap-1 text-foreground text-xs font-body">
-                              <img src={`/icons/${offer.currency}.png`} alt="" className="w-4 h-4 object-contain" />{offer.amount}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[160px] truncate font-body">{offer.message || "-"}</TableCell>
-                          <TableCell>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${offer.status === "pending" ? "bg-warning/15 text-warning" : offer.status === "accepted" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
-                              {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(offer.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-0.5">
-                              {offer.status === "pending" && (
-                                <>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "accepted" as OfferStatus })}><Check className="h-3.5 w-3.5" /></Button>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-warning hover:bg-warning/10" onClick={() => updateOfferStatus.mutate({ offerId: offer.id, status: "rejected" as OfferStatus })}><X className="h-3.5 w-3.5" /></Button>
-                                </>
-                              )}
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                onClick={() => { if (confirm("Remover esta oferta?")) deleteOffer.mutate(offer.id); }}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {filteredOffers.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhuma oferta encontrada</p>}
-                </div>
-              </div>
-            )}
+            {/* OFFERS TAB removed */}
 
             {/* CONVERSATIONS TAB */}
             {tab === "conversations" && (
@@ -953,22 +904,17 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs text-muted-foreground font-body">Preço</Label>
-                      <div className="flex items-center gap-2"><span className="text-xs text-muted-foreground font-body">Aceita ofertas</span><Switch checked={adForm.acceptOffers} onCheckedChange={(v) => setAdForm({ ...adForm, acceptOffers: v })} /></div>
+                    <Label className="text-xs text-muted-foreground font-body">Preço</Label>
+                    <div className="flex gap-2">
+                      <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
+                      <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
+                        <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
+                          <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    {!adForm.acceptOffers && (
-                      <div className="flex gap-2">
-                        <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
-                        <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
-                          <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
-                            <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground font-body">Mundo</Label>
@@ -1727,23 +1673,7 @@ const Admin = () => {
                       </div>
                     ))}
 
-                    {/* Recent offers */}
-                    {allOffers.slice(0, 5).map((offer) => (
-                      <div key={`offer-${offer.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${offer.status === "accepted" ? "bg-primary/15" : offer.status === "rejected" ? "bg-destructive/15" : "bg-warning/15"}`}>
-                          🤝
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium font-body">
-                            Oferta de <span className="text-primary">{getProfileName(offer.sender_id)}</span> em "{getAdTitle(offer.ad_id)}": {offer.amount} {offer.currency}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(offer.created_at).toLocaleString("pt-BR")}</p>
-                        </div>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${offer.status === "accepted" ? "bg-primary/15 text-primary" : offer.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
-                          {offer.status === "pending" ? "Pendente" : offer.status === "accepted" ? "Aceita" : "Recusada"}
-                        </span>
-                      </div>
-                    ))}
+                    {/* offers log removed */}
 
                     {/* Recent conversations */}
                     {allConversations.slice(0, 5).map((conv) => (
@@ -1780,7 +1710,7 @@ const Admin = () => {
                     ))}
                   </div>
 
-                  {(!allDeposits || allDeposits.length === 0) && allOffers.length === 0 && (!ads || ads.length === 0) && (
+                  {(!allDeposits || allDeposits.length === 0) && (!ads || ads.length === 0) && (
                     <div className="text-center py-12">
                       <FileText className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
                       <p className="text-muted-foreground text-sm font-body">Nenhuma atividade registrada</p>
@@ -1810,6 +1740,161 @@ const Admin = () => {
                     <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("notifications")}>
                       <Bell className="h-5 w-5 text-primary" />
                       <span className="text-xs font-body">Enviar Notificação</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SETTINGS TAB */}
+            {tab === "settings" && (
+              <div className="space-y-5 max-w-4xl">
+                <div className="bg-gradient-to-br from-primary/5 via-card to-card border-2 border-primary/20 rounded-2xl p-5 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"8px 8px"}} />
+                  <div className="relative flex items-center gap-3 mb-1">
+                    <div className="w-10 h-10 rounded-md bg-primary/15 border-2 border-primary/40 flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--primary)/0.25)]">
+                      <Settings className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="font-pixel text-sm text-foreground">Configurações Gerais</h2>
+                      <p className="text-xs text-muted-foreground font-body">Ajustes que afetam todo o marketplace</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Anúncios */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Anúncios</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Duração padrão (dias)</Label>
+                      <div className="flex gap-2">
+                        <Input type="number" min="1" max="365" value={adDurationDays} onChange={(e) => setAdDurationDays(e.target.value)} className="bg-secondary/80 border-border" />
+                        <Button onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })} disabled={updateTradeSettings.isPending || !adDurationDays} className="bg-primary text-primary-foreground">
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Após este período os anúncios expiram automaticamente.</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Atalhos</Label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setTab("create-ad")}><Plus className="h-3.5 w-3.5 mr-1" />Criar anúncio</Button>
+                        <Button size="sm" variant="outline" onClick={() => setTab("filters")}><Filter className="h-3.5 w-3.5 mr-1" />Filtros</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Economia */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <ArrowRightLeft className="h-4 w-4 text-warning" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Economia &amp; Depósitos</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Personagem de depósito</Label>
+                      <Input value={depositCharName} onChange={(e) => setDepositCharName(e.target.value)} placeholder="RubinBank" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Taxa (gold por 1 coin)</Label>
+                      <Input type="number" value={goldToCoinsRate} onChange={(e) => setGoldToCoinsRate(e.target.value)} placeholder="1000" className="bg-secondary/80 border-border" />
+                    </div>
+                    <div className="flex items-end">
+                      <Button onClick={() => updateTradeSettings.mutate({ deposit_char_name: depositCharName, gold_to_coins_rate: Number(goldToCoinsRate) } as any)} className="bg-primary text-primary-foreground w-full">
+                        <Check className="h-4 w-4 mr-1" /> Salvar
+                      </Button>
+                    </div>
+                    <div className="md:col-span-3 flex flex-wrap gap-2 pt-1">
+                      <Button size="sm" variant="outline" onClick={() => setTab("deposits")}><Wallet className="h-3.5 w-3.5 mr-1" />Ver depósitos ({stats.pendingDeposits} pendentes)</Button>
+                      <Button size="sm" variant="outline" onClick={() => setTab("wallet")}><Coins className="h-3.5 w-3.5 mr-1" />Saldo / Coins</Button>
+                      <Button size="sm" variant="outline" onClick={() => setTab("plans")}><Star className="h-3.5 w-3.5 mr-1" />Planos de destaque</Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comunidade */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Comunidade</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("users")}>
+                      <Users className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Usuários</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.totalUsers} total</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("notifications")}>
+                      <Bell className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Notificações</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("conversations")}>
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Conversas</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.totalConversations}</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("raffles")}>
+                      <Ticket className="h-5 w-5 text-warning" />
+                      <span className="text-xs font-body">Rifas</span>
+                      <span className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Visual / Site */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Megaphone className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Aparência do site</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("nav-links")}>
+                      <Link2 className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Links de navegação</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("banners")}>
+                      <Image className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Banners / Carrossel</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("filters")}>
+                      <Filter className="h-5 w-5 text-primary" />
+                      <span className="text-xs font-body">Opções de filtros</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Diagnóstico */}
+                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
+                  <div className="px-5 py-3 border-b border-border/60 bg-secondary/30 flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground font-body">Diagnóstico</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-primary">{stats.totalAds}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Anúncios</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-warning">{stats.featuredAds}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Destaques</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-destructive">{stats.bannedUsers}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Banidos</p>
+                    </div>
+                    <div className="bg-secondary/40 border border-border rounded-lg p-3 text-center">
+                      <p className="font-pixel text-base text-foreground">{stats.totalItems}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">Itens</p>
+                    </div>
+                  </div>
+                  <div className="px-5 pb-5">
+                    <Button variant="outline" size="sm" onClick={() => setTab("logs")} className="w-full">
+                      <FileText className="h-3.5 w-3.5 mr-1" /> Ver logs completos
                     </Button>
                   </div>
                 </div>
