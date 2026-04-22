@@ -323,29 +323,24 @@ const Admin = () => {
             ))}
           </nav>
 
-          {/* Settings shortcut */}
-          <div className="p-3 border-t border-border/60">
-            <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">Duração de anúncios</p>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min="1"
-                  max="365"
-                  value={adDurationDays}
-                  onChange={(e) => setAdDurationDays(e.target.value)}
-                  className="bg-background border-border h-8 text-xs"
-                />
-                <Button
-                  size="sm"
-                  onClick={() => updateTradeSettings.mutate({ days: Number(adDurationDays) })}
-                  disabled={updateTradeSettings.isPending || !adDurationDays}
-                  className="bg-primary text-primary-foreground h-8 px-3 text-xs"
-                >
-                  OK
-                </Button>
+          {/* Sidebar footer: live status */}
+          <div className="p-3 border-t border-border/60 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
+                <p className="font-pixel text-sm text-primary leading-none">{stats.totalAds}</p>
+                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Anúncios</p>
+              </div>
+              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
+                <p className="font-pixel text-sm text-warning leading-none">{stats.pendingDeposits}</p>
+                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Depósitos</p>
               </div>
             </div>
+            <button
+              onClick={() => setTab("settings")}
+              className="w-full flex items-center justify-center gap-2 h-8 rounded-lg border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors font-body"
+            >
+              <Sparkles className="h-3 w-3" /> Configurações Rápidas
+            </button>
           </div>
         </aside>
 
