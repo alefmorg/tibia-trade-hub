@@ -255,6 +255,7 @@ const Admin = () => {
     {
       title: "CONFIGURAÇÕES",
       items: [
+        { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
@@ -278,10 +279,16 @@ const Admin = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <aside className={`${sidebarOpen ? "w-60" : "w-0 overflow-hidden"} transition-all duration-300 border-r border-border/60 bg-card/50 backdrop-blur-sm shrink-0 flex flex-col`}>
-          <div className="p-4 border-b border-border/60">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="font-pixel text-xs text-foreground">Admin Panel</span>
+          <div className="px-4 py-4 border-b border-border/60 bg-gradient-to-br from-primary/10 via-card to-card relative overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"6px 6px"}} />
+            <div className="relative flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-md bg-primary/15 border-2 border-primary/40 flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--primary)/0.25)]">
+                <Shield className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-pixel text-[11px] text-foreground leading-none">Admin Panel</p>
+                <p className="text-[9px] text-muted-foreground mt-1 font-body uppercase tracking-wider">Rubin Trade</p>
+              </div>
             </div>
           </div>
 
