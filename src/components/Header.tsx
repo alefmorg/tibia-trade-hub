@@ -11,7 +11,7 @@ const Header = () => {
   const { user, signOut, isAdmin, profile } = useAuth();
   const navigate = useNavigate();
   const { data: unreadCount } = useUnreadCount();
-  const { data: wallet } = useWallet();
+  
   const { data: unreadNotifs } = useUnreadNotificationCount();
   const { data: notifications } = useNotifications();
   const markRead = useMarkNotificationRead();
