@@ -155,10 +155,10 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Banners Row: Destaques (TradeCards) + Rifa */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* Banners Row: Destaques (TradeCards) + Rifa compacta + Banner extra */}
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
             {/* Featured Items Showcase — usando o mesmo TradeCard */}
-            <div className="lg:col-span-3 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
+            <div className="lg:col-span-4 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
               <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-warning/10 blur-3xl" />
               <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
 
@@ -208,97 +208,114 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Raffle / Banner */}
-            {activeRaffles && activeRaffles.length > 0 ? (
-              <Link
-                to={`/rifa/${activeRaffles[0].id}`}
-                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-primary/30 bg-card group transition-all duration-300 hover:border-primary/60 hover:shadow-[0_0_40px_hsl(var(--primary)/0.18)]"
-              >
-                {/* Background image ou pattern */}
-                {activeRaffles[0].image_url ? (
-                  <>
-                    <img
-                      src={activeRaffles[0].image_url}
-                      alt={activeRaffles[0].title}
-                      className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
-                  </>
-                ) : (
-                  <>
-                    <div aria-hidden className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-primary/15 blur-3xl" />
-                    <div aria-hidden className="absolute -bottom-10 -left-10 w-44 h-44 rounded-full bg-warning/10 blur-3xl" />
-                  </>
-                )}
+            {/* Coluna lateral: Rifa compacta (em cima) + Banner extra (embaixo) */}
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              {/* Rifa compacta com item em pedestal */}
+              {activeRaffles && activeRaffles.length > 0 ? (
+                <Link
+                  to={`/rifa/${activeRaffles[0].id}`}
+                  className="relative block overflow-hidden rounded-2xl border border-warning/30 bg-card group transition-all duration-300 hover:border-warning/60 hover:shadow-[0_0_30px_hsl(var(--warning)/0.15)]"
+                >
+                  {/* Background decorativo */}
+                  <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-warning/[0.05] via-transparent to-primary/[0.05]" />
+                  <div aria-hidden className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-warning/10 blur-2xl" />
 
-                <div className="relative p-5 flex flex-col justify-between min-h-[220px]">
-                  <div className="flex items-start justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary bg-primary/10 border border-primary/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      Rifa Ativa
-                    </span>
-                    {!activeRaffles[0].image_url && (
-                      <div className="w-12 h-12 rounded-2xl bg-primary/15 flex items-center justify-center border border-primary/30 shadow-lg shadow-primary/10">
-                        <span className="text-2xl">🎰</span>
+                  <div className="relative p-3 flex items-center gap-3">
+                    {/* Pedestal com item 64x64 */}
+                    <div className="shrink-0 flex flex-col items-center">
+                      <div
+                        className="w-16 h-16 flex items-center justify-center bg-gradient-to-b from-warning/20 to-warning/5 group-hover:scale-105 transition-transform duration-300"
+                        style={{
+                          borderRadius: 2,
+                          boxShadow: "0 0 0 2px hsl(var(--warning) / 0.5), inset 0 0 8px hsl(var(--warning) / 0.2), 0 4px 0 hsl(var(--warning) / 0.4)",
+                        }}
+                      >
+                        {activeRaffles[0].image_url ? (
+                          <img
+                            src={activeRaffles[0].image_url}
+                            alt={activeRaffles[0].title}
+                            className="w-12 h-12 object-contain"
+                            style={{ imageRendering: "pixelated" as const }}
+                          />
+                        ) : (
+                          <span className="text-2xl">🏆</span>
+                        )}
                       </div>
-                    )}
-                  </div>
+                      {/* Base do pedestal */}
+                      <div
+                        className="w-20 h-1.5 -mt-0.5 bg-warning/30"
+                        style={{ borderRadius: 1, boxShadow: "0 1px 0 hsl(var(--warning) / 0.5)" }}
+                      />
+                    </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Sorteio</p>
-                      <h3 className="text-base font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <span className="inline-flex items-center gap-1 text-[8px] font-bold text-warning bg-warning/15 border border-warning/30 px-1.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
+                        <span className="w-1 h-1 rounded-full bg-warning animate-pulse" />
+                        Rifa Ativa
+                      </span>
+                      <h3 className="text-sm font-bold text-foreground leading-tight group-hover:text-warning transition-colors line-clamp-1">
                         {activeRaffles[0].title}
                       </h3>
-                    </div>
-
-                    <div className="flex items-center gap-3 text-[10px]">
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground/80 uppercase tracking-wider">Preço</span>
-                        <span className="text-warning font-bold text-sm">{activeRaffles[0].price_per_number} <span className="text-[9px]">coins</span></span>
-                      </div>
-                      <div className="w-px h-8 bg-border" />
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground/80 uppercase tracking-wider">Números</span>
-                        <span className="text-foreground font-bold text-sm">{activeRaffles[0].total_numbers}</span>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <img src="/icons/coin.png" alt="" className="w-3 h-3 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                        <span className="text-warning font-bold text-xs">{activeRaffles[0].price_per_number}</span>
+                        <span className="text-[9px] text-muted-foreground">/bilhete</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <span className="text-[10px] text-muted-foreground/70">Boa sorte! 🍀</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-xl uppercase tracking-wider group-hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                        Participar →
-                      </span>
+                    {/* CTA */}
+                    <div className="shrink-0 text-warning group-hover:translate-x-0.5 transition-transform">
+                      →
                     </div>
                   </div>
-                </div>
-              </Link>
-            ) : banners && banners.length > 0 ? (
-              <a
-                href={banners[0].link_url || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group min-h-[220px]"
-              >
-                {banners[0].image_url ? (
-                  <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full min-h-[220px] object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                ) : (
-                  <div className="h-full min-h-[220px] flex flex-col items-center justify-center px-6 gap-2">
-                    <p className="text-sm font-bold text-foreground">{banners[0].title || "Banner"}</p>
+                </Link>
+              ) : (
+                <Link
+                  to="/rifa"
+                  className="relative block overflow-hidden rounded-2xl border border-border bg-card hover:border-warning/30 transition-all group p-3 flex items-center gap-3"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center border border-warning/20 shrink-0">
+                    <span className="text-xl">🎰</span>
                   </div>
-                )}
-              </a>
-            ) : (
-              <Link
-                to="/rifa"
-                className="lg:col-span-2 relative block overflow-hidden rounded-2xl border border-border bg-card flex flex-col items-center justify-center min-h-[220px] gap-3 hover:border-primary/30 transition-all group"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:bg-primary/15 transition-colors">
-                  <span className="text-2xl">🎰</span>
-                </div>
-                <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">Nenhuma rifa ativa</p>
-              </Link>
-            )}
+                  <p className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground transition-colors">Nenhuma rifa ativa</p>
+                </Link>
+              )}
+
+              {/* Banner extra (configurável no admin) */}
+              {banners && banners.length > 0 && (
+                <a
+                  href={banners[0].link_url || "#"}
+                  target={banners[0].link_url ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group flex-1 min-h-[80px]"
+                >
+                  {banners[0].image_url ? (
+                    <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center px-4 gap-1">
+                      <p className="text-xs font-bold text-foreground">{banners[0].title || "Banner"}</p>
+                    </div>
+                  )}
+                </a>
+              )}
+              {banners && banners.length > 1 && (
+                <a
+                  href={banners[1].link_url || "#"}
+                  target={banners[1].link_url ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group flex-1 min-h-[80px]"
+                >
+                  {banners[1].image_url ? (
+                    <img src={banners[1].image_url} alt={banners[1].title || "Banner"} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center px-4 gap-1">
+                      <p className="text-xs font-bold text-foreground">{banners[1].title || "Banner"}</p>
+                    </div>
+                  )}
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>

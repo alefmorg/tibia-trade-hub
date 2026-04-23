@@ -157,24 +157,21 @@ const RaffleCard = ({ r }: { r: any }) => {
             </p>
           )}
 
-          {/* Linha: preço + sorteio (Loteria Federal) */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <div
-              className="bg-warning/10 px-2 py-2"
-              style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
-            >
+          {/* Linha: preço por bilhete + sorteio (Loteria Federal) */}
+          <div
+            className="bg-warning/10 px-3 py-2 flex items-center justify-between"
+            style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
+          >
+            <div>
               <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-body">Por bilhete</p>
               <div className="flex items-center gap-1 text-warning mt-0.5">
                 <Coins className="h-3 w-3" />
-                <span className="font-pixel text-[11px]">{r.price_per_number}</span>
+                <span className="font-pixel text-[12px]">{r.price_per_number}</span>
               </div>
             </div>
-            <div
-              className="bg-primary/10 px-2 py-2"
-              style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--primary) / 0.4)" }}
-            >
+            <div className="text-right">
               <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-body">Sorteio</p>
-              <div className="flex items-center gap-1 text-primary mt-0.5">
+              <div className="flex items-center gap-1 text-primary mt-0.5 justify-end">
                 <Shield className="h-3 w-3" />
                 <span className="font-pixel text-[9px]">Lot. Federal</span>
               </div>

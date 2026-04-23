@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Flame, LogOut, User, Plus, Shield, MessageCircle, Coins, Bell, X } from "lucide-react";
+import { Flame, LogOut, User, Plus, Shield, MessageCircle, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useMessages";
-import { useWallet } from "@/hooks/useWallet";
+import WalletActionsMenu from "@/components/WalletActionsMenu";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/useNotifications";
 import { useState, useRef, useEffect } from "react";
 
@@ -11,7 +11,7 @@ const Header = () => {
   const { user, signOut, isAdmin, profile } = useAuth();
   const navigate = useNavigate();
   const { data: unreadCount } = useUnreadCount();
-  const { data: wallet } = useWallet();
+  
   const { data: unreadNotifs } = useUnreadNotificationCount();
   const { data: notifications } = useNotifications();
   const markRead = useMarkNotificationRead();
@@ -48,10 +48,7 @@ const Header = () => {
                   Admin
                 </Button>
               )}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-warning/10 border border-warning/20">
-                <Coins className="h-3.5 w-3.5 text-warning" />
-                <span className="text-xs font-semibold text-warning">{wallet?.balance || 0}</span>
-              </div>
+              <WalletActionsMenu />
               <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 rounded-xl" onClick={() => navigate("/criar-anuncio")}>
                 <Plus className="h-4 w-4 mr-1" />
                 Anúncio
