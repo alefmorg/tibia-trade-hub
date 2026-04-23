@@ -10,6 +10,7 @@ import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { useSendNotification } from "@/hooks/useNotifications";
 import { useAllDeposits, useApproveDeposit, useRejectDeposit, useDepositConfig } from "@/hooks/useDeposits";
+import { DepositScreenshot } from "@/components/DepositScreenshot";
 import { useRaffles, useRaffleNumbers, useRaffleMutations } from "@/hooks/useRaffles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
