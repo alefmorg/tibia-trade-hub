@@ -1411,9 +1411,12 @@ const Admin = () => {
                     <div key={dep.id} className={`bg-card/80 border rounded-2xl overflow-hidden transition-all ${dep.status === "pending" ? "border-warning/30" : "border-border/60"}`}>
                       <div className="flex items-center gap-4 p-4">
                         {/* Screenshot */}
-                        <a href={dep.screenshot_url} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                          <img src={dep.screenshot_url} alt="Comprovante" className="h-16 w-16 object-cover rounded-xl border border-border/40 hover:border-primary/40 transition-colors cursor-pointer" />
-                        </a>
+                        <DepositScreenshot
+                          value={dep.screenshot_url}
+                          asLink
+                          linkClassName="shrink-0"
+                          className="h-16 w-16 object-cover rounded-xl border border-border/40 hover:border-primary/40 transition-colors cursor-pointer"
+                        />
                         
                         {/* Info */}
                         <div className="flex-1 min-w-0">

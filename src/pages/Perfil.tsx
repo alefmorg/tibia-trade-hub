@@ -559,7 +559,7 @@ const Perfil = () => {
                     <div className="divide-y divide-border/50">
                       {myDeposits.map((dep) => (
                         <div key={dep.id} className="flex items-center gap-3 px-5 py-3">
-                          <img src={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
+                          <DepositScreenshot value={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-foreground truncate">{dep.amount_gold.toLocaleString("pt-BR")}g → {dep.amount_coins} RC</p>
                             <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</p>
