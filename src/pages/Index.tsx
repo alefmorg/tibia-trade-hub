@@ -4,7 +4,7 @@ import TradeCard from "@/components/TradeCard";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
+import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -282,39 +282,86 @@ const Index = () => {
                 </Link>
               )}
 
-              {/* Banner extra (configurável no admin) */}
-              {banners && banners.length > 0 && (
-                <a
-                  href={banners[0].link_url || "#"}
-                  target={banners[0].link_url ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className="relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group flex-1 min-h-[80px]"
-                >
-                  {banners[0].image_url ? (
-                    <img src={banners[0].image_url} alt={banners[0].title || "Banner"} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center px-4 gap-1">
-                      <p className="text-xs font-bold text-foreground">{banners[0].title || "Banner"}</p>
+              {/* Bloco Patrocinadores — alinha com a base do card "Itens em Destaque" */}
+              <div className="relative flex-1 overflow-hidden rounded-2xl border border-primary/20 bg-card flex flex-col">
+                <div aria-hidden className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
+                <div aria-hidden className="pointer-events-none absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-warning/5 blur-3xl" />
+
+                {/* Header */}
+                <div className="relative flex items-center justify-between px-4 pt-3 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-primary/15 border border-primary/30">
+                      <Megaphone className="h-3 w-3 text-primary" />
+                    </span>
+                    <div>
+                      <h3 className="text-[11px] font-bold text-foreground tracking-tight leading-none">Patrocinadores</h3>
+                      <p className="text-[9px] text-muted-foreground/70 mt-0.5">Apoiam o RubinTrade</p>
                     </div>
-                  )}
-                </a>
-              )}
-              {banners && banners.length > 1 && (
+                  </div>
+                  <span className="text-[8px] font-bold text-primary/80 uppercase tracking-widest bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">
+                    Ad
+                  </span>
+                </div>
+
+                {/* Slots de banners */}
+                <div className="relative flex-1 px-3 pb-3 grid grid-cols-1 gap-2 min-h-[140px]">
+                  {[0, 1].map((i) => {
+                    const b = banners?.[i];
+                    if (b) {
+                      return (
+                        <a
+                          key={b.id}
+                          href={b.link_url || "#"}
+                          target={b.link_url ? "_blank" : undefined}
+                          rel="noopener noreferrer sponsored"
+                          className="group relative block overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5 min-h-[64px]"
+                        >
+                          {b.image_url ? (
+                            <>
+                              <img
+                                src={b.image_url}
+                                alt={b.title || "Patrocinador"}
+                                className="w-full h-full object-cover absolute inset-0 group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                              {b.title && (
+                                <span className="absolute bottom-1.5 left-2 text-[9px] font-semibold text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {b.title} →
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center px-3">
+                              <p className="text-[11px] font-semibold text-foreground text-center">{b.title || "Anúncio"}</p>
+                            </div>
+                          )}
+                        </a>
+                      );
+                    }
+                    // Slot vazio (placeholder elegante)
+                    return (
+                      <div
+                        key={`empty-${i}`}
+                        className="relative rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center min-h-[64px] group hover:border-primary/30 transition-colors"
+                      >
+                        <div className="flex flex-col items-center gap-1 opacity-50 group-hover:opacity-80 transition-opacity">
+                          <Megaphone className="h-4 w-4 text-muted-foreground" />
+                          <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Espaço disponível</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Footer CTA "Anuncie aqui" */}
                 <a
-                  href={banners[1].link_url || "#"}
-                  target={banners[1].link_url ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className="relative block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-primary/30 group flex-1 min-h-[80px]"
+                  href="mailto:contato@rubintrade.com?subject=Quero%20anunciar%20no%20RubinTrade"
+                  className="relative border-t border-border/40 px-3 py-2 flex items-center justify-between text-[10px] hover:bg-primary/5 transition-colors group"
                 >
-                  {banners[1].image_url ? (
-                    <img src={banners[1].image_url} alt={banners[1].title || "Banner"} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center px-4 gap-1">
-                      <p className="text-xs font-bold text-foreground">{banners[1].title || "Banner"}</p>
-                    </div>
-                  )}
+                  <span className="text-muted-foreground">Quer anunciar aqui?</span>
+                  <span className="font-bold text-primary group-hover:translate-x-0.5 transition-transform">Anuncie →</span>
                 </a>
-              )}
+              </div>
             </div>
           </div>
         </div>
