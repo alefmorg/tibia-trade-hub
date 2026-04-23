@@ -4,7 +4,7 @@ import TradeCard from "@/components/TradeCard";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame } from "lucide-react";
+import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame, Megaphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
