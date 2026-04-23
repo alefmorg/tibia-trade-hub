@@ -169,6 +169,30 @@ export type Database = {
         }
         Relationships: []
       }
+      donations: {
+        Row: {
+          amount_coins: number
+          created_at: string
+          id: string
+          message: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_coins: number
+          created_at?: string
+          id?: string
+          message?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_coins?: number
+          created_at?: string
+          id?: string
+          message?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           ad_id: string
@@ -255,6 +279,51 @@ export type Database = {
           name?: string
           price_coins?: number
           sort_order?: number
+        }
+        Relationships: []
+      }
+      intermediation_requests: {
+        Row: {
+          admin_notes: string | null
+          contact_info: string
+          created_at: string
+          estimated_value: string | null
+          id: string
+          item_description: string
+          notes: string | null
+          reviewed_by: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          contact_info: string
+          created_at?: string
+          estimated_value?: string | null
+          id?: string
+          item_description: string
+          notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          contact_info?: string
+          created_at?: string
+          estimated_value?: string | null
+          id?: string
+          item_description?: string
+          notes?: string | null
+          reviewed_by?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -708,6 +777,10 @@ export type Database = {
         Returns: number[]
       }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
+      donate_coins: {
+        Args: { p_amount: number; p_message?: string }
+        Returns: string
+      }
       get_ad_duration_days: { Args: never; Returns: number }
       has_role: {
         Args: {
