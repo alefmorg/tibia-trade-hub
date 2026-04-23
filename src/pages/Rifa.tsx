@@ -7,7 +7,21 @@ import { useWallet } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Coins, Crown, Hash, Ticket, Trophy, Calendar, Clock, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Coins,
+  Crown,
+  Ticket,
+  Trophy,
+  Calendar,
+  Clock,
+  Sparkles,
+  Flame,
+  Gift,
+  Shield,
+  Zap,
+  CheckCircle2,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -28,27 +42,47 @@ const primaryBox = {
     "0 0 0 2px hsl(var(--primary)), 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--primary) / 0.3), inset 0 0 0 1px hsl(var(--card))",
 };
 
-// Raffle card visual (lista)
+// ============================================================================
+// CARD DA RIFA — Inspirado em sites de rifas reais (ex: gemeosbrasil) mantendo
+// a identidade pixel/Tibia: prêmio em destaque, progresso, urgência e CTA forte
+// ============================================================================
 const RaffleCard = ({ r }: { r: any }) => {
-  const sold = 0; // visual; valor real vem da página individual
+  const isActive = r.status === "active";
+  const isCompleted = r.status === "completed";
+  const drawDate = r.draw_date ? new Date(r.draw_date) : null;
+  const daysLeft = drawDate
+    ? Math.max(0, Math.ceil((drawDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
   return (
     <Link
       to={`/rifa/${r.id}`}
-      className="group relative block bg-card transition-transform duration-200 hover:-translate-y-1"
+      className="group relative block bg-card transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.01]"
       style={goldenBox}
     >
-      {/* Pixel ribbon */}
+      {/* Faixa superior tipo "campanha" */}
       <div
-        className="absolute -top-2 left-3 z-10 px-2 py-0.5 bg-warning text-warning-foreground font-pixel text-[8px] uppercase tracking-wider"
-        style={{ borderRadius: 1, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4)" }}
+        className="absolute -top-2.5 left-3 z-20 px-2.5 py-1 bg-warning text-warning-foreground font-pixel text-[8px] uppercase tracking-wider flex items-center gap-1"
+        style={{ borderRadius: 1, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4), 0 2px 0 hsl(var(--warning) / 0.6)" }}
       >
-        ★ Rifa
+        <Flame className="h-2.5 w-2.5" />
+        Campanha
       </div>
 
-      <div className="p-1.5">
-        {/* Imagem com moldura interna */}
+      {/* Status pin direito */}
+      {isActive && daysLeft !== null && daysLeft <= 3 && (
         <div
-          className="relative h-40 overflow-hidden bg-secondary"
+          className="absolute -top-2.5 right-3 z-20 px-2.5 py-1 bg-destructive text-destructive-foreground font-pixel text-[8px] uppercase tracking-wider animate-pulse"
+          style={{ borderRadius: 1, boxShadow: "0 0 0 2px hsl(var(--destructive) / 0.4)" }}
+        >
+          ⏰ Acabando!
+        </div>
+      )}
+
+      <div className="p-1.5">
+        {/* Imagem do prêmio com overlay dramático */}
+        <div
+          className="relative h-48 overflow-hidden bg-secondary"
           style={{
             borderRadius: 1,
             boxShadow: "inset 0 0 0 1px hsl(var(--border)), inset 0 0 0 2px hsl(var(--background))",
@@ -58,75 +92,146 @@ const RaffleCard = ({ r }: { r: any }) => {
             <img
               src={r.image_url}
               alt={r.title}
-              className="w-full h-full object-cover pixelated group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               style={{ imageRendering: "pixelated" as const }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warning/15 via-primary/5 to-background">
-              <Trophy className="h-12 w-12 text-warning/40" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warning/20 via-primary/10 to-background">
+              <Trophy className="h-16 w-16 text-warning/40" />
             </div>
           )}
-          {/* Status pin */}
-          {r.status === "active" && (
-            <div
-              className="absolute bottom-2 left-2 px-2 py-0.5 bg-primary text-primary-foreground font-pixel text-[8px] uppercase tracking-wider flex items-center gap-1"
-              style={{ borderRadius: 1 }}
-            >
-              <span className="w-1.5 h-1.5 bg-primary-foreground animate-pulse" />
-              Ativa
-            </div>
-          )}
+
+          {/* Overlay gradiente para legibilidade */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+
+          {/* Badge "PRÊMIO" sobre a imagem */}
+          <div
+            className="absolute top-2 left-2 px-2 py-0.5 bg-background/80 backdrop-blur font-pixel text-[8px] uppercase tracking-wider text-warning flex items-center gap-1"
+            style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.5)" }}
+          >
+            <Gift className="h-2.5 w-2.5" />
+            Prêmio
+          </div>
+
+          {/* Status no canto */}
+          <div className="absolute top-2 right-2">
+            {isActive ? (
+              <span
+                className="px-2 py-0.5 bg-primary text-primary-foreground font-pixel text-[8px] uppercase tracking-wider flex items-center gap-1"
+                style={{ borderRadius: 1 }}
+              >
+                <span className="w-1.5 h-1.5 bg-primary-foreground animate-pulse" />
+                Ativa
+              </span>
+            ) : isCompleted ? (
+              <span
+                className="px-2 py-0.5 bg-warning text-warning-foreground font-pixel text-[8px] uppercase tracking-wider"
+                style={{ borderRadius: 1 }}
+              >
+                ★ Sorteada
+              </span>
+            ) : (
+              <span
+                className="px-2 py-0.5 bg-destructive text-destructive-foreground font-pixel text-[8px] uppercase tracking-wider"
+                style={{ borderRadius: 1 }}
+              >
+                ✕ Cancelada
+              </span>
+            )}
+          </div>
+
+          {/* Título grande sobre imagem */}
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <h3 className="font-pixel text-[12px] text-foreground leading-tight line-clamp-2 drop-shadow-[0_2px_0_hsl(var(--background))]">
+              {r.title}
+            </h3>
+          </div>
         </div>
 
+        {/* Conteúdo inferior */}
         <div className="p-3 space-y-3">
-          <h3 className="font-pixel text-[11px] text-foreground leading-snug line-clamp-2 min-h-[28px]">
-            {r.title}
-          </h3>
+          {/* Descrição curta */}
+          {r.description && (
+            <p className="text-[11px] text-muted-foreground font-body line-clamp-2 leading-relaxed">
+              {r.description}
+            </p>
+          )}
 
-          {/* Stats em "tabletes" pixel */}
+          {/* Linha: preço + sorteio (Loteria Federal) */}
           <div className="grid grid-cols-2 gap-1.5">
             <div
-              className="bg-warning/10 px-2 py-2 text-center"
+              className="bg-warning/10 px-2 py-2"
               style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
             >
-              <div className="flex items-center justify-center gap-1 text-warning">
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-body">Por bilhete</p>
+              <div className="flex items-center gap-1 text-warning mt-0.5">
                 <Coins className="h-3 w-3" />
-                <span className="font-pixel text-[10px]">{r.price_per_number}</span>
+                <span className="font-pixel text-[11px]">{r.price_per_number}</span>
               </div>
-              <p className="text-[9px] text-muted-foreground mt-0.5 font-body">por nº</p>
             </div>
             <div
-              className="bg-primary/10 px-2 py-2 text-center"
+              className="bg-primary/10 px-2 py-2"
               style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--primary) / 0.4)" }}
             >
-              <div className="flex items-center justify-center gap-1 text-primary">
-                <Hash className="h-3 w-3" />
-                <span className="font-pixel text-[10px]">{r.total_numbers}</span>
+              <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-body">Sorteio</p>
+              <div className="flex items-center gap-1 text-primary mt-0.5">
+                <Shield className="h-3 w-3" />
+                <span className="font-pixel text-[9px]">Lot. Federal</span>
               </div>
-              <p className="text-[9px] text-muted-foreground mt-0.5 font-body">números</p>
             </div>
           </div>
 
-          {r.draw_date && (
+          {/* Data do sorteio */}
+          {drawDate && (
             <div
-              className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-secondary/60 px-2 py-1.5 font-body"
-              style={{ borderRadius: 1 }}
+              className="flex items-center justify-between gap-2 text-[10px] bg-secondary/60 px-2.5 py-1.5 font-body"
+              style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--border))" }}
             >
-              <Calendar className="h-3 w-3" />
-              <span>
-                {new Date(r.draw_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                {drawDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
               </span>
+              {isActive && daysLeft !== null && (
+                <span
+                  className={cn(
+                    "font-pixel text-[9px] uppercase",
+                    daysLeft <= 3 ? "text-destructive" : "text-warning"
+                  )}
+                >
+                  {daysLeft === 0 ? "Hoje!" : `${daysLeft}d`}
+                </span>
+              )}
             </div>
           )}
 
+          {/* CTA */}
           <div
-            className="w-full bg-warning text-warning-foreground py-2 text-center font-pixel text-[10px] uppercase tracking-wider group-hover:bg-warning/90 transition-colors"
+            className={cn(
+              "w-full py-2.5 text-center font-pixel text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5",
+              isActive
+                ? "bg-warning text-warning-foreground group-hover:bg-warning/90"
+                : "bg-secondary text-muted-foreground"
+            )}
             style={{
               borderRadius: 1,
-              boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4), 0 3px 0 hsl(var(--warning) / 0.5)",
+              boxShadow: isActive
+                ? "0 0 0 2px hsl(var(--warning) / 0.4), 0 3px 0 hsl(var(--warning) / 0.6)"
+                : "0 0 0 1px hsl(var(--border))",
             }}
           >
-            ► Participar
+            {isActive ? (
+              <>
+                <Zap className="h-3 w-3" />
+                Garantir meus bilhetes
+              </>
+            ) : isCompleted ? (
+              <>
+                <Crown className="h-3 w-3" />
+                Ver resultado
+              </>
+            ) : (
+              "Encerrada"
+            )}
           </div>
         </div>
       </div>
@@ -149,16 +254,13 @@ const RifaPage = () => {
 
   // ===== LISTA =====
   if (!id) {
+    const activeCount = raffles?.length || 0;
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-8 max-w-6xl">
           {/* Hero pixel */}
-          <div
-            className="relative overflow-hidden bg-card p-7 mb-8"
-            style={goldenBox}
-          >
-            {/* Pixel grid bg */}
+          <div className="relative overflow-hidden bg-card p-7 mb-8" style={goldenBox}>
             <div
               aria-hidden
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
@@ -183,25 +285,25 @@ const RifaPage = () => {
               <div className="text-center md:text-left flex-1">
                 <h1 className="font-pixel text-base md:text-lg text-foreground mb-2 flex items-center gap-2 justify-center md:justify-start">
                   <Sparkles className="h-4 w-4 text-warning" />
-                  RIFAS ATIVAS
+                  CAMPANHAS ATIVAS
                 </h1>
                 <p className="text-xs text-muted-foreground font-body max-w-md leading-relaxed">
-                  Participe das rifas e concorra a prêmios incríveis! Sorteio baseado na{" "}
-                  <span className="text-warning font-semibold">Loteria Federal</span> para total transparência.
+                  Escolha sua sorte e garanta seus bilhetes! Sorteio oficial baseado na{" "}
+                  <span className="text-warning font-semibold">Loteria Federal</span> — total transparência.
                 </p>
               </div>
               <div
                 className="bg-background/60 px-5 py-3 text-center"
                 style={{ borderRadius: 2, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.3)" }}
               >
-                <p className="font-pixel text-xl text-warning">{raffles?.length || 0}</p>
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Rifas ativas</p>
+                <p className="font-pixel text-xl text-warning">{activeCount}</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mt-1">Ativas</p>
               </div>
             </div>
           </div>
 
           {/* Raffle Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 pt-3">
             {(raffles || []).map((r) => (
               <RaffleCard key={r.id} r={r} />
             ))}
@@ -215,7 +317,7 @@ const RifaPage = () => {
               >
                 <Ticket className="h-8 w-8 text-warning/40" />
               </div>
-              <p className="text-muted-foreground text-sm mb-1 font-body">Nenhuma rifa ativa no momento</p>
+              <p className="text-muted-foreground text-sm mb-1 font-body">Nenhuma campanha ativa no momento</p>
               <p className="text-muted-foreground/60 text-xs font-body">Volte em breve!</p>
             </div>
           )}
@@ -248,9 +350,9 @@ const RifaPage = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container py-16 text-center">
-          <p className="text-muted-foreground mb-2 font-body">Rifa não encontrada.</p>
+          <p className="text-muted-foreground mb-2 font-body">Campanha não encontrada.</p>
           <Link to="/rifa" className="text-primary hover:underline text-sm font-body">
-            ← Ver todas as rifas
+            ← Ver todas as campanhas
           </Link>
         </div>
       </div>
@@ -259,11 +361,14 @@ const RifaPage = () => {
 
   const soldNumbers = numbers?.length || 0;
   const myNumbers = numbers?.filter((n) => n.user_id === user?.id) || [];
-  const soldNumberSet = new Set(numbers?.map((n) => n.number) || []);
-  const myNumberSet = new Set(myNumbers.map((n) => n.number));
   const totalCost = quantity * raffle.price_per_number;
   const availableCount = raffle.total_numbers - soldNumbers;
   const progressPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
+  const drawDate = raffle.draw_date ? new Date(raffle.draw_date) : null;
+
+  // Largura do bilhete varia conforme tamanho da rifa (ex: 100000 = 6 dígitos)
+  const ticketDigits = String(raffle.total_numbers).length;
+  const formatTicket = (n: number) => String(n).padStart(ticketDigits, "0");
 
   const handleBuy = () => {
     buyNumbers.mutate(
@@ -271,10 +376,6 @@ const RifaPage = () => {
       { onSuccess: () => setBuyDialogOpen(false) }
     );
   };
-
-  // Limita a grade visual para 100 números (raffles maiores apenas mostram amostragem)
-  const gridSize = Math.min(raffle.total_numbers, 100);
-  const showFullGrid = raffle.total_numbers <= 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -289,13 +390,10 @@ const RifaPage = () => {
         </Link>
 
         {/* Hero Banner pixel */}
-        <div
-          className="relative overflow-hidden mb-6 bg-card"
-          style={goldenBox}
-        >
+        <div className="relative overflow-hidden mb-6 bg-card" style={goldenBox}>
           <div className="p-1.5">
             <div
-              className="relative h-56 md:h-72 overflow-hidden bg-secondary"
+              className="relative h-56 md:h-80 overflow-hidden bg-secondary"
               style={{
                 borderRadius: 1,
                 boxShadow: "inset 0 0 0 1px hsl(var(--border))",
@@ -315,7 +413,7 @@ const RifaPage = () => {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span
                     className={cn(
                       "font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1",
@@ -329,14 +427,13 @@ const RifaPage = () => {
                   >
                     {raffle.status === "active" ? "● Ativa" : raffle.status === "completed" ? "★ Finalizada" : "✕ Cancelada"}
                   </span>
-                  {raffle.federal_lottery_ref && (
-                    <span
-                      className="font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1 bg-warning/20 text-warning"
-                      style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
-                    >
-                      🎰 Loteria Federal
-                    </span>
-                  )}
+                  <span
+                    className="font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1 bg-warning/20 text-warning flex items-center gap-1"
+                    style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
+                  >
+                    <Shield className="h-2.5 w-2.5" />
+                    Loteria Federal
+                  </span>
                 </div>
                 <h1 className="font-pixel text-base md:text-xl text-foreground leading-tight">{raffle.title}</h1>
                 {raffle.description && (
@@ -352,10 +449,10 @@ const RifaPage = () => {
         {/* Stats Cards pixel */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
-            { icon: Coins, label: "coins/número", value: raffle.price_per_number, color: "warning" },
-            { icon: Hash, label: "total", value: raffle.total_numbers, color: "primary" },
-            { icon: Ticket, label: "vendidos", value: soldNumbers, color: "destructive" },
-            { icon: Sparkles, label: "disponíveis", value: availableCount, color: "primary" },
+            { icon: Coins, label: "coins/bilhete", value: raffle.price_per_number, color: "warning" as const },
+            { icon: Ticket, label: "vendidos", value: soldNumbers, color: "destructive" as const },
+            { icon: Sparkles, label: "disponíveis", value: availableCount, color: "primary" as const },
+            { icon: Trophy, label: "total", value: raffle.total_numbers, color: "warning" as const },
           ].map((stat, i) => (
             <div
               key={i}
@@ -366,7 +463,7 @@ const RifaPage = () => {
               }}
             >
               <stat.icon className={`h-4 w-4 mx-auto mb-2 text-${stat.color}`} />
-              <p className={`font-pixel text-base text-${stat.color}`}>{stat.value}</p>
+              <p className={`font-pixel text-base text-${stat.color}`}>{stat.value.toLocaleString("pt-BR")}</p>
               <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">{stat.label}</p>
             </div>
           ))}
@@ -377,126 +474,120 @@ const RifaPage = () => {
           <div className="lg:col-span-2 space-y-5">
             {/* Winner Banner */}
             {raffle.winner_number != null && (
-              <div
-                className="bg-card p-6 text-center"
-                style={goldenBox}
-              >
+              <div className="bg-card p-6 text-center" style={goldenBox}>
                 <div
                   className="w-14 h-14 flex items-center justify-center mx-auto mb-3 bg-warning/20"
                   style={{ borderRadius: 2, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4)" }}
                 >
                   <Crown className="h-7 w-7 text-warning" />
                 </div>
-                <p className="font-pixel text-xs text-warning mb-2 uppercase tracking-wider">★ Número Vencedor ★</p>
-                <p className="font-pixel text-5xl text-warning">{raffle.winner_number}</p>
+                <p className="font-pixel text-xs text-warning mb-2 uppercase tracking-wider">★ Bilhete Vencedor ★</p>
+                <p className="font-pixel text-5xl text-warning tracking-widest">
+                  {formatTicket(raffle.winner_number)}
+                </p>
               </div>
             )}
 
-            {/* My Numbers */}
+            {/* My Tickets — destacados */}
             {myNumbers.length > 0 && (
               <div className="bg-card p-5" style={primaryBox}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-pixel text-xs text-primary uppercase tracking-wider flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5" />
-                    Seus Números ({myNumbers.length})
+                    Meus Bilhetes ({myNumbers.length})
                   </h3>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {myNumbers.map((n) => (
                     <div
                       key={n.id}
-                      className="bg-primary text-primary-foreground px-3 py-2 font-pixel text-xs"
+                      className="relative bg-gradient-to-br from-primary/20 to-primary/5 p-3 text-center"
                       style={{
-                        borderRadius: 1,
-                        boxShadow: "0 0 0 1px hsl(var(--primary) / 0.5), 0 2px 0 hsl(var(--primary) / 0.6)",
+                        borderRadius: 2,
+                        boxShadow:
+                          "0 0 0 2px hsl(var(--primary) / 0.5), inset 0 0 0 1px hsl(var(--primary) / 0.2), 0 2px 0 hsl(var(--primary) / 0.6)",
                       }}
                     >
-                      #{String(n.number).padStart(2, "0")}
+                      <p className="text-[8px] text-primary/70 font-pixel uppercase tracking-wider mb-1">
+                        Bilhete
+                      </p>
+                      <p className="font-pixel text-sm text-primary tracking-widest">
+                        {formatTicket(n.number)}
+                      </p>
                     </div>
                   ))}
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-4 text-center font-body">
+                  Boa sorte! 🍀 O sorteio é baseado nos resultados da Loteria Federal.
+                </p>
               </div>
             )}
 
-            {/* Grade de números pixel */}
-            <div className="bg-card p-5" style={pixelBox}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-pixel text-xs text-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Hash className="h-3.5 w-3.5 text-primary" />
-                  {showFullGrid ? "Cartela de Números" : `Primeiros ${gridSize} números`}
-                </h3>
-                <div className="flex items-center gap-3 text-[9px] font-body">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 bg-secondary" style={{ boxShadow: "inset 0 0 0 1px hsl(var(--border))" }} />
-                    <span className="text-muted-foreground">Livre</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 bg-destructive/50" />
-                    <span className="text-muted-foreground">Vendido</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 bg-primary" />
-                    <span className="text-muted-foreground">Seu</span>
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-10 gap-1">
-                {Array.from({ length: gridSize }, (_, i) => i + 1).map((num) => {
-                  const isMine = myNumberSet.has(num);
-                  const isSold = soldNumberSet.has(num);
-                  return (
-                    <div
-                      key={num}
-                      className={cn(
-                        "aspect-square flex items-center justify-center font-pixel text-[9px] transition-all",
-                        isMine
-                          ? "bg-primary text-primary-foreground"
-                          : isSold
-                          ? "bg-destructive/40 text-destructive-foreground/70 line-through"
-                          : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                      )}
-                      style={{
-                        borderRadius: 1,
-                        boxShadow: isMine
-                          ? "inset 0 0 0 1px hsl(var(--primary) / 0.7), 0 1px 0 hsl(var(--primary) / 0.6)"
-                          : isSold
-                          ? "inset 0 0 0 1px hsl(var(--destructive) / 0.4)"
-                          : "inset 0 0 0 1px hsl(var(--border))",
-                      }}
-                      title={isMine ? "Seu número" : isSold ? "Vendido" : "Disponível"}
-                    >
-                      {num}
-                    </div>
-                  );
-                })}
-              </div>
-              {!showFullGrid && (
-                <p className="text-[10px] text-muted-foreground/70 mt-3 text-center font-body">
-                  Mostrando os primeiros {gridSize} de {raffle.total_numbers} números (visualização)
-                </p>
-              )}
-            </div>
-
-            {/* Loteria info */}
-            {raffle.federal_lottery_ref && (
-              <div className="bg-card p-5 flex items-start gap-4" style={{ ...pixelBox, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4), 0 0 0 3px hsl(var(--background)), inset 0 0 0 1px hsl(var(--card))" }}>
+            {/* Loteria Federal — explicação completa */}
+            <div className="bg-card p-6" style={pixelBox}>
+              <div className="flex items-start gap-4 mb-4">
                 <div
-                  className="w-12 h-12 flex items-center justify-center shrink-0 bg-warning/15"
-                  style={{ borderRadius: 2, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
+                  className="w-14 h-14 flex items-center justify-center shrink-0 bg-warning/15"
+                  style={{ borderRadius: 2, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4)" }}
                 >
-                  <span className="text-2xl">🎰</span>
+                  <Shield className="h-7 w-7 text-warning" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-pixel text-xs text-warning mb-1 uppercase tracking-wider">Loteria Federal</p>
-                  <p className="text-xs text-muted-foreground font-body">
-                    Referência: <span className="text-foreground font-semibold">{raffle.federal_lottery_ref}</span>
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/80 mt-1 font-body leading-relaxed">
-                    O resultado é baseado na Loteria Federal para garantir total transparência no sorteio.
+                  <h3 className="font-pixel text-sm text-warning uppercase tracking-wider mb-1">
+                    Sorteio pela Loteria Federal
+                  </h3>
+                  <p className="text-xs text-muted-foreground font-body leading-relaxed">
+                    Todo sorteio é baseado no resultado oficial da{" "}
+                    <span className="text-foreground font-semibold">Loteria Federal do Brasil</span>, garantindo
+                    transparência total e impossibilidade de manipulação.
                   </p>
                 </div>
               </div>
-            )}
+
+              {raffle.federal_lottery_ref && (
+                <div
+                  className="bg-warning/5 px-4 py-3 mb-4"
+                  style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.3)" }}
+                >
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-body">
+                    Extração de referência
+                  </p>
+                  <p className="font-pixel text-sm text-warning mt-1">
+                    Concurso #{raffle.federal_lottery_ref}
+                  </p>
+                </div>
+              )}
+
+              {/* Como o número é formado */}
+              <div className="space-y-3">
+                <p className="font-pixel text-[10px] text-foreground uppercase tracking-wider">
+                  Como o bilhete vencedor é definido:
+                </p>
+                {[
+                  {
+                    icon: CheckCircle2,
+                    text: "A Loteria Federal sorteia 5 prêmios (números de 5 dígitos cada).",
+                  },
+                  {
+                    icon: CheckCircle2,
+                    text: `Os últimos ${ticketDigits} dígitos do 1º prêmio formam o bilhete vencedor.`,
+                  },
+                  {
+                    icon: CheckCircle2,
+                    text: "Caso ninguém tenha o bilhete exato, segue para os prêmios seguintes.",
+                  },
+                  {
+                    icon: CheckCircle2,
+                    text: "Resultado público e auditável em loteriasonline.caixa.gov.br",
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <item.icon className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-muted-foreground font-body leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -521,16 +612,30 @@ const RifaPage = () => {
                 </div>
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground font-body">
-                <span>{soldNumbers} vendidos</span>
-                <span>{availableCount} restantes</span>
+                <span>{soldNumbers.toLocaleString("pt-BR")} vendidos</span>
+                <span>{availableCount.toLocaleString("pt-BR")} restantes</span>
               </div>
+              {drawDate && (
+                <div
+                  className="mt-3 pt-3 flex items-center gap-2 text-[10px] text-muted-foreground font-body"
+                  style={{ borderTop: "1px dashed hsl(var(--border))" }}
+                >
+                  <Calendar className="h-3 w-3 text-warning" />
+                  <span>
+                    Sorteio:{" "}
+                    <span className="text-foreground font-semibold">
+                      {drawDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+                    </span>
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Comprar */}
             <div className="bg-card p-5 space-y-4" style={goldenBox}>
               <h3 className="font-pixel text-[10px] text-warning uppercase tracking-wider flex items-center gap-2">
                 <Ticket className="h-3.5 w-3.5" />
-                Comprar Números
+                Garantir bilhetes
               </h3>
 
               {user ? (
@@ -555,8 +660,8 @@ const RifaPage = () => {
                         boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4), 0 4px 0 hsl(var(--warning) / 0.5)",
                       }}
                     >
-                      <Ticket className="h-4 w-4 mr-2" />
-                      Comprar
+                      <Zap className="h-4 w-4 mr-2" />
+                      Comprar bilhetes
                     </Button>
                   ) : raffle.status !== "active" ? (
                     <div
@@ -564,7 +669,7 @@ const RifaPage = () => {
                       style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--border))" }}
                     >
                       <Clock className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
-                      <p className="text-xs text-muted-foreground font-body">Rifa encerrada</p>
+                      <p className="text-xs text-muted-foreground font-body">Campanha encerrada</p>
                     </div>
                   ) : (
                     <div
@@ -572,13 +677,13 @@ const RifaPage = () => {
                       style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
                     >
                       <Sparkles className="h-5 w-5 text-warning mx-auto mb-1" />
-                      <p className="font-pixel text-[10px] text-warning uppercase tracking-wider">Esgotado!</p>
+                      <p className="font-pixel text-[10px] text-warning uppercase tracking-wider">Esgotada!</p>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="text-center py-6 space-y-3">
-                  <p className="text-xs text-muted-foreground font-body">Faça login para comprar</p>
+                  <p className="text-xs text-muted-foreground font-body">Faça login para participar</p>
                   <Link to="/login">
                     <Button
                       size="sm"
@@ -600,9 +705,9 @@ const RifaPage = () => {
               <ol className="space-y-2.5">
                 {[
                   { n: "1", text: "Tenha Rubini Coins na carteira" },
-                  { n: "2", text: "Compre números aleatórios" },
-                  { n: "3", text: "Aguarde o sorteio (Loteria Federal)" },
-                  { n: "4", text: "Se seu número sair, você ganha!" },
+                  { n: "2", text: "Compre seus bilhetes da sorte" },
+                  { n: "3", text: "Aguarde o sorteio da Loteria Federal" },
+                  { n: "4", text: "Confira o resultado e receba seu prêmio!" },
                 ].map((step) => (
                   <li key={step.n} className="flex items-start gap-2.5">
                     <span
@@ -631,10 +736,10 @@ const RifaPage = () => {
               >
                 <Ticket className="h-3.5 w-3.5 text-warning" />
               </div>
-              Comprar Números
+              Comprar Bilhetes
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-xs font-body pt-1">
-              Números aleatórios serão sorteados para você.
+              Bilhetes aleatórios serão sorteados para você.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-2">
@@ -675,8 +780,20 @@ const RifaPage = () => {
                   +
                 </Button>
               </div>
+              <div className="flex gap-1 mt-2">
+                {[5, 10, 25, 50].filter((v) => v <= availableCount).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setQuantity(v)}
+                    className="flex-1 py-1 bg-secondary hover:bg-secondary/80 font-pixel text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+                    style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--border))" }}
+                  >
+                    +{v}
+                  </button>
+                ))}
+              </div>
               <p className="text-[10px] text-muted-foreground font-body">
-                {availableCount} disponíveis
+                {availableCount.toLocaleString("pt-BR")} bilhetes disponíveis
               </p>
             </div>
 
@@ -696,7 +813,7 @@ const RifaPage = () => {
                 </span>
                 <span className="font-pixel text-base text-warning flex items-center gap-1">
                   <Coins className="h-4 w-4" />
-                  {totalCost}
+                  {totalCost.toLocaleString("pt-BR")}
                 </span>
               </div>
             </div>
@@ -725,7 +842,7 @@ const RifaPage = () => {
             >
               {buyNumbers.isPending
                 ? "Comprando..."
-                : `► Comprar ${quantity} número${quantity > 1 ? "s" : ""}`}
+                : `► Garantir ${quantity} bilhete${quantity > 1 ? "s" : ""}`}
             </Button>
           </div>
         </DialogContent>
