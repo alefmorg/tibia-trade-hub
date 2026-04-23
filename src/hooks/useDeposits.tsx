@@ -62,13 +62,12 @@ export const useCreateDeposit = () => {
       const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("deposit-screenshots").upload(filePath, screenshotFile);
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("deposit-screenshots").getPublicUrl(filePath);
 
       const { error } = await db.from("deposit_requests").insert({
         user_id: user!.id,
         amount_gold: amountGold,
         amount_coins: amountCoins,
-        screenshot_url: urlData.publicUrl,
+        screenshot_url: filePath,
       });
       if (error) throw error;
     },
