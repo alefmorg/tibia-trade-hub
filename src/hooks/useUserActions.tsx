@@ -48,6 +48,51 @@ export const useMyIntermediations = () => {
   });
 };
 
+export const useAllIntermediations = (enabled: boolean) => {
+  return useQuery({
+    queryKey: ["intermediation", "admin"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await db.from("intermediation_requests").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as IntermediationRequest[];
+    },
+  });
+};
+
+export const useUpdateIntermediation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status, admin_notes }: { id: string; status?: string; admin_notes?: string }) => {
+      const patch: Record<string, unknown> = {};
+      if (status !== undefined) patch.status = status;
+      if (admin_notes !== undefined) patch.admin_notes = admin_notes;
+      const { error } = await db.from("intermediation_requests").update(patch).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["intermediation"] });
+      toast.success("Solicitação atualizada!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+};
+
+export const useDeleteIntermediation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await db.from("intermediation_requests").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["intermediation"] });
+      toast.success("Solicitação removida!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+};
+
 export const useDonate = () => {
   const qc = useQueryClient();
   return useMutation({

@@ -30,8 +30,9 @@ import {
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
+import IntermediationsPanel from "@/components/admin/IntermediationsPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs" | "settings";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "settings";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -236,6 +237,7 @@ const Admin = () => {
       title: "NEGOCIAÇÕES",
       items: [
         { key: "conversations" as TabKey, label: "Conversas", icon: MessageCircle },
+        { key: "intermediations" as TabKey, label: "Intermediações", icon: ArrowRightLeft },
       ],
     },
     {
@@ -251,6 +253,7 @@ const Admin = () => {
       title: "COMUNICAÇÃO",
       items: [
         { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
+        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
       ],
     },
     {
@@ -259,9 +262,6 @@ const Admin = () => {
         { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
-        { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
-        { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
-        { key: "logs" as TabKey, label: "Logs / Atividade", icon: FileText },
       ],
     },
   ];
@@ -867,75 +867,8 @@ const Admin = () => {
               </div>
             )}
 
-            {/* CREATE AD TAB */}
-            {tab === "create-ad" && (
-              <div className="bg-card/80 border border-border/60 rounded-xl p-6 max-w-lg">
-                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Criar Anúncio (Admin)</h3>
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Criar em nome de</Label>
-                    <Select value={adForm.userId || "self"} onValueChange={(v) => setAdForm({ ...adForm, userId: v === "self" ? "" : v })}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Você mesmo" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="self">Você mesmo (Admin)</SelectItem>
-                        {profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Item</Label>
-                    <ItemCombobox items={items || []} value={adForm.itemId} onSelect={(id) => setAdForm({ ...adForm, itemId: id })} />
-                    {selectedItem?.image_url && <div className="flex justify-center pt-2"><img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" /></div>}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Tier</Label>
-                    <Select value={adForm.tier} onValueChange={(v) => setAdForm({ ...adForm, tier: v })}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Opcional" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Sem tier</SelectItem>
-                        {[0,1,2,3,4,5,6,7,8,9,10].map((t) => <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Tipo</Label>
-                    <div className="flex gap-2">
-                      <Button type="button" size="sm" variant={adForm.type === "selling" ? "default" : "outline"} onClick={() => setAdForm({ ...adForm, type: "selling" })}>Vendendo</Button>
-                      <Button type="button" size="sm" variant={adForm.type === "buying" ? "default" : "outline"} onClick={() => setAdForm({ ...adForm, type: "buying" })}>Comprando</Button>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Preço</Label>
-                    <div className="flex gap-2">
-                      <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
-                      <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
-                        <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
-                          <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Mundo</Label>
-                    <Select value={adForm.world} onValueChange={handleWorldChange}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        {rubinotWorlds.map((w) => <SelectItem key={w.name} value={w.name}>{w.name} ({w.pvp})</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Descrição</Label>
-                    <Textarea value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} placeholder="Detalhes..." className="bg-secondary/80 border-border min-h-[80px]" />
-                  </div>
-                  <Button onClick={handleCreateAd} disabled={createAdAdmin.isPending || !adForm.itemId || !adForm.world} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    {createAdAdmin.isPending ? "Criando..." : "Criar Anúncio"}
-                  </Button>
-                </div>
-              </div>
-            )}
+            {/* INTERMEDIATIONS TAB */}
+            {tab === "intermediations" && <IntermediationsPanel getProfileName={getProfileName} />}
 
             {/* NAV LINKS TAB */}
             {tab === "nav-links" && (
@@ -1649,107 +1582,6 @@ const Admin = () => {
               </div>
             )}
             {/* LOGS TAB */}
-            {tab === "logs" && (
-              <div className="space-y-5">
-                <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body mb-4">
-                    <FileText className="h-4 w-4 text-primary" />
-                    Log de Atividades Recentes
-                  </h3>
-                  <p className="text-xs text-muted-foreground mb-4">Ações administrativas e eventos do sistema.</p>
-
-                  <div className="space-y-2">
-                    {/* Recent deposits */}
-                    {(allDeposits || []).slice(0, 5).map((dep) => (
-                      <div key={`dep-${dep.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${dep.status === "approved" ? "bg-primary/15 text-primary" : dep.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
-                          💰
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium font-body">
-                            Depósito de <span className="text-primary">{getProfileName(dep.user_id)}</span>: {dep.amount_gold.toLocaleString("pt-BR")} gold → {dep.amount_coins} coins
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleString("pt-BR")}</p>
-                        </div>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${dep.status === "approved" ? "bg-primary/15 text-primary" : dep.status === "rejected" ? "bg-destructive/15 text-destructive" : "bg-warning/15 text-warning"}`}>
-                          {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
-                        </span>
-                      </div>
-                    ))}
-
-                    {/* offers log removed */}
-
-                    {/* Recent conversations */}
-                    {allConversations.slice(0, 5).map((conv) => (
-                      <div key={`conv-${conv.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-secondary/50">
-                          💬
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium font-body">
-                            Conversa entre <span className="text-primary">{getProfileName(conv.buyer_id)}</span> e <span className="text-primary">{getProfileName(conv.seller_id)}</span> sobre "{getAdTitle(conv.ad_id)}"
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(conv.updated_at).toLocaleString("pt-BR")}</p>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Recent ads */}
-                    {(ads || []).slice(0, 5).map((ad) => (
-                      <div key={`ad-${ad.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-secondary/30 border border-border/40">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-secondary/50">
-                          📦
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-foreground font-medium font-body">
-                            Anúncio "{ad.title}" por <span className="text-primary">{(ad as any).profiles?.username || "?"}</span>
-                            <span className={`ml-1 text-[10px] ${ad.type === "selling" ? "text-destructive" : "text-primary"}`}>({ad.type === "selling" ? "venda" : "compra"})</span>
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(ad.created_at).toLocaleString("pt-BR")}</p>
-                        </div>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${ad.status === "active" ? "bg-primary/15 text-primary" : ad.status === "sold" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground"}`}>
-                          {ad.status === "active" ? "Ativo" : ad.status === "sold" ? "Vendido" : "Inativo"}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(!allDeposits || allDeposits.length === 0) && (!ads || ads.length === 0) && (
-                    <div className="text-center py-12">
-                      <FileText className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-                      <p className="text-muted-foreground text-sm font-body">Nenhuma atividade registrada</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Quick Actions */}
-                <div className="bg-card/80 border border-border/60 rounded-2xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body mb-4">
-                    <Settings className="h-4 w-4 text-primary" />
-                    Ações Rápidas
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("ads")}>
-                      <Package className="h-5 w-5 text-primary" />
-                      <span className="text-xs font-body">Gerenciar Anúncios</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("users")}>
-                      <Users className="h-5 w-5 text-primary" />
-                      <span className="text-xs font-body">Gerenciar Usuários</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("deposits")}>
-                      <Wallet className="h-5 w-5 text-warning" />
-                      <span className="text-xs font-body">Ver Depósitos</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto py-4 flex-col gap-2 border-border" onClick={() => setTab("notifications")}>
-                      <Bell className="h-5 w-5 text-primary" />
-                      <span className="text-xs font-body">Enviar Notificação</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* SETTINGS TAB */}
             {tab === "settings" && (
               <div className="space-y-5 max-w-4xl">
@@ -1786,7 +1618,7 @@ const Admin = () => {
                     <div className="space-y-1.5">
                       <Label className="text-xs text-muted-foreground font-body">Atalhos</Label>
                       <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setTab("create-ad")}><Plus className="h-3.5 w-3.5 mr-1" />Criar anúncio</Button>
+                        <Button size="sm" variant="outline" onClick={() => setTab("intermediations")}><ArrowRightLeft className="h-3.5 w-3.5 mr-1" />Intermediações</Button>
                         <Button size="sm" variant="outline" onClick={() => setTab("filters")}><Filter className="h-3.5 w-3.5 mr-1" />Filtros</Button>
                       </div>
                     </div>
@@ -1897,8 +1729,8 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="px-5 pb-5">
-                    <Button variant="outline" size="sm" onClick={() => setTab("logs")} className="w-full">
-                      <FileText className="h-3.5 w-3.5 mr-1" /> Ver logs completos
+                    <Button variant="outline" size="sm" onClick={() => setTab("stats")} className="w-full">
+                      <BarChart3 className="h-3.5 w-3.5 mr-1" /> Ver Dashboard
                     </Button>
                   </div>
                 </div>
