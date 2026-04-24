@@ -554,6 +554,11 @@ const Index = () => {
         <p className="font-pixel text-xs text-foreground/80">
           RUBIN <span className="text-primary">TRADE</span>
         </p>
+        <div className="mt-3 flex items-center justify-center gap-4 text-[11px]">
+          <Link to="/privacidade" className="text-muted-foreground hover:text-primary transition-colors">Política de Privacidade</Link>
+          <span className="text-muted-foreground/40">·</span>
+          <Link to="/suporte" className="text-muted-foreground hover:text-primary transition-colors">Suporte</Link>
+        </div>
         <p className="mt-3 text-xs text-muted-foreground/60 max-w-lg mx-auto leading-relaxed">
           © 2026 — Rubin TRADE. Este projeto é independente e não possui qualquer vínculo oficial com a empresa RubinOT.
           Todas as imagens e conteúdos relacionados aos itens do jogo Tibia são de propriedade da CipSoft GmbH.
