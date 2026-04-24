@@ -30,8 +30,9 @@ import {
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
+import { useAllIntermediations, useUpdateIntermediation, useDeleteIntermediation } from "@/hooks/useUserActions";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "create-ad" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "logs" | "settings";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "settings";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -236,6 +237,7 @@ const Admin = () => {
       title: "NEGOCIAÇÕES",
       items: [
         { key: "conversations" as TabKey, label: "Conversas", icon: MessageCircle },
+        { key: "intermediations" as TabKey, label: "Intermediações", icon: ArrowRightLeft },
       ],
     },
     {
@@ -251,6 +253,7 @@ const Admin = () => {
       title: "COMUNICAÇÃO",
       items: [
         { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
+        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
       ],
     },
     {
@@ -259,9 +262,6 @@ const Admin = () => {
         { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
-        { key: "banners" as TabKey, label: "Banners / Rifa", icon: Megaphone },
-        { key: "create-ad" as TabKey, label: "Criar Anúncio", icon: Plus },
-        { key: "logs" as TabKey, label: "Logs / Atividade", icon: FileText },
       ],
     },
   ];
