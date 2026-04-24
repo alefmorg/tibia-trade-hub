@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Flame, LogOut, User, Plus, Shield, MessageCircle, Bell } from "lucide-react";
+import { Flame, LogOut, User, Plus, Shield, MessageCircle, Bell, LifeBuoy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useMessages";
 import WalletActionsMenu from "@/components/WalletActionsMenu";
@@ -103,6 +103,9 @@ const Header = () => {
                 )}
               </div>
 
+              <button onClick={() => navigate("/suporte")} title="Suporte" className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+                <LifeBuoy className="h-5 w-5" />
+              </button>
               <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
                 <MessageCircle className="h-5 w-5" />
                 {(unreadCount ?? 0) > 0 && (
