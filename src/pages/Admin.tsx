@@ -867,75 +867,8 @@ const Admin = () => {
               </div>
             )}
 
-            {/* CREATE AD TAB */}
-            {tab === "create-ad" && (
-              <div className="bg-card/80 border border-border/60 rounded-xl p-6 max-w-lg">
-                <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Criar Anúncio (Admin)</h3>
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Criar em nome de</Label>
-                    <Select value={adForm.userId || "self"} onValueChange={(v) => setAdForm({ ...adForm, userId: v === "self" ? "" : v })}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Você mesmo" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="self">Você mesmo (Admin)</SelectItem>
-                        {profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Item</Label>
-                    <ItemCombobox items={items || []} value={adForm.itemId} onSelect={(id) => setAdForm({ ...adForm, itemId: id })} />
-                    {selectedItem?.image_url && <div className="flex justify-center pt-2"><img src={selectedItem.image_url} alt={selectedItem.name} className="h-16 w-16 object-contain" /></div>}
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Tier</Label>
-                    <Select value={adForm.tier} onValueChange={(v) => setAdForm({ ...adForm, tier: v })}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Opcional" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Sem tier</SelectItem>
-                        {[0,1,2,3,4,5,6,7,8,9,10].map((t) => <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Tipo</Label>
-                    <div className="flex gap-2">
-                      <Button type="button" size="sm" variant={adForm.type === "selling" ? "default" : "outline"} onClick={() => setAdForm({ ...adForm, type: "selling" })}>Vendendo</Button>
-                      <Button type="button" size="sm" variant={adForm.type === "buying" ? "default" : "outline"} onClick={() => setAdForm({ ...adForm, type: "buying" })}>Comprando</Button>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Preço</Label>
-                    <div className="flex gap-2">
-                      <Input value={adForm.price} onChange={(e) => setAdForm({ ...adForm, price: formatPriceWithDots(e.target.value) })} placeholder="1.000.000" className="bg-secondary/80 border-border flex-1" />
-                      <Select value={adForm.currency} onValueChange={(v) => setAdForm({ ...adForm, currency: v })}>
-                        <SelectTrigger className="w-28 bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="kk"><span className="flex items-center gap-2"><img src="/icons/kk.png" alt="kk" className="w-4 h-4 object-contain" />kk</span></SelectItem>
-                          <SelectItem value="coins"><span className="flex items-center gap-2"><img src="/icons/coins.png" alt="coins" className="w-4 h-4 object-contain" />coins</span></SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Mundo</Label>
-                    <Select value={adForm.world} onValueChange={handleWorldChange}>
-                      <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        {rubinotWorlds.map((w) => <SelectItem key={w.name} value={w.name}>{w.name} ({w.pvp})</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground font-body">Descrição</Label>
-                    <Textarea value={adForm.description} onChange={(e) => setAdForm({ ...adForm, description: e.target.value })} placeholder="Detalhes..." className="bg-secondary/80 border-border min-h-[80px]" />
-                  </div>
-                  <Button onClick={handleCreateAd} disabled={createAdAdmin.isPending || !adForm.itemId || !adForm.world} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    {createAdAdmin.isPending ? "Criando..." : "Criar Anúncio"}
-                  </Button>
-                </div>
-              </div>
-            )}
+            {/* INTERMEDIATIONS TAB */}
+            {tab === "intermediations" && <IntermediationsPanel getProfileName={getProfileName} />}
 
             {/* NAV LINKS TAB */}
             {tab === "nav-links" && (
@@ -1786,7 +1719,7 @@ const Admin = () => {
                     <div className="space-y-1.5">
                       <Label className="text-xs text-muted-foreground font-body">Atalhos</Label>
                       <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setTab("create-ad")}><Plus className="h-3.5 w-3.5 mr-1" />Criar anúncio</Button>
+                        <Button size="sm" variant="outline" onClick={() => setTab("intermediations")}><ArrowRightLeft className="h-3.5 w-3.5 mr-1" />Intermediações</Button>
                         <Button size="sm" variant="outline" onClick={() => setTab("filters")}><Filter className="h-3.5 w-3.5 mr-1" />Filtros</Button>
                       </div>
                     </div>
@@ -1897,8 +1830,8 @@ const Admin = () => {
                     </div>
                   </div>
                   <div className="px-5 pb-5">
-                    <Button variant="outline" size="sm" onClick={() => setTab("logs")} className="w-full">
-                      <FileText className="h-3.5 w-3.5 mr-1" /> Ver logs completos
+                    <Button variant="outline" size="sm" onClick={() => setTab("stats")} className="w-full">
+                      <BarChart3 className="h-3.5 w-3.5 mr-1" /> Ver Dashboard
                     </Button>
                   </div>
                 </div>
