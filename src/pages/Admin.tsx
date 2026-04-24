@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
-import { useAllIntermediations, useUpdateIntermediation, useDeleteIntermediation } from "@/hooks/useUserActions";
+import IntermediationsPanel from "@/components/admin/IntermediationsPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "settings";
 
