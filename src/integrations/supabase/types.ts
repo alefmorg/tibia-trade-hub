@@ -764,7 +764,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      raffle_numbers_public: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          number: number | null
+          raffle_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          number?: number | null
+          raffle_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          number?: number | null
+          raffle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raffle_numbers_raffle_id_fkey"
+            columns: ["raffle_id"]
+            isOneToOne: false
+            referencedRelation: "raffles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_balance: {
