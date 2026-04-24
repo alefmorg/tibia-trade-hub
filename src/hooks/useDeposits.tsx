@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/image-utils";
 
 const db = supabase as any;
 
@@ -58,9 +59,13 @@ export const useCreateDeposit = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ amountGold, amountCoins, screenshotFile }: { amountGold: number; amountCoins: number; screenshotFile: File }) => {
-      const ext = screenshotFile.name.split(".").pop();
+      // Comprime screenshot (mantém legibilidade) — economiza ~70% de storage
+      const compressed = await compressImage(screenshotFile, { maxWidth: 1600, maxHeight: 1600, quality: 0.78, mimeType: "image/webp" });
+      const ext = compressed.name.split(".").pop();
       const filePath = `${user!.id}/${crypto.randomUUID()}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("deposit-screenshots").upload(filePath, screenshotFile);
+      const { error: uploadError } = await supabase.storage
+        .from("deposit-screenshots")
+        .upload(filePath, compressed, { contentType: compressed.type });
       if (uploadError) throw uploadError;
 
       const { error } = await db.from("deposit_requests").insert({

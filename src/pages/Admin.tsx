@@ -26,13 +26,15 @@ import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
-  Sparkles, Activity, Clock, ArrowRightLeft,
+  Sparkles, Activity, Clock, ArrowRightLeft, LifeBuoy, DollarSign,
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
 import IntermediationsPanel from "@/components/admin/IntermediationsPanel";
+import SupportPanel from "@/components/admin/SupportPanel";
+import FinancialPanel from "@/components/admin/FinancialPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "settings";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -238,11 +240,13 @@ const Admin = () => {
       items: [
         { key: "conversations" as TabKey, label: "Conversas", icon: MessageCircle },
         { key: "intermediations" as TabKey, label: "Intermediações", icon: ArrowRightLeft },
+        { key: "support" as TabKey, label: "Suporte / Tickets", icon: LifeBuoy },
       ],
     },
     {
       title: "MONETIZAÇÃO",
       items: [
+        { key: "financial" as TabKey, label: "Financeiro", icon: DollarSign },
         { key: "wallet" as TabKey, label: "Saldo / Coins", icon: Coins },
         { key: "deposits" as TabKey, label: "Depósitos", icon: Wallet, badge: allDeposits?.filter(d => d.status === "pending").length || undefined },
         { key: "plans" as TabKey, label: "Planos Destaque", icon: Star },
@@ -869,6 +873,12 @@ const Admin = () => {
 
             {/* INTERMEDIATIONS TAB */}
             {tab === "intermediations" && <IntermediationsPanel getProfileName={getProfileName} />}
+
+            {/* SUPPORT TAB */}
+            {tab === "support" && <SupportPanel getProfileName={getProfileName} />}
+
+            {/* FINANCIAL TAB */}
+            {tab === "financial" && <FinancialPanel getProfileName={getProfileName} />}
 
             {/* NAV LINKS TAB */}
             {tab === "nav-links" && (
