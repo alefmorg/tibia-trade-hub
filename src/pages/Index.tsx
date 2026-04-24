@@ -303,8 +303,8 @@ const Index = () => {
                   </span>
                 </div>
 
-                {/* Slots de banners */}
-                <div className="relative flex-1 px-3 pb-3 grid grid-cols-1 gap-2 min-h-[140px]">
+                {/* Slots de banners — proporção 468x60 / otserv-style, imagem inteira sem corte */}
+                <div className="relative flex-1 px-3 pb-3 flex flex-col gap-2">
                   {[0, 1].map((i) => {
                     const b = banners?.[i];
                     if (b) {
@@ -314,22 +314,15 @@ const Index = () => {
                           href={b.link_url || "#"}
                           target={b.link_url ? "_blank" : undefined}
                           rel="noopener noreferrer sponsored"
-                          className="group relative block overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5 min-h-[64px]"
+                          className="group relative flex-1 block overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5"
+                          style={{ aspectRatio: "468 / 60" }}
                         >
                           {b.image_url ? (
-                            <>
-                              <img
-                                src={b.image_url}
-                                alt={b.title || "Patrocinador"}
-                                className="w-full h-full object-cover absolute inset-0 group-hover:scale-105 transition-transform duration-500"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                              {b.title && (
-                                <span className="absolute bottom-1.5 left-2 text-[9px] font-semibold text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {b.title} →
-                                </span>
-                              )}
-                            </>
+                            <img
+                              src={b.image_url}
+                              alt={b.title || "Patrocinador"}
+                              className="w-full h-full object-contain absolute inset-0 p-1 group-hover:scale-[1.02] transition-transform duration-500"
+                            />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center px-3">
                               <p className="text-[11px] font-semibold text-foreground text-center">{b.title || "Anúncio"}</p>
@@ -338,11 +331,11 @@ const Index = () => {
                         </a>
                       );
                     }
-                    // Slot vazio (placeholder elegante)
                     return (
                       <div
                         key={`empty-${i}`}
-                        className="relative rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center min-h-[64px] group hover:border-primary/30 transition-colors"
+                        className="relative flex-1 rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center group hover:border-primary/30 transition-colors"
+                        style={{ aspectRatio: "468 / 60" }}
                       >
                         <div className="flex flex-col items-center gap-1 opacity-50 group-hover:opacity-80 transition-opacity">
                           <Megaphone className="h-4 w-4 text-muted-foreground" />
