@@ -206,7 +206,7 @@ export const useToggleFavorite = () => {
   return useMutation({
     mutationFn: async (adId: string) => {
       if (!user) throw new Error("Faça login para favoritar");
-      
+
       // Check if already favorited
       const { data: existing } = await supabase
         .from("favorites")
@@ -215,30 +215,12 @@ export const useToggleFavorite = () => {
         .eq("ad_id", adId)
         .maybeSingle();
 
-      // Get current likes count
-      const { data: adData } = await supabase
-        .from("ads")
-        .select("likes_count")
-        .eq("id", adId)
-        .single();
-      
-      const currentLikes = adData?.likes_count || 0;
-
       if (existing) {
-        // Remove favorite and decrement likes_count
+        // DB trigger updates likes_count automatically
         await supabase.from("favorites").delete().eq("id", existing.id);
-        await supabase
-          .from("ads")
-          .update({ likes_count: Math.max(0, currentLikes - 1) })
-          .eq("id", adId);
         return { action: "removed" };
       } else {
-        // Add favorite and increment likes_count
         await supabase.from("favorites").insert({ user_id: user.id, ad_id: adId });
-        await supabase
-          .from("ads")
-          .update({ likes_count: currentLikes + 1 })
-          .eq("id", adId);
         return { action: "added" };
       }
     },
