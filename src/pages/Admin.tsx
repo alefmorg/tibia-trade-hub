@@ -874,6 +874,12 @@ const Admin = () => {
             {/* INTERMEDIATIONS TAB */}
             {tab === "intermediations" && <IntermediationsPanel getProfileName={getProfileName} />}
 
+            {/* SUPPORT TAB */}
+            {tab === "support" && <SupportPanel getProfileName={getProfileName} />}
+
+            {/* FINANCIAL TAB */}
+            {tab === "financial" && <FinancialPanel getProfileName={getProfileName} />}
+
             {/* NAV LINKS TAB */}
             {tab === "nav-links" && (
               <div className="space-y-4">
