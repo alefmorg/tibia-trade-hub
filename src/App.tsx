@@ -19,6 +19,8 @@ const Perfil = lazy(() => import("./pages/Perfil"));
 const Mensagens = lazy(() => import("./pages/Mensagens"));
 const Anuncio = lazy(() => import("./pages/Anuncio"));
 const RifaPage = lazy(() => import("./pages/Rifa"));
+const Suporte = lazy(() => import("./pages/Suporte"));
+const Privacidade = lazy(() => import("./pages/Privacidade"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +61,8 @@ const App = () => (
               <Route path="/anuncio/:id" element={<Anuncio />} />
               <Route path="/rifa" element={<RifaPage />} />
               <Route path="/rifa/:id" element={<RifaPage />} />
+              <Route path="/suporte" element={<Suporte />} />
+              <Route path="/privacidade" element={<Privacidade />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

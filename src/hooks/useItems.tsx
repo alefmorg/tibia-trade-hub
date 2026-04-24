@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/image-utils";
 
 export interface Item {
   id: string;
@@ -35,11 +36,13 @@ export const useCreateItem = () => {
       const db = supabase as any;
 
       if (imageFile) {
-        const ext = imageFile.name.split(".").pop();
+        // Comprime para reduzir custo de storage (item icons ficam ~64x64)
+        const compressed = await compressImage(imageFile, { maxWidth: 256, maxHeight: 256, quality: 0.85, mimeType: "image/webp" });
+        const ext = compressed.name.split(".").pop();
         const filePath = `${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("item-images")
-          .upload(filePath, imageFile);
+          .upload(filePath, compressed, { contentType: compressed.type, cacheControl: "31536000" });
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
