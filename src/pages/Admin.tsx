@@ -34,7 +34,11 @@ import IntermediationsPanel from "@/components/admin/IntermediationsPanel";
 import SupportPanel from "@/components/admin/SupportPanel";
 import FinancialPanel from "@/components/admin/FinancialPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings";
+import RealtimeDashboard from "@/components/admin/RealtimeDashboard";
+import CleanupPanel from "@/components/admin/CleanupPanel";
+import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
+
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
