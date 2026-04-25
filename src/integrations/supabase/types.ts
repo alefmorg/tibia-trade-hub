@@ -558,6 +558,53 @@ export type Database = {
           },
         ]
       }
+      raffle_prizes: {
+        Row: {
+          created_at: string
+          delivered: boolean
+          delivered_at: string | null
+          id: string
+          prize_description: string | null
+          prize_name: string
+          prize_number: number
+          raffle_id: string
+          updated_at: string
+          winner_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_name: string
+          prize_number: number
+          raffle_id: string
+          updated_at?: string
+          winner_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_name?: string
+          prize_number?: number
+          raffle_id?: string
+          updated_at?: string
+          winner_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raffle_prizes_raffle_id_fkey"
+            columns: ["raffle_id"]
+            isOneToOne: false
+            referencedRelation: "raffles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       raffles: {
         Row: {
           created_at: string
@@ -870,17 +917,34 @@ export type Database = {
         Args: { p_amount: number; p_reason?: string; p_user_id: string }
         Returns: undefined
       }
+      admin_bulk_delete: {
+        Args: { p_older_than_days?: number; p_target: string }
+        Returns: number
+      }
       approve_deposit: { Args: { p_deposit_id: string }; Returns: undefined }
       buy_raffle_number: {
         Args: { p_quantity?: number; p_raffle_id: string }
         Returns: number[]
+      }
+      claim_raffle_prize: {
+        Args: { p_number: number; p_raffle_id: string; p_user_id: string }
+        Returns: undefined
       }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       donate_coins: {
         Args: { p_amount: number; p_message?: string }
         Returns: string
       }
+      draw_raffle_winner: {
+        Args: {
+          p_lottery_ref?: string
+          p_raffle_id: string
+          p_winner_number: number
+        }
+        Returns: string
+      }
       get_ad_duration_days: { Args: never; Returns: number }
+      get_admin_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -899,6 +963,10 @@ export type Database = {
       is_ticket_participant: {
         Args: { _ticket_id: string; _user_id: string }
         Returns: boolean
+      }
+      notify_admins: {
+        Args: { p_message: string; p_title: string }
+        Returns: undefined
       }
     }
     Enums: {
