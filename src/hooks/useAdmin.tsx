@@ -181,6 +181,19 @@ export const useAdminData = (enabled: boolean) => {
     onError: (err: any) => toast.error(err.message || "Erro ao criar anúncio"),
   });
 
+  const bulkDelete = useMutation({
+    mutationFn: ({ target, olderThanDays }: { target: string; olderThanDays: number }) =>
+      callAdminAction<{ deleted: number }>("bulkDelete", { target, olderThanDays }),
+    onSuccess: async (data) => { await invalidateAdminQueries(queryClient); toast.success(`${data?.deleted ?? 0} registros removidos`); },
+    onError: (err: any) => toast.error(err.message || "Erro na limpeza"),
+  });
+
+  const adjustWallet = useMutation({
+    mutationFn: (vars: { userId: string; amount: number; reason?: string }) => callAdminAction("adjustWallet", vars),
+    onSuccess: async () => { await invalidateAdminQueries(queryClient); toast.success("Saldo ajustado!"); },
+    onError: (err: any) => toast.error(err.message || "Erro ao ajustar saldo"),
+  });
+
   return {
     profiles: profilesQuery.data || [],
     userRoles: userRolesQuery.data || [],
@@ -194,6 +207,8 @@ export const useAdminData = (enabled: boolean) => {
       adsCountQuery.isLoading || offersQuery.isLoading || conversationsQuery.isLoading || favoritesQuery.isLoading,
     updateAdStatus, toggleFeatured, updateUserRole, banUser, deleteUser,
     updateTradeSettings, updateOfferStatus, deleteOffer, deleteConversation,
-    getConversationMessages, createAdAdmin,
+    getConversationMessages, createAdAdmin, bulkDelete, adjustWallet,
   };
 };
+
+export const callAdminActionRaw = callAdminAction;
