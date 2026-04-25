@@ -375,83 +375,10 @@ const Admin = () => {
           <div className="p-6 space-y-6">
             {/* STATS / DASHBOARD */}
             {tab === "stats" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {[
-                    { label: "Anúncios", value: stats.totalAds, sub: `${stats.activeAds} ativos`, icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Destaques", value: stats.featuredAds, sub: "promovidos", icon: Star, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Vendas", value: stats.sellingAds, sub: "de venda", icon: Package, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
-                    { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Depósitos", value: stats.pendingDeposits, sub: "pendentes", icon: Wallet, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Rifas Ativas", value: stats.activeRaffles, sub: "em andamento", icon: Ticket, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground", bg: "from-secondary/50 to-secondary/80", border: "border-border/60" },
-                  ].map((s) => (
-                    <div key={s.label} className={`bg-gradient-to-br ${s.bg} border ${s.border} rounded-2xl p-4 hover:shadow-md transition-all duration-200`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <s.icon className={`h-4 w-4 ${s.color}`} />
-                      </div>
-                      <p className={`font-pixel text-2xl ${s.color}`}>{s.value}</p>
-                      <p className="text-xs text-foreground font-medium font-body mt-1">{s.label}</p>
-                      <p className="text-[10px] text-muted-foreground font-body">{s.sub}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Top Anunciantes</h3>
-                    <div className="space-y-2">
-                      {Object.entries(adsCountByUser as Record<string, number>).sort(([, a], [, b]) => b - a).slice(0, 10).map(([uid, count], i) => (
-                        <div key={uid} className="flex items-center justify-between text-sm py-1.5 px-2 rounded-lg hover:bg-secondary/40 transition-colors">
-                          <span className="flex items-center gap-3">
-                            <span className="text-muted-foreground text-xs w-5 font-body">{i + 1}.</span>
-                            <span className="text-foreground font-body">{getProfileName(uid)}</span>
-                          </span>
-                          <span className="text-primary font-semibold font-body">{count}</span>
-                        </div>
-                      ))}
-                      {Object.keys(adsCountByUser || {}).length === 0 && <p className="text-muted-foreground text-xs text-center py-4 font-body">Sem dados</p>}
-                    </div>
-                  </div>
-                  <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Atalhos Rápidos</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => setTab("deposits")} className="flex items-center gap-2 p-3 rounded-lg bg-warning/5 border border-warning/20 hover:bg-warning/10 transition-colors text-left">
-                        <Wallet className="h-4 w-4 text-warning" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Depósitos</p>
-                          <p className="text-[10px] text-muted-foreground">{stats.pendingDeposits} aguardando</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("notifications")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
-                        <Bell className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Notificar</p>
-                          <p className="text-[10px] text-muted-foreground">Enviar broadcast</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("raffles")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
-                        <Ticket className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Rifas</p>
-                          <p className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("settings")} className="flex items-center gap-2 p-3 rounded-lg bg-secondary/40 border border-border hover:bg-secondary/60 transition-colors text-left">
-                        <Settings className="h-4 w-4 text-foreground" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Configurações</p>
-                          <p className="text-[10px] text-muted-foreground">Ajustes gerais</p>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RealtimeDashboard onNavigate={(t) => setTab(t as TabKey)} />
             )}
+
+            {tab === "cleanup" && <CleanupPanel isAdmin={isAdmin} />}
 
             {/* ADS TAB */}
             {tab === "ads" && (
