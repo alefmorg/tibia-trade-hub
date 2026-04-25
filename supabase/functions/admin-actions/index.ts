@@ -172,6 +172,114 @@ Deno.serve(async (req) => {
         return jsonResponse({ success: true, data });
       }
 
+      case "getStats": {
+        const { data, error } = await adminClient.rpc("get_admin_stats");
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "bulkDelete": {
+        const { target, olderThanDays } = payload ?? {};
+        if (!target) throw new Error("Alvo de limpeza obrigatório");
+        const { data, error } = await adminClient.rpc("admin_bulk_delete", {
+          p_target: target,
+          p_older_than_days: typeof olderThanDays === "number" ? olderThanDays : 0,
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true, data: { deleted: data } });
+      }
+
+      case "drawRaffleWinner": {
+        const { raffleId, winnerNumber, lotteryRef } = payload ?? {};
+        if (!raffleId || typeof winnerNumber !== "number") throw new Error("Dados inválidos para sorteio");
+        const { data, error } = await adminClient.rpc("draw_raffle_winner", {
+          p_raffle_id: raffleId,
+          p_winner_number: winnerNumber,
+          p_lottery_ref: lotteryRef ?? null,
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true, data: { winnerId: data } });
+      }
+
+      case "createRaffle": {
+        const { title, description, image_url, price_per_number, total_numbers, draw_date } = payload ?? {};
+        if (!title || !price_per_number) throw new Error("Dados inválidos");
+        const { data, error } = await adminClient.from("raffles").insert({
+          title, description: description || null, image_url: image_url || null,
+          price_per_number, total_numbers: total_numbers || 100,
+          draw_date: draw_date || null, status: "active",
+        }).select().single();
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "updateRaffle": {
+        const { id, ...updates } = payload ?? {};
+        if (!id) throw new Error("Rifa inválida");
+        const { error } = await adminClient.from("raffles").update(updates).eq("id", id);
+        ensureNoError(error);
+        return jsonResponse({ success: true });
+      }
+
+      case "deleteRaffle": {
+        const { id } = payload ?? {};
+        if (!id) throw new Error("Rifa inválida");
+        const { error: numErr } = await adminClient.from("raffle_numbers").delete().eq("raffle_id", id);
+        ensureNoError(numErr);
+        const { error: prizeErr } = await adminClient.from("raffle_prizes").delete().eq("raffle_id", id);
+        ensureNoError(prizeErr);
+        const { error } = await adminClient.from("raffles").delete().eq("id", id);
+        ensureNoError(error);
+        return jsonResponse({ success: true });
+      }
+
+      case "createRafflePrize": {
+        const { raffle_id, prize_number, prize_name, prize_description } = payload ?? {};
+        if (!raffle_id || !prize_number || !prize_name) throw new Error("Dados inválidos");
+        const { data, error } = await adminClient.from("raffle_prizes").insert({
+          raffle_id, prize_number, prize_name, prize_description: prize_description || null,
+        }).select().single();
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "deleteRafflePrize": {
+        const { id } = payload ?? {};
+        if (!id) throw new Error("Prêmio inválido");
+        const { error } = await adminClient.from("raffle_prizes").delete().eq("id", id);
+        ensureNoError(error);
+        return jsonResponse({ success: true });
+      }
+
+      case "markPrizeDelivered": {
+        const { id, delivered } = payload ?? {};
+        if (!id || typeof delivered !== "boolean") throw new Error("Dados inválidos");
+        const { error } = await adminClient.from("raffle_prizes").update({
+          delivered, delivered_at: delivered ? new Date().toISOString() : null,
+        }).eq("id", id);
+        ensureNoError(error);
+        return jsonResponse({ success: true });
+      }
+
+      case "listRaffleNumbers": {
+        const { raffleId } = payload ?? {};
+        if (!raffleId) throw new Error("Rifa inválida");
+        const { data, error } = await adminClient
+          .from("raffle_numbers").select("*").eq("raffle_id", raffleId).order("number");
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "adjustWallet": {
+        const { userId, amount, reason } = payload ?? {};
+        if (!userId || typeof amount !== "number") throw new Error("Dados inválidos");
+        const { error } = await adminClient.rpc("add_balance", {
+          p_user_id: userId, p_amount: amount, p_reason: reason || "Ajuste manual do admin",
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true });
+      }
+
       case "deleteUser": {
         const { userId } = payload ?? {};
         if (!userId) throw new Error("Usuário inválido");
