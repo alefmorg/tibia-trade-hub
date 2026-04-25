@@ -270,6 +270,7 @@ const Admin = () => {
         { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
+        { key: "cleanup" as TabKey, label: "Limpeza Histórico", icon: Trash2 },
       ],
     },
   ];
