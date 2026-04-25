@@ -34,7 +34,11 @@ import IntermediationsPanel from "@/components/admin/IntermediationsPanel";
 import SupportPanel from "@/components/admin/SupportPanel";
 import FinancialPanel from "@/components/admin/FinancialPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings";
+import RealtimeDashboard from "@/components/admin/RealtimeDashboard";
+import CleanupPanel from "@/components/admin/CleanupPanel";
+import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
+
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -266,6 +270,7 @@ const Admin = () => {
         { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
+        { key: "cleanup" as TabKey, label: "Limpeza Histórico", icon: Trash2 },
       ],
     },
   ];
@@ -370,83 +375,10 @@ const Admin = () => {
           <div className="p-6 space-y-6">
             {/* STATS / DASHBOARD */}
             {tab === "stats" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {[
-                    { label: "Anúncios", value: stats.totalAds, sub: `${stats.activeAds} ativos`, icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Destaques", value: stats.featuredAds, sub: "promovidos", icon: Star, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Vendas", value: stats.sellingAds, sub: "de venda", icon: Package, color: "text-destructive", bg: "from-destructive/5 to-destructive/10", border: "border-destructive/20" },
-                    { label: "Compras", value: stats.buyingAds, sub: "de compra", icon: Package, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Usuários", value: stats.totalUsers, sub: `${stats.bannedUsers} banidos`, icon: Users, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Itens", value: stats.totalItems, sub: "cadastrados", icon: Image, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Depósitos", value: stats.pendingDeposits, sub: "pendentes", icon: Wallet, color: "text-warning", bg: "from-warning/5 to-warning/10", border: "border-warning/20" },
-                    { label: "Rifas Ativas", value: stats.activeRaffles, sub: "em andamento", icon: Ticket, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Favoritos", value: stats.totalFavorites, sub: "total", icon: Star, color: "text-primary", bg: "from-primary/5 to-primary/10", border: "border-primary/20" },
-                    { label: "Conversas", value: stats.totalConversations, sub: "abertas", icon: MessageCircle, color: "text-muted-foreground", bg: "from-secondary/50 to-secondary/80", border: "border-border/60" },
-                  ].map((s) => (
-                    <div key={s.label} className={`bg-gradient-to-br ${s.bg} border ${s.border} rounded-2xl p-4 hover:shadow-md transition-all duration-200`}>
-                      <div className="flex items-center justify-between mb-3">
-                        <s.icon className={`h-4 w-4 ${s.color}`} />
-                      </div>
-                      <p className={`font-pixel text-2xl ${s.color}`}>{s.value}</p>
-                      <p className="text-xs text-foreground font-medium font-body mt-1">{s.label}</p>
-                      <p className="text-[10px] text-muted-foreground font-body">{s.sub}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Top Anunciantes</h3>
-                    <div className="space-y-2">
-                      {Object.entries(adsCountByUser as Record<string, number>).sort(([, a], [, b]) => b - a).slice(0, 10).map(([uid, count], i) => (
-                        <div key={uid} className="flex items-center justify-between text-sm py-1.5 px-2 rounded-lg hover:bg-secondary/40 transition-colors">
-                          <span className="flex items-center gap-3">
-                            <span className="text-muted-foreground text-xs w-5 font-body">{i + 1}.</span>
-                            <span className="text-foreground font-body">{getProfileName(uid)}</span>
-                          </span>
-                          <span className="text-primary font-semibold font-body">{count}</span>
-                        </div>
-                      ))}
-                      {Object.keys(adsCountByUser || {}).length === 0 && <p className="text-muted-foreground text-xs text-center py-4 font-body">Sem dados</p>}
-                    </div>
-                  </div>
-                  <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold text-foreground mb-4 font-body">Atalhos Rápidos</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => setTab("deposits")} className="flex items-center gap-2 p-3 rounded-lg bg-warning/5 border border-warning/20 hover:bg-warning/10 transition-colors text-left">
-                        <Wallet className="h-4 w-4 text-warning" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Depósitos</p>
-                          <p className="text-[10px] text-muted-foreground">{stats.pendingDeposits} aguardando</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("notifications")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
-                        <Bell className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Notificar</p>
-                          <p className="text-[10px] text-muted-foreground">Enviar broadcast</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("raffles")} className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors text-left">
-                        <Ticket className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Rifas</p>
-                          <p className="text-[10px] text-muted-foreground">{stats.activeRaffles} ativas</p>
-                        </div>
-                      </button>
-                      <button onClick={() => setTab("settings")} className="flex items-center gap-2 p-3 rounded-lg bg-secondary/40 border border-border hover:bg-secondary/60 transition-colors text-left">
-                        <Settings className="h-4 w-4 text-foreground" />
-                        <div>
-                          <p className="text-xs font-semibold text-foreground font-body">Configurações</p>
-                          <p className="text-[10px] text-muted-foreground">Ajustes gerais</p>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RealtimeDashboard onNavigate={(t) => setTab(t as TabKey)} />
             )}
+
+            {tab === "cleanup" && <CleanupPanel isAdmin={isAdmin} />}
 
             {/* ADS TAB */}
             {tab === "ads" && (
@@ -1403,194 +1335,8 @@ const Admin = () => {
             )}
 
             {/* RAFFLES TAB */}
-            {tab === "raffles" && (
-              <div className="space-y-5">
-                {/* Create/Edit Form */}
-                <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border/60 bg-gradient-to-r from-warning/5 to-transparent flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-warning/15 flex items-center justify-center border border-warning/25">
-                      <Ticket className="h-4 w-4 text-warning" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground font-body">{editingRaffle ? "Editar Rifa" : "Criar Nova Rifa"}</h3>
-                      <p className="text-[10px] text-muted-foreground">Configure os detalhes da rifa</p>
-                    </div>
-                  </div>
-                  <div className="p-5 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Título *</Label>
-                        <Input value={raffleForm.title} onChange={(e) => setRaffleForm({ ...raffleForm, title: e.target.value })} placeholder="Rifa Golden Armor" className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Preço por número (coins) *</Label>
-                        <Input type="number" value={raffleForm.price_per_number} onChange={(e) => setRaffleForm({ ...raffleForm, price_per_number: e.target.value })} placeholder="10" className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Total de números</Label>
-                        <Input type="number" value={raffleForm.total_numbers} onChange={(e) => setRaffleForm({ ...raffleForm, total_numbers: e.target.value })} placeholder="100" className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Data do sorteio</Label>
-                        <Input type="date" value={raffleForm.draw_date} onChange={(e) => setRaffleForm({ ...raffleForm, draw_date: e.target.value })} className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Ref. Loteria Federal</Label>
-                        <Input value={raffleForm.federal_lottery_ref} onChange={(e) => setRaffleForm({ ...raffleForm, federal_lottery_ref: e.target.value })} placeholder="Concurso 5XXX" className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">URL da imagem</Label>
-                        <Input value={raffleForm.image_url} onChange={(e) => setRaffleForm({ ...raffleForm, image_url: e.target.value })} placeholder="https://..." className="bg-secondary/80 border-border" />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Descrição</Label>
-                      <Textarea value={raffleForm.description} onChange={(e) => setRaffleForm({ ...raffleForm, description: e.target.value })} placeholder="Detalhes da rifa, prêmio, regras..." className="bg-secondary/80 border-border min-h-[70px]" />
-                    </div>
-                    {raffleForm.image_url && (
-                      <div className="bg-secondary/30 rounded-xl p-3">
-                        <p className="text-[10px] text-muted-foreground mb-1.5 font-body">Preview da imagem:</p>
-                        <img src={raffleForm.image_url} alt="" className="w-full max-h-32 object-cover rounded-lg border border-border/40" />
-                      </div>
-                    )}
-                    <div className="flex gap-2 pt-1">
-                      <Button onClick={() => {
-                        if (!raffleForm.title || !raffleForm.price_per_number) return;
-                        const data = {
-                          title: raffleForm.title,
-                          description: raffleForm.description || undefined,
-                          image_url: raffleForm.image_url || undefined,
-                          price_per_number: Number(raffleForm.price_per_number),
-                          total_numbers: Number(raffleForm.total_numbers) || 100,
-                          draw_date: raffleForm.draw_date ? new Date(raffleForm.draw_date).toISOString() : undefined,
-                          federal_lottery_ref: raffleForm.federal_lottery_ref || undefined,
-                        };
-                        if (editingRaffle) { raffleMut.update.mutate({ id: editingRaffle, ...data }); setEditingRaffle(null); }
-                        else raffleMut.create.mutate(data);
-                        setRaffleForm({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" });
-                      }} disabled={!raffleForm.title || !raffleForm.price_per_number} className="bg-warning text-warning-foreground hover:bg-warning/90 px-6">
-                        <Ticket className="h-4 w-4 mr-1" />
-                        {editingRaffle ? "Salvar Alterações" : "Criar Rifa"}
-                      </Button>
-                      {editingRaffle && <Button variant="outline" onClick={() => { setEditingRaffle(null); setRaffleForm({ title: "", description: "", image_url: "", price_per_number: "", total_numbers: "100", draw_date: "", federal_lottery_ref: "" }); }}>Cancelar</Button>}
-                    </div>
-                  </div>
-                </div>
+            {tab === "raffles" && <RafflesAdminPanel getProfileName={getProfileName} />}
 
-                {/* Raffles List as Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(allRaffles || []).map((r) => {
-                    const raffleNums = undefined; // numbers loaded on raffle detail page
-                    return (
-                      <div key={r.id} className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden hover:border-warning/30 transition-all">
-                        {/* Header */}
-                        <div className="relative">
-                          {r.image_url ? (
-                            <img src={r.image_url} alt={r.title} className="w-full h-32 object-cover" />
-                          ) : (
-                            <div className="w-full h-20 bg-gradient-to-r from-warning/10 to-primary/5 flex items-center justify-center">
-                              <Ticket className="h-8 w-8 text-warning/20" />
-                            </div>
-                          )}
-                          <div className="absolute top-2 right-2">
-                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${r.status === "active" ? "bg-primary/90 text-primary-foreground" : r.status === "completed" ? "bg-warning/90 text-warning-foreground" : "bg-destructive/90 text-destructive-foreground"}`}>
-                              {r.status === "active" ? "Ativa" : r.status === "completed" ? "Finalizada" : "Cancelada"}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="p-4 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <h4 className="text-sm font-bold text-foreground">{r.title}</h4>
-                          </div>
-                          
-                          <div className="grid grid-cols-3 gap-2 text-center">
-                            <div className="bg-warning/5 border border-warning/15 rounded-lg py-2">
-                              <p className="font-pixel text-sm text-warning">{r.price_per_number}</p>
-                              <p className="text-[9px] text-muted-foreground">coins/nº</p>
-                            </div>
-                            <div className="bg-primary/5 border border-primary/15 rounded-lg py-2">
-                              <p className="font-pixel text-sm text-primary">{r.total_numbers}</p>
-                              <p className="text-[9px] text-muted-foreground">total</p>
-                            </div>
-                            <div className="bg-secondary/50 border border-border/40 rounded-lg py-2">
-                              <p className="font-pixel text-sm text-foreground">{r.draw_date ? new Date(r.draw_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}</p>
-                              <p className="text-[9px] text-muted-foreground">sorteio</p>
-                            </div>
-                          </div>
-
-                          {r.federal_lottery_ref && (
-                            <p className="text-[10px] text-muted-foreground bg-secondary/30 rounded-lg px-2.5 py-1.5">🎰 {r.federal_lottery_ref}</p>
-                          )}
-
-                          {/* Winner input */}
-                          {r.status === "completed" && r.winner_number != null && (
-                            <div className="bg-warning/10 border border-warning/25 rounded-lg p-2.5 text-center">
-                              <p className="text-[10px] text-muted-foreground">Vencedor:</p>
-                              <p className="font-pixel text-lg text-warning">Nº {r.winner_number}</p>
-                            </div>
-                          )}
-                          {r.status !== "cancelled" && r.winner_number == null && (
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="number"
-                                min={1}
-                                max={r.total_numbers}
-                                placeholder="Nº vencedor"
-                                value={winnerNumberInput[r.id] || ""}
-                                onChange={(e) => setWinnerNumberInput(prev => ({ ...prev, [r.id]: e.target.value }))}
-                                className="bg-secondary/80 border-border h-8 text-xs flex-1"
-                              />
-                              <Button size="sm" className="h-8 bg-warning text-warning-foreground text-xs" disabled={!winnerNumberInput[r.id]}
-                                onClick={() => {
-                                  const num = Number(winnerNumberInput[r.id]);
-                                  if (num >= 1 && num <= r.total_numbers) {
-                                    raffleMut.update.mutate({ id: r.id, winner_number: num, status: "completed" });
-                                    setWinnerNumberInput(prev => { const n = { ...prev }; delete n[r.id]; return n; });
-                                  }
-                                }}>
-                                🏆 Definir
-                              </Button>
-                            </div>
-                          )}
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-2 pt-1">
-                            <Select value={r.status} onValueChange={(v) => raffleMut.update.mutate({ id: r.id, status: v })}>
-                              <SelectTrigger className="flex-1 h-8 text-xs bg-secondary border-border rounded-lg"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="active">Ativa</SelectItem>
-                                <SelectItem value="completed">Finalizada</SelectItem>
-                                <SelectItem value="cancelled">Cancelada</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-border" onClick={() => {
-                              setEditingRaffle(r.id);
-                              setRaffleForm({
-                                title: r.title, description: r.description || "", image_url: r.image_url || "",
-                                price_per_number: String(r.price_per_number), total_numbers: String(r.total_numbers),
-                                draw_date: r.draw_date ? r.draw_date.slice(0, 10) : "", federal_lottery_ref: r.federal_lottery_ref || "",
-                              });
-                            }}><Eye className="h-3.5 w-3.5 text-primary" /></Button>
-                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-border hover:bg-destructive/10 hover:border-destructive/30"
-                              onClick={() => { if (confirm(`Remover "${r.title}"?`)) raffleMut.remove.mutate(r.id); }}>
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {(!allRaffles || allRaffles.length === 0) && (
-                  <div className="text-center py-12 bg-card/50 rounded-2xl border border-border/60">
-                    <Ticket className="h-8 w-8 text-warning/20 mx-auto mb-3" />
-                    <p className="text-muted-foreground text-sm font-body">Nenhuma rifa criada</p>
-                    <p className="text-muted-foreground/60 text-xs mt-1">Crie sua primeira rifa acima</p>
-                  </div>
-                )}
-              </div>
-            )}
             {/* LOGS TAB */}
             {/* SETTINGS TAB */}
             {tab === "settings" && (
