@@ -26,15 +26,21 @@ import { cn } from "@/lib/utils";
 
 /* ---------- subcomponents ---------- */
 
-const StatRow = ({
+const StatChip = ({
   icon, label, value, accent,
-}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" }) => (
-  <div className="flex items-center justify-between py-2.5">
-    <span className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-      <span className={accent === "warning" ? "text-warning" : "text-primary/80"}>{icon}</span>
+}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" | "primary" }) => (
+  <div className={cn(
+    "flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[96px]",
+    accent === "warning" ? "border-warning/30" : accent === "primary" ? "border-primary/30" : "border-border/60",
+  )}>
+    <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+      <span className={accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground"}>{icon}</span>
       {label}
     </span>
-    <span className={cn("text-sm font-semibold tabular-nums", accent === "warning" ? "text-warning" : "text-foreground")}>
+    <span className={cn(
+      "text-base font-bold tabular-nums leading-tight",
+      accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-foreground"
+    )}>
       {value}
     </span>
   </div>
@@ -212,41 +218,66 @@ const Perfil = () => {
       <Header />
       <div className="container py-10 max-w-6xl">
         {profileLoading ? (
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-            <Skeleton className="h-56 rounded-2xl" />
-            <Skeleton className="h-56 rounded-2xl" />
-          </div>
+          <Skeleton className="h-64 rounded-3xl" />
         ) : profile ? (
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-            {/* ===== Identidade ===== */}
-            <section className="rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm p-6 sm:p-8">
-              <div className="flex items-start gap-5 sm:gap-6">
+          <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm">
+            {/* Banner gradiente */}
+            <div
+              className="h-32 sm:h-40 w-full"
+              style={{
+                background: `
+                  radial-gradient(1200px 200px at 10% 0%, hsl(var(--primary) / 0.25), transparent 60%),
+                  radial-gradient(900px 220px at 90% 0%, hsl(var(--warning) / 0.18), transparent 55%),
+                  linear-gradient(180deg, hsl(var(--secondary) / 0.6), hsl(var(--card) / 0))
+                `,
+              }}
+            >
+              <div
+                className="absolute inset-x-0 top-0 h-32 sm:h-40 opacity-[0.08] pointer-events-none"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                  maskImage: "linear-gradient(180deg, black, transparent)",
+                }}
+              />
+            </div>
+
+            <div className="px-6 sm:px-8 pb-6 -mt-12 sm:-mt-14">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-6">
                 {/* Avatar */}
                 <div className="relative shrink-0">
-                  <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border border-border">
+                  <Avatar
+                    className="h-24 w-24 sm:h-28 sm:w-28"
+                    style={{
+                      boxShadow:
+                        "0 0 0 3px hsl(var(--card)), 0 0 0 5px hsl(var(--primary) / 0.55), 0 8px 24px -8px hsl(var(--primary) / 0.5)",
+                      borderRadius: "9999px",
+                    }}
+                  >
                     {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                    <AvatarFallback className="bg-secondary text-foreground text-2xl font-pixel">
+                    <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {isPremium && (
                     <span
                       title="Premium Verificado"
-                      className="absolute -bottom-1 -right-1 inline-flex h-6 w-6 items-center justify-center bg-primary text-primary-foreground"
+                      className="absolute bottom-0 right-0 inline-flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground"
                       style={{
-                        borderRadius: 2,
+                        borderRadius: 4,
                         boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(0 0% 0% / 0.55)",
                       }}
                     >
-                      <svg viewBox="0 0 24 24" className="h-3 w-3" fill="currentColor">
-                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor">
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                       </svg>
                     </span>
                   )}
                 </div>
 
                 {/* Nome + ações */}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 sm:pb-1">
                   {editing ? (
                     <div className="space-y-3 max-w-md">
                       <div>
@@ -277,79 +308,75 @@ const Perfil = () => {
                       </div>
                     </div>
                   ) : (
-                    <>
-                      <div className="flex items-center justify-between gap-3 flex-wrap">
-                        <div className="min-w-0">
-                          <h1 className="text-xl sm:text-2xl font-pixel text-foreground leading-tight truncate">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
                             {profile.username}
                           </h1>
-                          <p className="text-[11px] text-muted-foreground mt-1 capitalize">
-                            membro desde {memberSince}
-                          </p>
                         </div>
-                        {isOwnProfile && (
-                          <Button
-                            size="sm" variant="ghost"
-                            onClick={() => setEditing(true)}
-                            className="h-8 text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            <Pencil className="h-3.5 w-3.5 mr-1" /> Editar
-                          </Button>
+                        <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
+                          <Calendar className="h-3 w-3" /> membro desde {memberSince}
+                        </p>
+                        {(badges.length > 0 || userRole === "admin" || userRole === "moderator") && (
+                          <div className="mt-3">
+                            <UserBadges badges={badges} role={userRole} size="sm" />
+                          </div>
                         )}
                       </div>
-
-                      {badges.length > 0 || userRole === "admin" || userRole === "moderator" ? (
-                        <div className="mt-3">
-                          <UserBadges badges={badges} role={userRole} size="sm" />
+                      {isOwnProfile && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm" variant="outline"
+                            onClick={() => setEditing(true)}
+                            className="h-8 text-xs border-border"
+                          >
+                            <Pencil className="h-3.5 w-3.5 mr-1" /> Editar perfil
+                          </Button>
                         </div>
-                      ) : null}
-
-                      {profile.bio && (
-                        <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">
-                          {profile.bio}
-                        </p>
                       )}
-                    </>
+                    </div>
+                  )}
+
+                  {!editing && profile.bio && (
+                    <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">
+                      {profile.bio}
+                    </p>
                   )}
                 </div>
               </div>
-            </section>
 
-            {/* ===== Painel lateral ===== */}
-            <aside className="rounded-2xl border border-border/70 bg-card/60 backdrop-blur-sm p-5">
-              <SectionTitle>Resumo</SectionTitle>
-              <div className="divide-y divide-border/50">
-                <StatRow icon={<Package className="h-3.5 w-3.5" />} label="Anúncios ativos" value={totalAds} />
-                <StatRow icon={<Star className="h-3.5 w-3.5" />} label="Selos" value={badges.length} />
-                <StatRow icon={<Calendar className="h-3.5 w-3.5" />} label="Desde" value={<span className="capitalize">{memberSince}</span>} />
+              {/* Stats em chips */}
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                <StatChip icon={<Package className="h-3 w-3" />} label="Anúncios" value={totalAds} accent="primary" />
+                <StatChip icon={<Star className="h-3 w-3" />} label="Selos" value={badges.length} />
                 {isOwnProfile && (
-                  <StatRow
-                    icon={<Coins className="h-3.5 w-3.5" />}
+                  <StatChip
+                    icon={<Coins className="h-3 w-3" />}
                     label="Saldo"
                     accent="warning"
                     value={`${wallet?.balance ?? 0} RC`}
                   />
                 )}
-              </div>
-
-              {isOwnProfile && (
-                <div className="mt-5 pt-5 border-t border-border/50 grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm" variant="outline"
-                    className="h-8 text-xs border-border"
-                    onClick={() => setActiveTab("deposit")}
-                  >
-                    <Wallet className="h-3.5 w-3.5 mr-1" /> Depositar
-                  </Button>
-                  <Link to="/criar-anuncio">
-                    <Button size="sm" className="h-8 text-xs w-full bg-primary text-primary-foreground">
-                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Anunciar
+                {isOwnProfile && (
+                  <div className="ml-auto flex gap-2">
+                    <Button
+                      size="sm" variant="outline"
+                      className="h-9 text-xs border-warning/40 text-warning hover:bg-warning/10 hover:text-warning"
+                      onClick={() => setActiveTab("deposit")}
+                    >
+                      <Wallet className="h-3.5 w-3.5 mr-1" /> Depositar
                     </Button>
-                  </Link>
-                </div>
-              )}
-            </aside>
-          </div>
+                    <Link to="/criar-anuncio">
+                      <Button size="sm" className="h-9 text-xs bg-primary text-primary-foreground hover:bg-primary/90">
+                        <Sparkles className="h-3.5 w-3.5 mr-1" /> Anunciar
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-center">
             <p className="text-muted-foreground">Perfil não encontrado.</p>
