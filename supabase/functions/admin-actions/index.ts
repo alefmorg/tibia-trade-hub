@@ -173,7 +173,8 @@ Deno.serve(async (req) => {
       }
 
       case "getStats": {
-        const { data, error } = await adminClient.rpc("get_admin_stats");
+        // RPC checks has_role(auth.uid(), 'admin') → must run with user JWT
+        const { data, error } = await authClient.rpc("get_admin_stats");
         ensureNoError(error);
         return jsonResponse({ success: true, data });
       }
@@ -181,7 +182,7 @@ Deno.serve(async (req) => {
       case "bulkDelete": {
         const { target, olderThanDays } = payload ?? {};
         if (!target) throw new Error("Alvo de limpeza obrigatório");
-        const { data, error } = await adminClient.rpc("admin_bulk_delete", {
+        const { data, error } = await authClient.rpc("admin_bulk_delete", {
           p_target: target,
           p_older_than_days: typeof olderThanDays === "number" ? olderThanDays : 0,
         });
@@ -192,7 +193,7 @@ Deno.serve(async (req) => {
       case "drawRaffleWinner": {
         const { raffleId, winnerNumber, lotteryRef } = payload ?? {};
         if (!raffleId || typeof winnerNumber !== "number") throw new Error("Dados inválidos para sorteio");
-        const { data, error } = await adminClient.rpc("draw_raffle_winner", {
+        const { data, error } = await authClient.rpc("draw_raffle_winner", {
           p_raffle_id: raffleId,
           p_winner_number: winnerNumber,
           p_lottery_ref: lotteryRef ?? null,
