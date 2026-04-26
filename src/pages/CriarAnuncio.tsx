@@ -115,7 +115,7 @@ const CriarAnuncio = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sem tier</SelectItem>
-                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
                     <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>
                   ))}
                 </SelectContent>
