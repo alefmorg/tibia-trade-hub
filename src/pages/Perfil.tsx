@@ -26,15 +26,21 @@ import { cn } from "@/lib/utils";
 
 /* ---------- subcomponents ---------- */
 
-const StatRow = ({
+const StatChip = ({
   icon, label, value, accent,
-}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" }) => (
-  <div className="flex items-center justify-between py-2.5">
-    <span className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-      <span className={accent === "warning" ? "text-warning" : "text-primary/80"}>{icon}</span>
+}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" | "primary" }) => (
+  <div className={cn(
+    "flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[96px]",
+    accent === "warning" ? "border-warning/30" : accent === "primary" ? "border-primary/30" : "border-border/60",
+  )}>
+    <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+      <span className={accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground"}>{icon}</span>
       {label}
     </span>
-    <span className={cn("text-sm font-semibold tabular-nums", accent === "warning" ? "text-warning" : "text-foreground")}>
+    <span className={cn(
+      "text-base font-bold tabular-nums leading-tight",
+      accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-foreground"
+    )}>
       {value}
     </span>
   </div>
