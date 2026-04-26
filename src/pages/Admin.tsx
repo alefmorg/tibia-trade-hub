@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole } from "@/hooks/useAdmin";
-import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
+import { useNavLinks, useNavLinksMutations, type NavLink } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { useSendNotification } from "@/hooks/useNotifications";
@@ -104,9 +104,7 @@ const Admin = () => {
   } = useAdminData(isAdmin);
 
   const { data: navLinks } = useNavLinks();
-  const { data: siteBanners } = useSiteBanners();
   const navLinksMut = useNavLinksMutations();
-  const bannerMut = useBannerMutations();
 
   const { data: filterOptions } = useFilterOptions();
   const filterMut = useFilterOptionsMutations();
@@ -125,8 +123,6 @@ const Admin = () => {
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
   const [editingNl, setEditingNl] = useState<string | null>(null);
 
-  const [bnForm, setBnForm] = useState({ title: "", image_url: "", link_url: "", sort_order: "0" });
-  const [editingBn, setEditingBn] = useState<string | null>(null);
 
   useEffect(() => {
     if (tradeSettings?.ad_duration_days) setAdDurationDays(String(tradeSettings.ad_duration_days));
@@ -263,7 +259,7 @@ const Admin = () => {
       title: "COMUNICAÇÃO",
       items: [
         { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
-        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
+        { key: "banners" as TabKey, label: "Patrocinadores", icon: Megaphone },
       ],
     },
     {
