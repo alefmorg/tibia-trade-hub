@@ -274,7 +274,7 @@ Deno.serve(async (req) => {
       case "adjustWallet": {
         const { userId, amount, reason } = payload ?? {};
         if (!userId || typeof amount !== "number") throw new Error("Dados inválidos");
-        const { error } = await adminClient.rpc("add_balance", {
+        const { error } = await authClient.rpc("add_balance", {
           p_user_id: userId, p_amount: amount, p_reason: reason || "Ajuste manual do admin",
         });
         ensureNoError(error);
