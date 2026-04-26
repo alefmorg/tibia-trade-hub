@@ -715,86 +715,8 @@ const Admin = () => {
               </div>
             )}
 
-            {/* BANNERS TAB */}
-            {tab === "banners" && (
-              <div className="space-y-4">
-                <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body">
-                    <Plus className="h-4 w-4 text-primary" /> {editingBn ? "Editar Banner" : "Novo Banner"}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Título</Label>
-                      <Input value={bnForm.title} onChange={(e) => setBnForm({ ...bnForm, title: e.target.value })} placeholder="Promoção" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">URL da imagem</Label>
-                      <Input value={bnForm.image_url} onChange={(e) => setBnForm({ ...bnForm, image_url: e.target.value })} placeholder="https://...banner.png" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Link de destino</Label>
-                      <Input value={bnForm.link_url} onChange={(e) => setBnForm({ ...bnForm, link_url: e.target.value })} placeholder="https://..." className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Ordem</Label>
-                      <Input type="number" value={bnForm.sort_order} onChange={(e) => setBnForm({ ...bnForm, sort_order: e.target.value })} className="bg-secondary/80 border-border w-24" />
-                    </div>
-                  </div>
-                  {bnForm.image_url && (
-                    <div className="mt-3 p-2 bg-secondary/30 rounded-lg">
-                      <p className="text-[10px] text-muted-foreground mb-1 font-body">Preview:</p>
-                      <img src={bnForm.image_url} alt="" className="w-full max-h-24 object-cover rounded" />
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-4">
-                    <Button onClick={() => {
-                      if (editingBn) { bannerMut.update.mutate({ id: editingBn, title: bnForm.title || null, image_url: bnForm.image_url || null, link_url: bnForm.link_url || null, sort_order: Number(bnForm.sort_order) }); setEditingBn(null); }
-                      else { bannerMut.create.mutate({ title: bnForm.title || null, image_url: bnForm.image_url || null, link_url: bnForm.link_url || null, sort_order: Number(bnForm.sort_order), active: true }); }
-                      setBnForm({ title: "", image_url: "", link_url: "", sort_order: "0" });
-                    }} disabled={!bnForm.title && !bnForm.image_url} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                      {editingBn ? "Salvar" : "Adicionar"}
-                    </Button>
-                    {editingBn && <Button variant="outline" onClick={() => { setEditingBn(null); setBnForm({ title: "", image_url: "", link_url: "", sort_order: "0" }); }}>Cancelar</Button>}
-                  </div>
-                </div>
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
-                  <Table>
-                    <TableHeader><TableRow className="border-border/60 bg-secondary/30">
-                      <TableHead className="text-muted-foreground text-xs">Preview</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Título</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Link</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ordem</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ativo</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                    </TableRow></TableHeader>
-                    <TableBody>
-                      {(siteBanners || []).map((banner) => (
-                        <TableRow key={banner.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                          <TableCell>{banner.image_url ? <img src={banner.image_url} alt="" className="h-8 w-20 object-cover rounded" /> : <span className="text-xs text-muted-foreground font-body">—</span>}</TableCell>
-                          <TableCell className="text-foreground text-sm font-body">{banner.title || "-"}</TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[180px] truncate font-body">{banner.link_url || "-"}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm font-body">{banner.sort_order}</TableCell>
-                          <TableCell><Switch checked={banner.active} onCheckedChange={(v) => bannerMut.update.mutate({ id: banner.id, active: v })} /></TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-0.5">
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10"
-                                onClick={() => { setEditingBn(banner.id); setBnForm({ title: banner.title || "", image_url: banner.image_url || "", link_url: banner.link_url || "", sort_order: String(banner.sort_order) }); }}>
-                                <Eye className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                onClick={() => { if (confirm("Remover?")) bannerMut.remove.mutate(banner.id); }}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {(!siteBanners || siteBanners.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum banner</p>}
-                </div>
-              </div>
-            )}
+            {/* SPONSORS TAB */}
+            {tab === "banners" && <SponsorsAdminPanel />}
 
             {/* FILTERS TAB */}
             {tab === "filters" && (
