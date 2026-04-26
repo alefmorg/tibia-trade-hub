@@ -37,6 +37,8 @@ import FinancialPanel from "@/components/admin/FinancialPanel";
 import RealtimeDashboard from "@/components/admin/RealtimeDashboard";
 import CleanupPanel from "@/components/admin/CleanupPanel";
 import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
+import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
+import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup";
 
