@@ -218,10 +218,7 @@ const Perfil = () => {
       <Header />
       <div className="container py-10 max-w-6xl">
         {profileLoading ? (
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-            <Skeleton className="h-56 rounded-2xl" />
-            <Skeleton className="h-56 rounded-2xl" />
-          </div>
+          <Skeleton className="h-64 rounded-3xl" />
         ) : profile ? (
           <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm">
             {/* Banner gradiente */}
