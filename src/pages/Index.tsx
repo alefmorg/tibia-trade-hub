@@ -303,39 +303,39 @@ const Index = () => {
                   </span>
                 </div>
 
-                {/* Slots de banners — proporção 468x60 / otserv-style, imagem inteira sem corte */}
+                {/* Slots de patrocinadores — logo circular + nome */}
                 <div className="relative flex-1 px-3 pb-3 flex flex-col gap-2">
                   {[0, 1].map((i) => {
-                    const b = banners?.[i];
+                    const b = banners?.[i] as any;
                     if (b) {
+                      const logo = b.logo_url || b.image_url;
+                      const name = b.sponsor_name || b.title || "Patrocinador";
                       return (
                         <a
                           key={b.id}
                           href={b.link_url || "#"}
                           target={b.link_url ? "_blank" : undefined}
                           rel="noopener noreferrer sponsored"
-                          className="group relative flex-1 block overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5"
-                          style={{ aspectRatio: "468 / 60" }}
+                          className="group relative flex-1 flex items-center gap-3 px-3 py-2 overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5"
                         >
-                          {b.image_url ? (
-                            <img
-                              src={b.image_url}
-                              alt={b.title || "Patrocinador"}
-                              className="w-full h-full object-contain absolute inset-0 p-1 group-hover:scale-[1.02] transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center px-3">
-                              <p className="text-[11px] font-semibold text-foreground text-center">{b.title || "Anúncio"}</p>
-                            </div>
-                          )}
+                          <div className="w-10 h-10 rounded-full bg-card border border-border/60 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-primary/50 transition-colors">
+                            {logo ? (
+                              <img src={logo} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            ) : (
+                              <Megaphone className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12px] font-bold text-foreground truncate leading-tight">{name}</p>
+                            <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wider">Patrocinador</p>
+                          </div>
                         </a>
                       );
                     }
                     return (
                       <div
                         key={`empty-${i}`}
-                        className="relative flex-1 rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center group hover:border-primary/30 transition-colors"
-                        style={{ aspectRatio: "468 / 60" }}
+                        className="relative flex-1 rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center group hover:border-primary/30 transition-colors min-h-[56px]"
                       >
                         <div className="flex flex-col items-center gap-1 opacity-50 group-hover:opacity-80 transition-opacity">
                           <Megaphone className="h-4 w-4 text-muted-foreground" />

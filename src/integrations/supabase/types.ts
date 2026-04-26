@@ -334,6 +334,8 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          sort_order: number
+          source: string
           tier: number | null
         }
         Insert: {
@@ -342,6 +344,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          sort_order?: number
+          source?: string
           tier?: number | null
         }
         Update: {
@@ -350,6 +354,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          sort_order?: number
+          source?: string
           tier?: number | null
         }
         Relationships: []
@@ -660,7 +666,9 @@ export type Database = {
           id: string
           image_url: string | null
           link_url: string | null
+          logo_url: string | null
           sort_order: number
+          sponsor_name: string | null
           title: string | null
         }
         Insert: {
@@ -669,7 +677,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           link_url?: string | null
+          logo_url?: string | null
           sort_order?: number
+          sponsor_name?: string | null
           title?: string | null
         }
         Update: {
@@ -678,7 +688,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           link_url?: string | null
+          logo_url?: string | null
           sort_order?: number
+          sponsor_name?: string | null
           title?: string | null
         }
         Relationships: []
@@ -930,6 +942,7 @@ export type Database = {
         Args: { p_number: number; p_raffle_id: string; p_user_id: string }
         Returns: undefined
       }
+      cleanup_old_read_notifications: { Args: never; Returns: number }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       donate_coins: {
         Args: { p_amount: number; p_message?: string }

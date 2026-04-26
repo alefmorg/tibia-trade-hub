@@ -16,6 +16,8 @@ export type NavLink = {
 export type SiteBanner = {
   id: string;
   title: string | null;
+  sponsor_name: string | null;
+  logo_url: string | null;
   image_url: string | null;
   link_url: string | null;
   active: boolean;

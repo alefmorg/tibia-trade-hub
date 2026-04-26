@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAllAdsAdmin, useDeleteAd } from "@/hooks/useAds";
 import { useItems, useCreateItem, useDeleteItem } from "@/hooks/useItems";
 import { useAdminData, type AdStatus, type AppRole } from "@/hooks/useAdmin";
-import { useNavLinks, useSiteBanners, useNavLinksMutations, useBannerMutations, type NavLink, type SiteBanner } from "@/hooks/useSiteConfig";
+import { useNavLinks, useNavLinksMutations, type NavLink } from "@/hooks/useSiteConfig";
 import { useFilterOptions, useFilterOptionsMutations, type FilterOption } from "@/hooks/useFilterOptions";
 import { useAllWallets, useAddBalance, useHighlightPlans, useHighlightPlansMutations } from "@/hooks/useWallet";
 import { useSendNotification } from "@/hooks/useNotifications";
@@ -37,6 +37,8 @@ import FinancialPanel from "@/components/admin/FinancialPanel";
 import RealtimeDashboard from "@/components/admin/RealtimeDashboard";
 import CleanupPanel from "@/components/admin/CleanupPanel";
 import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
+import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
+import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup";
 
@@ -102,9 +104,7 @@ const Admin = () => {
   } = useAdminData(isAdmin);
 
   const { data: navLinks } = useNavLinks();
-  const { data: siteBanners } = useSiteBanners();
   const navLinksMut = useNavLinksMutations();
-  const bannerMut = useBannerMutations();
 
   const { data: filterOptions } = useFilterOptions();
   const filterMut = useFilterOptionsMutations();
@@ -123,8 +123,6 @@ const Admin = () => {
   const [nlForm, setNlForm] = useState({ label: "", url: "", color: "#3B82F6", icon_url: "", sort_order: "0" });
   const [editingNl, setEditingNl] = useState<string | null>(null);
 
-  const [bnForm, setBnForm] = useState({ title: "", image_url: "", link_url: "", sort_order: "0" });
-  const [editingBn, setEditingBn] = useState<string | null>(null);
 
   useEffect(() => {
     if (tradeSettings?.ad_duration_days) setAdDurationDays(String(tradeSettings.ad_duration_days));
@@ -261,7 +259,7 @@ const Admin = () => {
       title: "COMUNICAÇÃO",
       items: [
         { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
-        { key: "banners" as TabKey, label: "Banners", icon: Megaphone },
+        { key: "banners" as TabKey, label: "Patrocinadores", icon: Megaphone },
       ],
     },
     {
@@ -572,193 +570,7 @@ const Admin = () => {
             )}
 
             {/* ITEMS TAB */}
-            {tab === "items" && (
-              <>
-                <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body"><Plus className="h-4 w-4 text-primary" /> Adicionar Itens</h3>
-                    <div className="flex gap-1">
-                      <Button size="sm" variant={itemAddMode === "single" ? "default" : "outline"} onClick={() => setItemAddMode("single")} className="text-xs h-7">Individual</Button>
-                      <Button size="sm" variant={itemAddMode === "bulk" ? "default" : "outline"} onClick={() => setItemAddMode("bulk")} className="text-xs h-7">Em Massa</Button>
-                    </div>
-                  </div>
-
-                  {itemAddMode === "single" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Nome</Label>
-                        <Input value={newItemName} onChange={(e) => setNewItemName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Categoria</Label>
-                        <Select value={newItemCategory} onValueChange={setNewItemCategory}>
-                          <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                            <SelectItem value="__new">+ Nova categoria...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {newItemCategory === "__new" && (
-                          <Input
-                            value={newCategoryInput}
-                            onChange={(e) => setNewCategoryInput(e.target.value)}
-                            placeholder="Nome da nova categoria"
-                            className="bg-secondary/80 border-border mt-1"
-                            autoFocus
-                          />
-                        )}
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
-                        <div className="flex items-center gap-2">
-                          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                          <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="h-3.5 w-3.5 mr-1" /> {newItemImage ? "Trocar" : "Upload"}
-                          </Button>
-                          {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
-                        </div>
-                      </div>
-                      <div className="flex items-end">
-                        <Button onClick={handleAddItem} disabled={createItem.isPending || !newItemName.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
-                          {createItem.isPending ? "Salvando..." : "Adicionar"}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-muted-foreground font-body">Categoria (para todos)</Label>
-                          <Select value={bulkItemCategory} onValueChange={setBulkItemCategory}>
-                            <SelectTrigger className="bg-secondary/80 border-border"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              {existingCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                              <SelectItem value="__new">+ Nova categoria...</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {bulkItemCategory === "__new" && (
-                            <Input
-                              value={bulkNewCategoryInput}
-                              onChange={(e) => setBulkNewCategoryInput(e.target.value)}
-                              placeholder="Nome da nova categoria"
-                              className="bg-secondary/80 border-border mt-1"
-                              autoFocus
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-muted-foreground font-body">Nomes dos itens (um por linha)</Label>
-                        <Textarea
-                          value={bulkItemNames}
-                          onChange={(e) => setBulkItemNames(e.target.value)}
-                          placeholder={"Golden Armor\nMagic Plate Armor\nDemon Helmet\nThunder Hammer"}
-                          className="bg-secondary/80 border-border min-h-[120px] font-mono text-sm"
-                        />
-                        <p className="text-[10px] text-muted-foreground font-body">
-                          {bulkItemNames.split("\n").filter(n => n.trim()).length} itens para adicionar
-                        </p>
-                      </div>
-                      {bulkItemNames.split("\n").filter(n => n.trim()).length > 0 && (
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground font-body">Imagens (opcional, uma por item)</Label>
-                          {bulkItemNames.split("\n").filter(n => n.trim()).map((name, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm">
-                              <span className="text-muted-foreground w-6 text-right font-body">{idx + 1}.</span>
-                              <span className="text-foreground truncate flex-1 font-body">{name.trim()}</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                ref={el => { bulkFileRefs.current[idx] = el; }}
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) setBulkItemImages(prev => ({ ...prev, [idx]: file }));
-                                }}
-                              />
-                              <Button type="button" variant="outline" size="sm" className="border-border h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
-                                <ImagePlus className="h-3 w-3 mr-1" />{bulkItemImages[idx] ? "Trocar" : "Img"}
-                              </Button>
-                              {bulkItemImages[idx] && (
-                                <img src={URL.createObjectURL(bulkItemImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border" />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <Button onClick={handleBulkAddItems} disabled={createItem.isPending || !bulkItemNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                        {createItem.isPending ? "Adicionando..." : `Adicionar ${bulkItemNames.split("\n").filter(n => n.trim()).length} itens`}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {selectedItems.size > 0 && (
-                  <div className="flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">
-                    <p className="text-sm text-foreground font-body">{selectedItems.size} item(ns) selecionado(s)</p>
-                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
-                      if (confirm(`Remover ${selectedItems.size} item(ns)?`)) {
-                        selectedItems.forEach(id => deleteItem.mutate(id));
-                        setSelectedItems(new Set());
-                      }
-                    }}>
-                      <Trash2 className="h-3 w-3 mr-1" />Remover selecionados
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelectedItems(new Set())}>Limpar</Button>
-                  </div>
-                )}
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-border/60 bg-secondary/30">
-                        <TableHead className="text-muted-foreground text-xs w-10">
-                          <button onClick={() => {
-                            const allItemIds = (items || []).map(i => i.id);
-                            if (selectedItems.size === allItemIds.length) setSelectedItems(new Set());
-                            else setSelectedItems(new Set(allItemIds));
-                          }}>
-                            {selectedItems.size === (items || []).length && (items || []).length > 0 ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-muted-foreground text-xs w-16">Imagem</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Nome</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Categoria</TableHead>
-                        <TableHead className="text-muted-foreground text-xs">Cadastro</TableHead>
-                        <TableHead className="text-muted-foreground text-xs w-20">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {items?.map((item) => (
-                        <TableRow key={item.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${selectedItems.has(item.id) ? "bg-primary/5" : ""}`}>
-                          <TableCell>
-                            <button onClick={() => {
-                              const next = new Set(selectedItems);
-                              if (next.has(item.id)) next.delete(item.id); else next.add(item.id);
-                              setSelectedItems(next);
-                            }}>
-                              {selectedItems.has(item.id) ? <CheckSquare className="h-4 w-4 text-primary" /> : <Square className="h-4 w-4 text-muted-foreground" />}
-                            </button>
-                          </TableCell>
-                          <TableCell>
-                            {item.image_url ? <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" /> :
-                              <div className="h-8 w-8 bg-secondary rounded flex items-center justify-center"><Image className="h-3.5 w-3.5 text-muted-foreground" /></div>}
-                          </TableCell>
-                          <TableCell className="text-foreground font-medium font-body">{item.name}</TableCell>
-                          <TableCell><span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">{(item as any).category || "Geral"}</span></TableCell>
-                          <TableCell className="text-muted-foreground text-xs font-body">{new Date(item.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                          <TableCell>
-                            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                              onClick={() => { if (confirm(`Remover "${item.name}"?`)) deleteItem.mutate(item.id); }}>
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {(!items || items.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum item cadastrado</p>}
-                </div>
-              </>
-            )}
+            {tab === "items" && <ItemsAdminPanel />}
 
             {/* OFFERS TAB removed */}
 
@@ -899,86 +711,8 @@ const Admin = () => {
               </div>
             )}
 
-            {/* BANNERS TAB */}
-            {tab === "banners" && (
-              <div className="space-y-4">
-                <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2 font-body">
-                    <Plus className="h-4 w-4 text-primary" /> {editingBn ? "Editar Banner" : "Novo Banner"}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Título</Label>
-                      <Input value={bnForm.title} onChange={(e) => setBnForm({ ...bnForm, title: e.target.value })} placeholder="Promoção" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">URL da imagem</Label>
-                      <Input value={bnForm.image_url} onChange={(e) => setBnForm({ ...bnForm, image_url: e.target.value })} placeholder="https://...banner.png" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Link de destino</Label>
-                      <Input value={bnForm.link_url} onChange={(e) => setBnForm({ ...bnForm, link_url: e.target.value })} placeholder="https://..." className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Ordem</Label>
-                      <Input type="number" value={bnForm.sort_order} onChange={(e) => setBnForm({ ...bnForm, sort_order: e.target.value })} className="bg-secondary/80 border-border w-24" />
-                    </div>
-                  </div>
-                  {bnForm.image_url && (
-                    <div className="mt-3 p-2 bg-secondary/30 rounded-lg">
-                      <p className="text-[10px] text-muted-foreground mb-1 font-body">Preview:</p>
-                      <img src={bnForm.image_url} alt="" className="w-full max-h-24 object-cover rounded" />
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-4">
-                    <Button onClick={() => {
-                      if (editingBn) { bannerMut.update.mutate({ id: editingBn, title: bnForm.title || null, image_url: bnForm.image_url || null, link_url: bnForm.link_url || null, sort_order: Number(bnForm.sort_order) }); setEditingBn(null); }
-                      else { bannerMut.create.mutate({ title: bnForm.title || null, image_url: bnForm.image_url || null, link_url: bnForm.link_url || null, sort_order: Number(bnForm.sort_order), active: true }); }
-                      setBnForm({ title: "", image_url: "", link_url: "", sort_order: "0" });
-                    }} disabled={!bnForm.title && !bnForm.image_url} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                      {editingBn ? "Salvar" : "Adicionar"}
-                    </Button>
-                    {editingBn && <Button variant="outline" onClick={() => { setEditingBn(null); setBnForm({ title: "", image_url: "", link_url: "", sort_order: "0" }); }}>Cancelar</Button>}
-                  </div>
-                </div>
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
-                  <Table>
-                    <TableHeader><TableRow className="border-border/60 bg-secondary/30">
-                      <TableHead className="text-muted-foreground text-xs">Preview</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Título</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Link</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ordem</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ativo</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                    </TableRow></TableHeader>
-                    <TableBody>
-                      {(siteBanners || []).map((banner) => (
-                        <TableRow key={banner.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                          <TableCell>{banner.image_url ? <img src={banner.image_url} alt="" className="h-8 w-20 object-cover rounded" /> : <span className="text-xs text-muted-foreground font-body">—</span>}</TableCell>
-                          <TableCell className="text-foreground text-sm font-body">{banner.title || "-"}</TableCell>
-                          <TableCell className="text-muted-foreground text-xs max-w-[180px] truncate font-body">{banner.link_url || "-"}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm font-body">{banner.sort_order}</TableCell>
-                          <TableCell><Switch checked={banner.active} onCheckedChange={(v) => bannerMut.update.mutate({ id: banner.id, active: v })} /></TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-0.5">
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10"
-                                onClick={() => { setEditingBn(banner.id); setBnForm({ title: banner.title || "", image_url: banner.image_url || "", link_url: banner.link_url || "", sort_order: String(banner.sort_order) }); }}>
-                                <Eye className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                onClick={() => { if (confirm("Remover?")) bannerMut.remove.mutate(banner.id); }}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {(!siteBanners || siteBanners.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum banner</p>}
-                </div>
-              </div>
-            )}
+            {/* SPONSORS TAB */}
+            {tab === "banners" && <SponsorsAdminPanel />}
 
             {/* FILTERS TAB */}
             {tab === "filters" && (

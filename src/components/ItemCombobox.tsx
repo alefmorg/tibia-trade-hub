@@ -43,7 +43,7 @@ const ItemCombobox = ({ items, value, onSelect }: ItemComboboxProps) => {
                 <img src={selectedItem.image_url} alt="" className="h-6 w-6 object-contain shrink-0 rounded" />
               )}
               <span className="truncate font-medium">{selectedItem.name}</span>
-              {selectedItem.tier != null && (
+              {selectedItem.tier != null && selectedItem.tier > 0 && (
                 <span className="shrink-0 rounded-full bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-bold">
                   T{selectedItem.tier}
                 </span>
@@ -84,7 +84,7 @@ const ItemCombobox = ({ items, value, onSelect }: ItemComboboxProps) => {
                         <img src={item.image_url} alt="" className="h-7 w-7 object-contain shrink-0 rounded" />
                       )}
                       <span className="truncate font-medium">{item.name}</span>
-                      {item.tier != null && (
+                      {item.tier != null && item.tier > 0 && (
                         <span className="shrink-0 rounded-full bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-bold">
                           T{item.tier}
                         </span>
