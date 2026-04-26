@@ -138,7 +138,7 @@ const TradeCard = ({
               <div className="h-14 w-14 rounded-full bg-secondary/50" />
             )}
           </div>
-          {tier != null && tier !== undefined && (
+          {tier != null && tier > 0 && (
             <span
               className={cn(
                 "tier-badge absolute -top-1 -right-1 z-10 inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-background text-[10px] font-bold shadow-lg",
