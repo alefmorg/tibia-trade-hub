@@ -95,11 +95,6 @@ const SortableItemCard = ({
           <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-semibold truncate max-w-full">
             {item.category || "Geral"}
           </span>
-          {item.tier != null && item.tier > 0 && (
-            <span className="text-[9px] bg-warning/15 text-warning px-1.5 py-0.5 rounded font-bold">
-              T{item.tier}
-            </span>
-          )}
         </div>
       </div>
     </div>
@@ -253,7 +248,6 @@ const ItemsAdminPanel = () => {
       id: editingItem.id,
       name: editName.trim(),
       category: editCategory,
-      tier: editTier !== "none" ? Number(editTier) : null,
       source: editSource,
     } as any);
     setEditingItem(null);
