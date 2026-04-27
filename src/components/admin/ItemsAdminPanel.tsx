@@ -487,6 +487,18 @@ const ItemsAdminPanel = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-1.5 w-36">
+            <Label className="text-xs">Tipo</Label>
+            <Select value={editSource} onValueChange={(v) => setEditSource(v as ItemSource)}>
+              <SelectTrigger className="bg-secondary/80 border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SItem value="tibia">Tibia</SItem>
+                <SItem value="custom">Custom</SItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button size="sm" onClick={saveEdit} disabled={updateItem.isPending} className="bg-primary text-primary-foreground">
             <Check className="h-3.5 w-3.5 mr-1" /> Salvar
           </Button>
