@@ -282,79 +282,9 @@ const Index = () => {
                 </Link>
               )}
 
-              {/* Bloco Patrocinadores — alinha com a base do card "Itens em Destaque" */}
-              <div className="relative flex-1 overflow-hidden rounded-2xl border border-primary/20 bg-card flex flex-col">
-                <div aria-hidden className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
-                <div aria-hidden className="pointer-events-none absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-warning/5 blur-3xl" />
+              {/* Bloco Patrocinadores — carrossel rotativo */}
+              <SponsorsCarousel banners={banners as any} />
 
-                {/* Header */}
-                <div className="relative flex items-center justify-between px-4 pt-3 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-primary/15 border border-primary/30">
-                      <Megaphone className="h-3 w-3 text-primary" />
-                    </span>
-                    <div>
-                      <h3 className="text-[11px] font-bold text-foreground tracking-tight leading-none">Patrocinadores</h3>
-                      <p className="text-[9px] text-muted-foreground/70 mt-0.5">Apoiam o RubinTrade</p>
-                    </div>
-                  </div>
-                  <span className="text-[8px] font-bold text-primary/80 uppercase tracking-widest bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">
-                    Ad
-                  </span>
-                </div>
-
-                {/* Slots de patrocinadores — logo circular + nome */}
-                <div className="relative flex-1 px-3 pb-3 flex flex-col gap-2">
-                  {[0, 1].map((i) => {
-                    const b = banners?.[i] as any;
-                    if (b) {
-                      const logo = b.logo_url || b.image_url;
-                      const name = b.sponsor_name || b.title || "Patrocinador";
-                      return (
-                        <a
-                          key={b.id}
-                          href={b.link_url || "#"}
-                          target={b.link_url ? "_blank" : undefined}
-                          rel="noopener noreferrer sponsored"
-                          className="group relative flex-1 flex items-center gap-3 px-3 py-2 overflow-hidden rounded-xl border border-border/60 bg-secondary/30 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)] hover:-translate-y-0.5"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-card border border-border/60 overflow-hidden flex items-center justify-center shrink-0 group-hover:border-primary/50 transition-colors">
-                            {logo ? (
-                              <img src={logo} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            ) : (
-                              <Megaphone className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[12px] font-bold text-foreground truncate leading-tight">{name}</p>
-                            <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wider">Patrocinador</p>
-                          </div>
-                        </a>
-                      );
-                    }
-                    return (
-                      <div
-                        key={`empty-${i}`}
-                        className="relative flex-1 rounded-xl border border-dashed border-border/50 bg-secondary/20 flex items-center justify-center group hover:border-primary/30 transition-colors min-h-[56px]"
-                      >
-                        <div className="flex flex-col items-center gap-1 opacity-50 group-hover:opacity-80 transition-opacity">
-                          <Megaphone className="h-4 w-4 text-muted-foreground" />
-                          <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Espaço disponível</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Footer CTA "Anuncie aqui" */}
-                <a
-                  href="mailto:contato@rubintrade.com?subject=Quero%20anunciar%20no%20RubinTrade"
-                  className="relative border-t border-border/40 px-3 py-2 flex items-center justify-between text-[10px] hover:bg-primary/5 transition-colors group"
-                >
-                  <span className="text-muted-foreground">Quer anunciar aqui?</span>
-                  <span className="font-bold text-primary group-hover:translate-x-0.5 transition-transform">Anuncie →</span>
-                </a>
-              </div>
             </div>
           </div>
         </div>
