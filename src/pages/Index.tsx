@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
 import { useRaffles } from "@/hooks/useRaffles";
+import SponsorsCarousel from "@/components/SponsorsCarousel";
 
 const adTypes = ["Vendendo", "Comprando"];
 
