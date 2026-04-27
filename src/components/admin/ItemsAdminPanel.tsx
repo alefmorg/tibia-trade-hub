@@ -122,7 +122,7 @@ const ItemsAdminPanel = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Geral");
   const [newCategoryInput, setNewCategoryInput] = useState("");
-  const [tier, setTier] = useState<string>("none");
+  // tier removido do form de criação — só configurável no edit
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -139,6 +139,7 @@ const ItemsAdminPanel = () => {
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editTier, setEditTier] = useState<string>("none");
+  const [editSource, setEditSource] = useState<ItemSource>("tibia");
 
   // Local order overlay (for instant feedback during drag)
   const [localOrder, setLocalOrder] = useState<Record<string, string[]>>({});
@@ -190,12 +191,11 @@ const ItemsAdminPanel = () => {
       imageFile: imageFile || undefined,
       category: finalCat,
       source: activeSource,
-      tier: tier !== "none" ? Number(tier) : null,
+      tier: null,
     });
     setName("");
     setImageFile(null);
     setImagePreview(null);
-    setTier("none");
     setCategory("Geral");
     setNewCategoryInput("");
     if (fileRef.current) fileRef.current.value = "";
@@ -244,6 +244,7 @@ const ItemsAdminPanel = () => {
     setEditName(item.name);
     setEditCategory(item.category || "Geral");
     setEditTier(item.tier ? String(item.tier) : "none");
+    setEditSource((item.source as ItemSource) || "tibia");
   };
 
   const saveEdit = async () => {
@@ -253,7 +254,8 @@ const ItemsAdminPanel = () => {
       name: editName.trim(),
       category: editCategory,
       tier: editTier !== "none" ? Number(editTier) : null,
-    });
+      source: editSource,
+    } as any);
     setEditingItem(null);
   };
 
@@ -307,7 +309,7 @@ const ItemsAdminPanel = () => {
         </div>
 
         {mode === "single" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Nome</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
@@ -337,22 +339,6 @@ const ItemsAdminPanel = () => {
                   autoFocus
                 />
               )}
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground font-body">Tier</Label>
-              <Select value={tier} onValueChange={setTier}>
-                <SelectTrigger className="bg-secondary/80 border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SItem value="none">Sem tier</SItem>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((t) => (
-                    <SItem key={t} value={String(t)}>
-                      T{t}
-                    </SItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
@@ -498,6 +484,18 @@ const ItemsAdminPanel = () => {
                     T{t}
                   </SItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 w-36">
+            <Label className="text-xs">Tipo</Label>
+            <Select value={editSource} onValueChange={(v) => setEditSource(v as ItemSource)}>
+              <SelectTrigger className="bg-secondary/80 border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SItem value="tibia">Tibia</SItem>
+                <SItem value="custom">Custom</SItem>
               </SelectContent>
             </Select>
           </div>
