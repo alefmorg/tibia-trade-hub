@@ -95,11 +95,6 @@ const SortableItemCard = ({
           <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-semibold truncate max-w-full">
             {item.category || "Geral"}
           </span>
-          {item.tier != null && item.tier > 0 && (
-            <span className="text-[9px] bg-warning/15 text-warning px-1.5 py-0.5 rounded font-bold">
-              T{item.tier}
-            </span>
-          )}
         </div>
       </div>
     </div>
@@ -253,7 +248,6 @@ const ItemsAdminPanel = () => {
       id: editingItem.id,
       name: editName.trim(),
       category: editCategory,
-      tier: editTier !== "none" ? Number(editTier) : null,
       source: editSource,
     } as any);
     setEditingItem(null);
@@ -470,22 +464,6 @@ const ItemsAdminPanel = () => {
           <div className="space-y-1.5 flex-1 min-w-[180px]">
             <Label className="text-xs">Categoria</Label>
             <Input value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="bg-secondary/80 border-border" />
-          </div>
-          <div className="space-y-1.5 w-32">
-            <Label className="text-xs">Tier</Label>
-            <Select value={editTier} onValueChange={setEditTier}>
-              <SelectTrigger className="bg-secondary/80 border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SItem value="none">Sem tier</SItem>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((t) => (
-                  <SItem key={t} value={String(t)}>
-                    T{t}
-                  </SItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="space-y-1.5 w-36">
             <Label className="text-xs">Tipo</Label>
