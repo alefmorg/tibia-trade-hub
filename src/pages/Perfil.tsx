@@ -223,7 +223,7 @@ const Perfil = () => {
           <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm">
             {/* Banner gradiente */}
             <div
-              className="h-32 sm:h-40 w-full"
+              className="h-32 sm:h-40 w-full bg-[#1a1a1a]"
               style={{
                 background: `
                   radial-gradient(1200px 200px at 10% 0%, hsl(var(--primary) / 0.25), transparent 60%),
@@ -246,7 +246,7 @@ const Perfil = () => {
             <div className="px-6 sm:px-8 pb-6 -mt-12 sm:-mt-14">
               <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-6">
                 {/* Avatar */}
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 bg-[#1a1a1a] border-[#1a1a1a]">
                   <Avatar
                     className="h-24 w-24 sm:h-28 sm:w-28"
                     style={{
