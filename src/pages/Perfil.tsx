@@ -223,7 +223,7 @@ const Perfil = () => {
           <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm">
             {/* Banner gradiente */}
             <div
-              className="h-32 sm:h-40 w-full bg-[#1a1a1a]"
+              className="h-32 sm:h-40 w-full bg-[#1a1a1a] border-[#1a1a1a]"
               style={{
                 background: `
                   radial-gradient(1200px 200px at 10% 0%, hsl(var(--primary) / 0.25), transparent 60%),
