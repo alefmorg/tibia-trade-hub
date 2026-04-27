@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Calendar, Flame, Globe, Heart, MessageCircle, Shield, Star, Tag, User } from "lucide-react";
+import { ArrowLeft, Calendar, Flame, Globe, Heart, MessageCircle, Shield, ShieldCheck, Star, Swords, Tag, User } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

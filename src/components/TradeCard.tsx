@@ -1,4 +1,4 @@
-import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Swords, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
@@ -181,10 +181,17 @@ const TradeCard = ({
 
       <div className="px-3 pb-0 mt-auto space-y-2">
         <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="trade-card-world-badge">
-            <span className="text-warning">🛡️</span>
+          <span className={cn(
+            "trade-card-world-badge",
+            pvpType === "Open PvP" ? "!border-destructive/40" : "!border-primary/40"
+          )}>
+            {pvpType === "Open PvP" ? (
+              <Swords className="h-3 w-3 text-destructive" />
+            ) : (
+              <ShieldCheck className="h-3 w-3 text-primary" />
+            )}
             <span className="text-foreground">{world}</span>
-            <span className="text-warning/90">({pvpType})</span>
+            <span className={pvpType === "Open PvP" ? "text-destructive/90" : "text-primary/90"}>({pvpType})</span>
           </span>
         </div>
 
