@@ -33,7 +33,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-background">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-primary-foreground border-secondary">
       {/* Pixel grid background */}
       <div
         aria-hidden
