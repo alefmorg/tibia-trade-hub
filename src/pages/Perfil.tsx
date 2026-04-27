@@ -317,7 +317,7 @@ const Perfil = () => {
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h1 className="text-2xl sm:text-3xl font-pixel gradient-text-primary leading-tight truncate drop-shadow-[0_2px_8px_hsl(var(--primary)/0.3)]">
+                          <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
                             {profile.username}
                           </h1>
                         </div>
