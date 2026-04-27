@@ -248,6 +248,27 @@
     animation: tier-pulse-warning 2s ease-in-out infinite;
   }
 
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-float-slow {
+    animation: float-slow 4s ease-in-out infinite;
+  }
+
+  .gradient-text-primary {
+    background: linear-gradient(120deg, hsl(var(--foreground)) 0%, hsl(var(--primary)) 50%, hsl(var(--warning)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .trade-card-list,
   .trade-card-list-featured {
     display: grid;
