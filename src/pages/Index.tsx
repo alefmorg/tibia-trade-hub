@@ -118,7 +118,7 @@ const Index = () => {
       <div className="container py-5">
         <div className="flex flex-col gap-4">
           {/* Welcome Card */}
-          <div className="bg-card/80 border border-border/60 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6">
+          <div className="bg-card/80 border border-border/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-center gap-4 md:gap-6">
             {/* Logo */}
             <div className="shrink-0">
               <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -135,7 +135,7 @@ const Index = () => {
               </p>
             </div>
             {/* Social Icons */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap justify-center">
               {(navLinks && navLinks.length > 0 ? navLinks : []).map((link) => (
                 <a
                   key={link.id}
@@ -157,9 +157,9 @@ const Index = () => {
           </div>
 
           {/* Banners Row: Destaques (TradeCards) + Rifa compacta + Banner extra */}
-          <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             {/* Featured Items Showcase — usando o mesmo TradeCard */}
-            <div className="lg:col-span-4 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
+            <div className="md:col-span-2 lg:col-span-4 relative overflow-hidden rounded-2xl border border-warning/25 bg-card">
               <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-warning/10 blur-3xl" />
               <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-12 w-56 h-56 rounded-full bg-primary/10 blur-3xl" />
 
@@ -210,7 +210,7 @@ const Index = () => {
             </div>
 
             {/* Coluna lateral: Rifa compacta (em cima) + Banner extra (embaixo) */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
+            <div className="md:col-span-2 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4">
               {/* Rifa compacta com item em pedestal */}
               {activeRaffles && activeRaffles.length > 0 ? (
                 <Link
