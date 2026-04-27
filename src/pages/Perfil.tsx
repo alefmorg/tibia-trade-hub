@@ -30,15 +30,29 @@ const StatChip = ({
   icon, label, value, accent,
 }: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" | "primary" }) => (
   <div className={cn(
-    "flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[96px]",
-    accent === "warning" ? "border-warning/30" : accent === "primary" ? "border-primary/30" : "border-border/60",
+    "group/chip relative flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[104px] overflow-hidden",
+    "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+    accent === "warning"
+      ? "border-warning/30 hover:border-warning/60 hover:shadow-warning/10"
+      : accent === "primary"
+        ? "border-primary/30 hover:border-primary/60 hover:shadow-primary/10"
+        : "border-border/60 hover:border-border",
   )}>
-    <span className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
-      <span className={accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground"}>{icon}</span>
+    <div className={cn(
+      "absolute inset-0 opacity-0 group-hover/chip:opacity-100 transition-opacity duration-300 pointer-events-none",
+      accent === "warning" ? "bg-gradient-to-br from-warning/10 to-transparent"
+        : accent === "primary" ? "bg-gradient-to-br from-primary/10 to-transparent"
+          : "bg-gradient-to-br from-foreground/5 to-transparent",
+    )} />
+    <span className="relative flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+      <span className={cn(
+        "transition-transform duration-300 group-hover/chip:scale-110",
+        accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground"
+      )}>{icon}</span>
       {label}
     </span>
     <span className={cn(
-      "text-base font-bold tabular-nums leading-tight",
+      "relative text-base font-bold tabular-nums leading-tight",
       accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-foreground"
     )}>
       {value}
@@ -220,20 +234,22 @@ const Perfil = () => {
         {profileLoading ? (
           <Skeleton className="h-64 rounded-3xl" />
         ) : profile ? (
-          <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm">
-            {/* Banner gradiente */}
+          <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm animate-fade-in shadow-xl shadow-black/20">
+            {/* Banner gradiente animado */}
             <div
-              className="h-32 sm:h-40 w-full bg-[#1a1a1a] border-[#1a1a1a]"
+              className="relative h-36 sm:h-48 w-full overflow-hidden"
               style={{
                 background: `
-                  radial-gradient(1200px 200px at 10% 0%, hsl(var(--primary) / 0.25), transparent 60%),
-                  radial-gradient(900px 220px at 90% 0%, hsl(var(--warning) / 0.18), transparent 55%),
+                  radial-gradient(1200px 240px at 10% 0%, hsl(var(--primary) / 0.35), transparent 60%),
+                  radial-gradient(900px 260px at 90% 10%, hsl(var(--warning) / 0.25), transparent 55%),
+                  radial-gradient(600px 200px at 50% 100%, hsl(var(--destructive) / 0.15), transparent 60%),
                   linear-gradient(180deg, hsl(var(--secondary) / 0.6), hsl(var(--card) / 0))
                 `,
               }}
             >
+              {/* Grid pattern */}
               <div
-                className="absolute inset-x-0 top-0 h-32 sm:h-40 opacity-[0.08] pointer-events-none"
+                className="absolute inset-0 opacity-[0.08] pointer-events-none"
                 style={{
                   backgroundImage:
                     "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
@@ -241,35 +257,48 @@ const Perfil = () => {
                   maskImage: "linear-gradient(180deg, black, transparent)",
                 }}
               />
+              {/* Orbes flutuantes */}
+              <div className="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl animate-pulse" />
+              <div className="absolute -top-6 right-10 h-32 w-32 rounded-full bg-warning/20 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+              {/* Shimmer */}
+              <div
+                className="absolute inset-0 opacity-30 pointer-events-none"
+                style={{
+                  background: "linear-gradient(110deg, transparent 30%, hsl(var(--foreground) / 0.06) 50%, transparent 70%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 6s linear infinite",
+                }}
+              />
             </div>
 
-            <div className="px-6 sm:px-8 pb-6 -mt-12 sm:-mt-14">
+            <div className="px-6 sm:px-8 pb-6 -mt-14 sm:-mt-16">
               <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-6">
-                {/* Avatar */}
-                <div className="relative shrink-0 bg-[#1a1a1a] border-[#1a1a1a]">
+                {/* Avatar com glow animado */}
+                <div className="relative shrink-0 group/avatar">
+                  <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary via-warning to-primary opacity-60 blur-md group-hover/avatar:opacity-90 transition-opacity duration-500 animate-pulse" />
                   <Avatar
-                    className="h-24 w-24 sm:h-28 sm:w-28"
+                    className="relative h-28 w-28 sm:h-32 sm:w-32 transition-transform duration-300 group-hover/avatar:scale-105"
                     style={{
                       boxShadow:
-                        "0 0 0 3px hsl(var(--card)), 0 0 0 5px hsl(var(--primary) / 0.55), 0 8px 24px -8px hsl(var(--primary) / 0.5)",
+                        "0 0 0 4px hsl(var(--card)), 0 0 0 6px hsl(var(--primary) / 0.55), 0 12px 32px -8px hsl(var(--primary) / 0.6)",
                       borderRadius: "9999px",
                     }}
                   >
                     {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                    <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
+                    <AvatarFallback className="bg-gradient-to-br from-secondary to-card text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {isPremium && (
                     <span
                       title="Premium Verificado"
-                      className="absolute bottom-0 right-0 inline-flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground"
+                      className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-primary-foreground animate-scale-in"
                       style={{
-                        borderRadius: 4,
-                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(0 0% 0% / 0.55)",
+                        borderRadius: 8,
+                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(var(--primary) / 0.7), 0 4px 12px hsl(var(--primary) / 0.5)",
                       }}
                     >
-                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor">
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                         <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                       </svg>
                     </span>
