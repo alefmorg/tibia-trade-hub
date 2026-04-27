@@ -471,22 +471,6 @@ const ItemsAdminPanel = () => {
             <Label className="text-xs">Categoria</Label>
             <Input value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="bg-secondary/80 border-border" />
           </div>
-          <div className="space-y-1.5 w-32">
-            <Label className="text-xs">Tier</Label>
-            <Select value={editTier} onValueChange={setEditTier}>
-              <SelectTrigger className="bg-secondary/80 border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SItem value="none">Sem tier</SItem>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((t) => (
-                  <SItem key={t} value={String(t)}>
-                    T{t}
-                  </SItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           <div className="space-y-1.5 w-36">
             <Label className="text-xs">Tipo</Label>
             <Select value={editSource} onValueChange={(v) => setEditSource(v as ItemSource)}>
