@@ -234,68 +234,45 @@ const Perfil = () => {
         {profileLoading ? (
           <Skeleton className="h-64 rounded-3xl" />
         ) : profile ? (
-          <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/60 backdrop-blur-sm animate-fade-in shadow-xl shadow-black/20">
-            {/* Banner gradiente animado */}
-            <div
-              className="relative h-36 sm:h-48 w-full overflow-hidden"
-              style={{
-                background: `
-                  radial-gradient(1200px 240px at 10% 0%, hsl(var(--primary) / 0.35), transparent 60%),
-                  radial-gradient(900px 260px at 90% 10%, hsl(var(--warning) / 0.25), transparent 55%),
-                  radial-gradient(600px 200px at 50% 100%, hsl(var(--destructive) / 0.15), transparent 60%),
-                  linear-gradient(180deg, hsl(var(--secondary) / 0.6), hsl(var(--card) / 0))
-                `,
-              }}
-            >
-              {/* Grid pattern */}
+          <section className="relative overflow-hidden rounded-2xl border border-border bg-card animate-fade-in">
+            {/* Banner dark sólido com grid sutil */}
+            <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-secondary/40">
               <div
-                className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                className="absolute inset-0 opacity-[0.06] pointer-events-none"
                 style={{
                   backgroundImage:
                     "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
-                  backgroundSize: "32px 32px",
+                  backgroundSize: "28px 28px",
                   maskImage: "linear-gradient(180deg, black, transparent)",
                 }}
               />
-              {/* Orbes flutuantes */}
-              <div className="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl animate-pulse" />
-              <div className="absolute -top-6 right-10 h-32 w-32 rounded-full bg-warning/20 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-              {/* Shimmer */}
-              <div
-                className="absolute inset-0 opacity-30 pointer-events-none"
-                style={{
-                  background: "linear-gradient(110deg, transparent 30%, hsl(var(--foreground) / 0.06) 50%, transparent 70%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 6s linear infinite",
-                }}
-              />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-primary/30" />
             </div>
 
             <div className="px-6 sm:px-8 pb-6 -mt-14 sm:-mt-16">
               <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-6">
-                {/* Avatar com glow animado */}
+                {/* Avatar com ring sólido */}
                 <div className="relative shrink-0 group/avatar">
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-primary via-warning to-primary opacity-60 blur-md group-hover/avatar:opacity-90 transition-opacity duration-500 animate-pulse" />
                   <Avatar
-                    className="relative h-28 w-28 sm:h-32 sm:w-32 transition-transform duration-300 group-hover/avatar:scale-105"
+                    className="relative h-28 w-28 sm:h-32 sm:w-32 transition-transform duration-300 group-hover/avatar:scale-[1.03]"
                     style={{
                       boxShadow:
-                        "0 0 0 4px hsl(var(--card)), 0 0 0 6px hsl(var(--primary) / 0.55), 0 12px 32px -8px hsl(var(--primary) / 0.6)",
+                        "0 0 0 4px hsl(var(--card)), 0 0 0 5px hsl(var(--border)), 0 8px 24px -8px hsl(0 0% 0% / 0.6)",
                       borderRadius: "9999px",
                     }}
                   >
                     {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
-                    <AvatarFallback className="bg-gradient-to-br from-secondary to-card text-foreground text-3xl font-pixel">
+                    <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {isPremium && (
                     <span
                       title="Premium Verificado"
-                      className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-primary-foreground animate-scale-in"
+                      className="absolute bottom-0 right-0 inline-flex h-7 w-7 items-center justify-center bg-primary text-primary-foreground animate-scale-in"
                       style={{
-                        borderRadius: 8,
-                        boxShadow: "0 0 0 2px hsl(var(--card)), 0 0 0 3px hsl(var(--primary) / 0.7), 0 4px 12px hsl(var(--primary) / 0.5)",
+                        borderRadius: 6,
+                        boxShadow: "0 0 0 2px hsl(var(--card))",
                       }}
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
