@@ -157,7 +157,10 @@ const Anuncio = () => {
 
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><Globe className="h-3.5 w-3.5" />{ad.world}</span>
-                  <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" />{ad.pvp_type}</span>
+                  <span className={`flex items-center gap-1 ${ad.pvp_type === "Open PvP" ? "text-destructive" : "text-primary"}`}>
+                    {ad.pvp_type === "Open PvP" ? <Swords className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                    {ad.pvp_type}
+                  </span>
                   <span className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" />{ad.category}</span>
                   <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{new Date(ad.created_at).toLocaleDateString("pt-BR")}</span>
                   <span className="flex items-center gap-1"><Heart className="h-3.5 w-3.5" />{ad.likes_count}</span>
