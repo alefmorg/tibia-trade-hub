@@ -122,7 +122,7 @@ const ItemsAdminPanel = () => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Geral");
   const [newCategoryInput, setNewCategoryInput] = useState("");
-  const [tier, setTier] = useState<string>("none");
+  // tier removido do form de criação — só configurável no edit
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -139,6 +139,7 @@ const ItemsAdminPanel = () => {
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editTier, setEditTier] = useState<string>("none");
+  const [editSource, setEditSource] = useState<ItemSource>("tibia");
 
   // Local order overlay (for instant feedback during drag)
   const [localOrder, setLocalOrder] = useState<Record<string, string[]>>({});
@@ -190,12 +191,11 @@ const ItemsAdminPanel = () => {
       imageFile: imageFile || undefined,
       category: finalCat,
       source: activeSource,
-      tier: tier !== "none" ? Number(tier) : null,
+      tier: null,
     });
     setName("");
     setImageFile(null);
     setImagePreview(null);
-    setTier("none");
     setCategory("Geral");
     setNewCategoryInput("");
     if (fileRef.current) fileRef.current.value = "";
@@ -244,6 +244,7 @@ const ItemsAdminPanel = () => {
     setEditName(item.name);
     setEditCategory(item.category || "Geral");
     setEditTier(item.tier ? String(item.tier) : "none");
+    setEditSource((item.source as ItemSource) || "tibia");
   };
 
   const saveEdit = async () => {
@@ -253,7 +254,8 @@ const ItemsAdminPanel = () => {
       name: editName.trim(),
       category: editCategory,
       tier: editTier !== "none" ? Number(editTier) : null,
-    });
+      source: editSource,
+    } as any);
     setEditingItem(null);
   };
 
