@@ -307,7 +307,7 @@ const ItemsAdminPanel = () => {
         </div>
 
         {mode === "single" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Nome</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Golden Armor" className="bg-secondary/80 border-border" />
@@ -337,22 +337,6 @@ const ItemsAdminPanel = () => {
                   autoFocus
                 />
               )}
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground font-body">Tier</Label>
-              <Select value={tier} onValueChange={setTier}>
-                <SelectTrigger className="bg-secondary/80 border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SItem value="none">Sem tier</SItem>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((t) => (
-                    <SItem key={t} value={String(t)}>
-                      T{t}
-                    </SItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
