@@ -35,7 +35,6 @@ const Registro = () => {
     setLoading(true);
     try {
       await signUp(email.trim(), password, username.trim());
-      // Auto-confirm está ativo, então tenta entrar direto.
       try {
         await signIn(email.trim(), password);
         navigate("/");
@@ -50,61 +49,39 @@ const Registro = () => {
   };
 
   const Rule = ({ ok, label }: { ok: boolean; label: string }) => (
-    <li className="flex items-center gap-1.5 text-[10px] font-body">
+    <li className="flex items-center gap-1.5 text-xs">
       {ok ? <Check className="h-3 w-3 text-primary" /> : <X className="h-3 w-3 text-muted-foreground/60" />}
       <span className={ok ? "text-primary" : "text-muted-foreground/70"}>{label}</span>
     </li>
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-background py-8">
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div className="absolute top-1/3 -right-32 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 -left-32 w-72 h-72 rounded-full bg-warning/10 blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-sm relative z-10">
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-3 group">
-            <div
-              className="w-12 h-12 flex items-center justify-center bg-primary/10"
-              style={{
-                borderRadius: 2,
-                boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4), inset 0 0 0 2px hsl(var(--background))",
-              }}
-            >
-              <Sword className="h-5 w-5 text-primary" strokeWidth={2.5} />
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-background">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 border border-primary/20 transition-colors group-hover:bg-primary/15">
+              <Sword className="h-5 w-5 text-primary" strokeWidth={2.25} />
             </div>
-            <span className="font-pixel text-[11px] text-foreground leading-none">
-              Rubin <span className="text-primary">TRADE</span>
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              Rubin<span className="text-primary">Trade</span>
             </span>
           </Link>
         </div>
 
-        <div
-          className="bg-card/95 backdrop-blur-xl p-7"
-          style={{
-            borderRadius: 4,
-            boxShadow:
-              "0 0 0 2px hsl(var(--border)), 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--primary) / 0.3), 0 20px 60px -10px hsl(0 0% 0% / 0.5)",
-          }}
-        >
-          <div className="text-center mb-6">
-            <h1 className="font-pixel text-sm text-foreground mb-2">CRIAR CONTA</h1>
-            <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-            <p className="text-muted-foreground text-xs font-body mt-3">Junte-se à comunidade RubinOT</p>
+        {/* Card */}
+        <div className="rounded-2xl border border-border bg-card p-7 shadow-lg">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold text-foreground">Criar conta</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Junte-se à comunidade RubinOT
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">
+              <Label htmlFor="username" className="text-xs text-muted-foreground">
                 Nick
               </Label>
               <div className="relative">
@@ -116,17 +93,16 @@ const Registro = () => {
                   placeholder="seu_nick"
                   required
                   maxLength={20}
-                  className="pl-10 bg-secondary/60 border-border h-11 focus:border-primary"
-                  style={{ borderRadius: 2 }}
+                  className="pl-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                 />
               </div>
               {username && !usernameOk && (
-                <p className="text-[10px] text-destructive font-body">3-20 caracteres, letras/números/_</p>
+                <p className="text-xs text-destructive">3-20 caracteres, letras/números/_</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">
+              <Label htmlFor="email" className="text-xs text-muted-foreground">
                 Email
               </Label>
               <div className="relative">
@@ -139,14 +115,13 @@ const Registro = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
                   required
-                  className="pl-10 bg-secondary/60 border-border h-11 focus:border-primary"
-                  style={{ borderRadius: 2 }}
+                  className="pl-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">
+              <Label htmlFor="password" className="text-xs text-muted-foreground">
                 Senha
               </Label>
               <div className="relative">
@@ -159,8 +134,7 @@ const Registro = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="pl-10 pr-10 bg-secondary/60 border-border h-11 focus:border-primary"
-                  style={{ borderRadius: 2 }}
+                  className="pl-10 pr-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                 />
                 <button
                   type="button"
@@ -182,27 +156,23 @@ const Registro = () => {
             <Button
               type="submit"
               disabled={loading || !allValid}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 font-pixel text-[11px] uppercase tracking-wider transition-all duration-200 disabled:opacity-50"
-              style={{
-                borderRadius: 2,
-                boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4), 0 4px 0 hsl(var(--primary) / 0.5)",
-              }}
+              className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {loading ? (
                 "Criando..."
               ) : (
                 <span className="flex items-center gap-2">
                   Criar Conta
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-4 w-4" />
                 </span>
               )}
             </Button>
           </form>
 
           <div className="mt-6 pt-5 border-t border-border/60 text-center">
-            <p className="text-xs text-muted-foreground font-body">
+            <p className="text-sm text-muted-foreground">
               Já tem conta?{" "}
-              <Link to="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+              <Link to="/login" className="text-primary hover:underline font-medium">
                 Entrar
               </Link>
             </p>
