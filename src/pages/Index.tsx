@@ -8,6 +8,7 @@ import { Search, Plus, Filter, ExternalLink, X, SlidersHorizontal, Flame, Megaph
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import LiveStreamersWidget from "@/components/LiveStreamersWidget";
 import { useInfiniteAds } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
 import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
@@ -134,6 +135,8 @@ const Index = () => {
                 Encontre os melhores itens, equipamentos e trades do servidor RubinOT.
               </p>
             </div>
+            {/* Streamers parceiros ao vivo */}
+            <LiveStreamersWidget />
             {/* Social Icons */}
             <div className="flex items-center gap-2 shrink-0 flex-wrap justify-center">
               {(navLinks && navLinks.length > 0 ? navLinks : []).map((link) => (
