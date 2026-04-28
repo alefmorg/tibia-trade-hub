@@ -499,6 +499,39 @@ export type Database = {
           },
         ]
       }
+      partner_streamers: {
+        Row: {
+          active: boolean
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          sort_order: number
+          twitch_login: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          avatar_url?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          sort_order?: number
+          twitch_login: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          sort_order?: number
+          twitch_login?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -656,6 +689,30 @@ export type Database = {
           updated_at?: string
           winner_number?: number | null
           winner_user_id?: string | null
+        }
+        Relationships: []
+      }
+      site_assets: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          url: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          url: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          url?: string
         }
         Relationships: []
       }
