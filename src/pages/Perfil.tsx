@@ -246,7 +246,7 @@ const Perfil = () => {
                   maskImage: "linear-gradient(180deg, black, transparent)",
                 }}
               />
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-primary/30" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1f1f1f]" />
             </div>
 
             <div className="px-6 sm:px-8 pb-6 -mt-14 sm:-mt-16">
