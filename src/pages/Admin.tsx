@@ -722,6 +722,8 @@ const Admin = () => {
 
             {/* SPONSORS TAB */}
             {tab === "banners" && <SponsorsAdminPanel />}
+            {tab === "streamers" && <StreamersAdminPanel />}
+            {tab === "assets" && <AssetsAdminPanel />}
 
             {/* FILTERS TAB */}
             {tab === "filters" && (
