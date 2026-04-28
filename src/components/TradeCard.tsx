@@ -47,6 +47,7 @@ const TradeCard = ({
   const deleteAd = useDeleteAd();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { getCurrencyIcon, getPvpIcon } = useSiteAssets();
 
   const isFavorited = id ? userFavorites?.includes(id) : false;
   const displayName = profiles?.username || username || "Anônimo";
@@ -167,7 +168,7 @@ const TradeCard = ({
           ) : (
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-bold text-foreground">
               <img
-                src={`/icons/${currency}.png`}
+                src={getCurrencyIcon(currency)}
                 alt={currency}
                 className="w-6 h-6 object-contain shrink-0"
                 onError={(e) => {
@@ -186,11 +187,11 @@ const TradeCard = ({
             "trade-card-world-badge",
             pvpType === "Open PvP" ? "!border-destructive/40" : "!border-primary/40"
           )}>
-            {pvpType === "Open PvP" ? (
-              <Swords className="h-3 w-3 text-destructive" />
-            ) : (
-              <ShieldCheck className="h-3 w-3 text-primary" />
-            )}
+            <img
+              src={getPvpIcon(pvpType)}
+              alt={pvpType}
+              className="w-4 h-4 object-contain shrink-0"
+            />
             <span className="text-foreground">{world}</span>
             <span className={pvpType === "Open PvP" ? "text-destructive/90" : "text-primary/90"}>({pvpType})</span>
           </span>
