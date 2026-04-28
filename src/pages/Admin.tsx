@@ -269,6 +269,8 @@ const Admin = () => {
       title: "PERSONALIZAÇÃO",
       items: [
         { key: "assets" as TabKey, label: "Ícones do Site", icon: ImagePlus },
+      ],
+    },
     {
       title: "CONFIGURAÇÕES",
       items: [
