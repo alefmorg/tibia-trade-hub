@@ -39,8 +39,10 @@ import CleanupPanel from "@/components/admin/CleanupPanel";
 import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
 import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
 import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
+import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
+import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -260,6 +262,13 @@ const Admin = () => {
       items: [
         { key: "notifications" as TabKey, label: "Notificações", icon: Bell },
         { key: "banners" as TabKey, label: "Patrocinadores", icon: Megaphone },
+        { key: "streamers" as TabKey, label: "Streamers Parceiros", icon: Activity },
+      ],
+    },
+    {
+      title: "PERSONALIZAÇÃO",
+      items: [
+        { key: "assets" as TabKey, label: "Ícones do Site", icon: ImagePlus },
       ],
     },
     {
@@ -713,6 +722,8 @@ const Admin = () => {
 
             {/* SPONSORS TAB */}
             {tab === "banners" && <SponsorsAdminPanel />}
+            {tab === "streamers" && <StreamersAdminPanel />}
+            {tab === "assets" && <AssetsAdminPanel />}
 
             {/* FILTERS TAB */}
             {tab === "filters" && (
