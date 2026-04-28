@@ -1,9 +1,10 @@
-import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Swords, ShieldCheck } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
 import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 
 interface TradeCardProps {
   id?: string;
