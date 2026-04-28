@@ -9,8 +9,10 @@ import { ArrowLeft, Calendar, Flame, Globe, Heart, MessageCircle, Shield, Shield
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 
 const Anuncio = () => {
+  const { getCurrencyIcon, getPvpIcon } = useSiteAssets();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -143,7 +145,7 @@ const Anuncio = () => {
                   {ad.price && (
                     <div className="text-right shrink-0">
                       <div className="flex items-center gap-1.5">
-                        <img src={`/icons/${ad.currency || "kk"}.png`} alt="" className="w-5 h-5 object-contain" />
+                        <img src={getCurrencyIcon(ad.currency || "kk")} alt="" className="w-5 h-5 object-contain" />
                         <span className="text-lg font-bold text-primary">{ad.price}</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground">{ad.currency}</span>
@@ -158,7 +160,7 @@ const Anuncio = () => {
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><Globe className="h-3.5 w-3.5" />{ad.world}</span>
                   <span className={`flex items-center gap-1 ${ad.pvp_type === "Open PvP" ? "text-destructive" : "text-primary"}`}>
-                    {ad.pvp_type === "Open PvP" ? <Swords className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                    <img src={getPvpIcon(ad.pvp_type)} alt="" className="w-4 h-4 object-contain" />
                     {ad.pvp_type}
                   </span>
                   <span className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" />{ad.category}</span>
