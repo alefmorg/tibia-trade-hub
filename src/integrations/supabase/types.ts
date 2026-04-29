@@ -1000,6 +1000,7 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_read_notifications: { Args: never; Returns: number }
+      cleanup_storage_and_data: { Args: never; Returns: Json }
       delete_ad_cascade: { Args: { _ad_id: string }; Returns: undefined }
       donate_coins: {
         Args: { p_amount: number; p_message?: string }

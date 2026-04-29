@@ -17,11 +17,11 @@ export type SiteAsset = {
 };
 
 const DEFAULTS: Record<SiteAssetKey, string> = {
-  icon_kk: "/icons/kk.png",
-  icon_coins: "/icons/coins.png",
-  icon_pvp_open: "/icons/pvp-open.png",
-  icon_pvp_optional: "/icons/pvp-optional.png",
-  icon_pvp_retro: "/icons/pvp-retro.png",
+  icon_kk: "/icons/kk.webp",
+  icon_coins: "/icons/coins.webp",
+  icon_pvp_open: "/icons/pvp-open.webp",
+  icon_pvp_optional: "/icons/pvp-optional.webp",
+  icon_pvp_retro: "/icons/pvp-retro.webp",
 };
 
 export const useSiteAssets = () => {

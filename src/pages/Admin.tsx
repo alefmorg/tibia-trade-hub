@@ -451,7 +451,7 @@ const Admin = () => {
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm font-body">
                           {ad.price && ad.price !== "Aceita ofertas" ? (
-                            <span className="flex items-center gap-1"><img src={`/icons/${ad.currency || "kk"}.png`} alt="" className="w-4 h-4 object-contain" />{ad.price}</span>
+                            <span className="flex items-center gap-1"><img src={`/icons/${ad.currency || "kk"}.webp`} alt="" className="w-4 h-4 object-contain" loading="lazy" />{ad.price}</span>
                           ) : <span className="text-warning text-xs">Ofertas</span>}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs font-body">{ad.world}</TableCell>

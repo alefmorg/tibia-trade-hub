@@ -172,7 +172,7 @@ const TradeCard = ({
                 alt={currency}
                 className="w-6 h-6 object-contain shrink-0"
                 onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "/icons/default.png";
+                  (e.currentTarget as HTMLImageElement).src = "/icons/default.webp";
                 }}
               />
               <span className="leading-none">{price}</span>
