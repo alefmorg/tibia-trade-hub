@@ -35,7 +35,7 @@ export const useConversations = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("conversations")
-        .select("*, ads(title, image_url)")
+        .select("*, ads(id, title, image_url, price, currency, world, pvp_type, item_reference_url, extra_info)")
         .order("updated_at", { ascending: false });
       if (error) throw error;
 
