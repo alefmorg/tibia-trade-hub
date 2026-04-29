@@ -262,7 +262,7 @@ const Index = () => {
                         {activeRaffles[0].title}
                       </h3>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <img src="/icons/coin.png" alt="" className="w-3 h-3 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                        <img src="/icons/coins.webp" alt="" className="w-3 h-3 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                         <span className="text-warning font-bold text-xs">{activeRaffles[0].price_per_number}</span>
                         <span className="text-[9px] text-muted-foreground">/bilhete</span>
                       </div>
