@@ -11,7 +11,17 @@ export interface Conversation {
   seller_id: string;
   created_at: string;
   updated_at: string;
-  ads?: { title: string; image_url: string | null };
+  ads?: {
+    id?: string;
+    title: string;
+    image_url: string | null;
+    price?: string | null;
+    currency?: string;
+    world?: string;
+    pvp_type?: string;
+    item_reference_url?: string | null;
+    extra_info?: string | null;
+  };
   buyer_profile?: { username: string; avatar_url: string | null };
   seller_profile?: { username: string; avatar_url: string | null };
   unread_count?: number;
