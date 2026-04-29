@@ -23,6 +23,9 @@ const Mensagens = () => {
   const { data: messages, isLoading: msgsLoading } = useMessages(selectedConvId);
   const sendMessage = useSendMessage();
   const markAsRead = useMarkAsRead();
+  const deleteMessage = useDeleteMessage();
+  const { getCurrencyIcon, getPvpIcon } = useSiteAssets();
+  const [showItemInfo, setShowItemInfo] = useState(false);
 
   const selectedConv = conversations?.find(c => c.id === selectedConvId);
 
