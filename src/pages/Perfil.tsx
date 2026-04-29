@@ -358,7 +358,17 @@ const Perfil = () => {
               {/* Stats em chips */}
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <StatChip icon={<Package className="h-3 w-3" />} label="Anúncios" value={totalAds} accent="primary" />
-                <StatChip icon={<Star className="h-3 w-3" />} label="Selos" value={badges.length} />
+                <StatChip
+                  icon={<Star className="h-3 w-3" />}
+                  label="Reputação"
+                  accent="warning"
+                  value={
+                    reputation && Number(reputation.count) > 0
+                      ? <>{Number(reputation.avg).toFixed(1)} <span className="text-[10px] text-muted-foreground font-normal">({reputation.count})</span></>
+                      : "—"
+                  }
+                />
+                <StatChip icon={<Sparkles className="h-3 w-3" />} label="Selos" value={badges.length} />
                 {isOwnProfile && (
                   <StatChip
                     icon={<Coins className="h-3 w-3" />}
