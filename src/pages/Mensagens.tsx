@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
-import { useConversations, useMessages, useSendMessage, useMarkAsRead, Conversation } from "@/hooks/useMessages";
+import { useConversations, useMessages, useSendMessage, useMarkAsRead, useDeleteMessage, Conversation } from "@/hooks/useMessages";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageCircle, Send, ArrowLeft } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, ExternalLink, Trash2, Info } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 
 const Mensagens = () => {
   const { user } = useAuth();
