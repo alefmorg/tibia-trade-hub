@@ -427,6 +427,9 @@ const Perfil = () => {
           </div>
 
           <div className="pt-6">
+            {activeTab === "reputation" && profileUserId && (
+              <ReputationPanel profileUserId={profileUserId} isOwnProfile={isOwnProfile} />
+            )}
             {activeTab === "ads" && (
               <>
                 {adsLoading ? (
