@@ -25,7 +25,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
 
   const [form, setForm] = useState({
     title: "", description: "", image_url: "", price_per_number: "",
-    total_numbers: "100", draw_date: "", federal_lottery_ref: "",
+    total_numbers: "100", draw_date: "", federal_lottery_ref: "", progress_percent: "",
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [winnerInputs, setWinnerInputs] = useState<Record<string, string>>({});
