@@ -128,6 +128,23 @@ export const useSendMessage = () => {
   });
 };
 
+export const useDeleteMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, conversationId }: { id: string; conversationId: string }) => {
+      const { error } = await supabase.from("messages").delete().eq("id", id);
+      if (error) throw error;
+      return conversationId;
+    },
+    onSuccess: (conversationId) => {
+      queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success("Mensagem apagada");
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+};
+
 export const useStartConversation = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
