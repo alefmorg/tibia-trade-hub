@@ -11,8 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   Save, Package, Heart, Calendar, Star, Coins, Sparkles,
-  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X
+  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X, MessageSquare
 } from "lucide-react";
+import ReputationPanel from "@/components/ReputationPanel";
+import { useUserReputation } from "@/hooks/useReputation";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { supabase } from "@/lib/supabase-client";
@@ -102,7 +104,7 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit">("ads");
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit" | "reputation">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
   const [depositGold, setDepositGold] = useState("");
@@ -120,6 +122,7 @@ const Perfil = () => {
   const rate = depositConfig?.gold_to_coins_rate || 1;
 
   const { data: badges = [] } = useUserBadges(profileUserId);
+  const { data: reputation } = useUserReputation(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
@@ -355,7 +358,17 @@ const Perfil = () => {
               {/* Stats em chips */}
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <StatChip icon={<Package className="h-3 w-3" />} label="Anúncios" value={totalAds} accent="primary" />
-                <StatChip icon={<Star className="h-3 w-3" />} label="Selos" value={badges.length} />
+                <StatChip
+                  icon={<Star className="h-3 w-3" />}
+                  label="Reputação"
+                  accent="warning"
+                  value={
+                    reputation && Number(reputation.count) > 0
+                      ? <>{Number(reputation.avg).toFixed(1)} <span className="text-[10px] text-muted-foreground font-normal">({reputation.count})</span></>
+                      : "—"
+                  }
+                />
+                <StatChip icon={<Sparkles className="h-3 w-3" />} label="Selos" value={badges.length} />
                 {isOwnProfile && (
                   <StatChip
                     icon={<Coins className="h-3 w-3" />}
@@ -395,6 +408,9 @@ const Perfil = () => {
             <TabButton active={activeTab === "ads"} onClick={() => setActiveTab("ads")} icon={<Package className="h-3.5 w-3.5" />}>
               Anúncios {!isOwnProfile && profile?.username ? `de ${profile.username}` : ""}
             </TabButton>
+            <TabButton active={activeTab === "reputation"} onClick={() => setActiveTab("reputation")} icon={<MessageSquare className="h-3.5 w-3.5" />} tone="warning">
+              Reputação
+            </TabButton>
             {isOwnProfile && (
               <>
                 <TabButton active={activeTab === "favorites"} onClick={() => setActiveTab("favorites")} icon={<Heart className="h-3.5 w-3.5" />}>
@@ -411,6 +427,9 @@ const Perfil = () => {
           </div>
 
           <div className="pt-6">
+            {activeTab === "reputation" && profileUserId && (
+              <ReputationPanel profileUserId={profileUserId} isOwnProfile={isOwnProfile} />
+            )}
             {activeTab === "ads" && (
               <>
                 {adsLoading ? (

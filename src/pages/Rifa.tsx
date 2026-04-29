@@ -157,6 +157,25 @@ const RaffleCard = ({ r }: { r: any }) => {
             </p>
           )}
 
+          {/* Barra de progresso (manual via admin) */}
+          {r.progress_percent != null && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[9px] font-pixel uppercase tracking-wider">
+                <span className="text-muted-foreground">Progresso</span>
+                <span className="text-warning">{r.progress_percent}%</span>
+              </div>
+              <div
+                className="w-full h-2.5 bg-secondary overflow-hidden"
+                style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--border))" }}
+              >
+                <div
+                  className="h-full bg-warning transition-all duration-700"
+                  style={{ width: `${Math.max(0, Math.min(100, r.progress_percent))}%`, boxShadow: "inset 0 -2px 0 hsl(var(--warning) / 0.5)" }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Linha: preço por bilhete + sorteio (Loteria Federal) */}
           <div
             className="bg-warning/10 px-3 py-2 flex items-center justify-between"

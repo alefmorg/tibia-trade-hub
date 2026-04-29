@@ -11,7 +11,17 @@ export interface Conversation {
   seller_id: string;
   created_at: string;
   updated_at: string;
-  ads?: { title: string; image_url: string | null };
+  ads?: {
+    id?: string;
+    title: string;
+    image_url: string | null;
+    price?: string | null;
+    currency?: string;
+    world?: string;
+    pvp_type?: string;
+    item_reference_url?: string | null;
+    extra_info?: string | null;
+  };
   buyer_profile?: { username: string; avatar_url: string | null };
   seller_profile?: { username: string; avatar_url: string | null };
   unread_count?: number;
@@ -35,7 +45,7 @@ export const useConversations = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("conversations")
-        .select("*, ads(title, image_url)")
+        .select("*, ads(id, title, image_url, price, currency, world, pvp_type, item_reference_url, extra_info)")
         .order("updated_at", { ascending: false });
       if (error) throw error;
 
@@ -113,6 +123,23 @@ export const useSendMessage = () => {
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["messages", vars.conversationId] });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: (err: any) => toast.error(err.message),
+  });
+};
+
+export const useDeleteMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, conversationId }: { id: string; conversationId: string }) => {
+      const { error } = await supabase.from("messages").delete().eq("id", id);
+      if (error) throw error;
+      return conversationId;
+    },
+    onSuccess: (conversationId) => {
+      queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      toast.success("Mensagem apagada");
     },
     onError: (err: any) => toast.error(err.message),
   });
