@@ -104,7 +104,7 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
-  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit">("ads");
+  const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit" | "reputation">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
   const [depositGold, setDepositGold] = useState("");
