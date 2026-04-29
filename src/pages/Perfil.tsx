@@ -11,8 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   Save, Package, Heart, Calendar, Star, Coins, Sparkles,
-  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X
+  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X, MessageSquare
 } from "lucide-react";
+import ReputationPanel from "@/components/ReputationPanel";
+import { useUserReputation } from "@/hooks/useReputation";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
 import { supabase } from "@/lib/supabase-client";
