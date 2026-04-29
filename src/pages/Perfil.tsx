@@ -408,6 +408,9 @@ const Perfil = () => {
             <TabButton active={activeTab === "ads"} onClick={() => setActiveTab("ads")} icon={<Package className="h-3.5 w-3.5" />}>
               Anúncios {!isOwnProfile && profile?.username ? `de ${profile.username}` : ""}
             </TabButton>
+            <TabButton active={activeTab === "reputation"} onClick={() => setActiveTab("reputation")} icon={<MessageSquare className="h-3.5 w-3.5" />} tone="warning">
+              Reputação
+            </TabButton>
             {isOwnProfile && (
               <>
                 <TabButton active={activeTab === "favorites"} onClick={() => setActiveTab("favorites")} icon={<Heart className="h-3.5 w-3.5" />}>
