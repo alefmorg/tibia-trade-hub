@@ -34,11 +34,11 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
 
   const resetForm = () =>
     setForm({ title: "", description: "", image_url: "", price_per_number: "",
-              total_numbers: "100", draw_date: "", federal_lottery_ref: "" });
+              total_numbers: "100", draw_date: "", federal_lottery_ref: "", progress_percent: "" });
 
   const handleSubmit = () => {
     if (!form.title || !form.price_per_number) return;
-    const data = {
+    const data: any = {
       title: form.title,
       description: form.description || undefined,
       image_url: form.image_url || undefined,
@@ -46,6 +46,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
       total_numbers: Number(form.total_numbers) || 100,
       draw_date: form.draw_date ? new Date(form.draw_date).toISOString() : undefined,
       federal_lottery_ref: form.federal_lottery_ref || undefined,
+      progress_percent: form.progress_percent === "" ? null : Math.max(0, Math.min(100, Number(form.progress_percent))),
     };
     if (editingId) {
       raffleMut.update.mutate({ id: editingId, ...data });
@@ -63,6 +64,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
       price_per_number: String(r.price_per_number), total_numbers: String(r.total_numbers),
       draw_date: r.draw_date ? r.draw_date.slice(0, 10) : "",
       federal_lottery_ref: r.federal_lottery_ref || "",
+      progress_percent: r.progress_percent != null ? String(r.progress_percent) : "",
     });
   };
 
