@@ -107,6 +107,10 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
               <Label className="text-xs font-body">URL da imagem</Label>
               <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://..." className="bg-secondary/80 border-border" />
             </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-body">Progresso manual (%)</Label>
+              <Input type="number" min={0} max={100} value={form.progress_percent} onChange={(e) => setForm({ ...form, progress_percent: e.target.value })} placeholder="0-100 (vazio = automático)" className="bg-secondary/80 border-border" />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-body">Descrição</Label>
