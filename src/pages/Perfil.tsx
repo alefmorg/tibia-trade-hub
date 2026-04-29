@@ -122,6 +122,7 @@ const Perfil = () => {
   const rate = depositConfig?.gold_to_coins_rate || 1;
 
   const { data: badges = [] } = useUserBadges(profileUserId);
+  const { data: reputation } = useUserReputation(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
