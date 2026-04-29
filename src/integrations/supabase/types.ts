@@ -21,10 +21,12 @@ export type Database = {
           currency: string
           description: string | null
           expires_at: string | null
+          extra_info: string | null
           featured: boolean
           id: string
           image_url: string | null
           item_id: string | null
+          item_reference_url: string | null
           likes_count: number
           price: string | null
           pvp_type: string
@@ -42,10 +44,12 @@ export type Database = {
           currency?: string
           description?: string | null
           expires_at?: string | null
+          extra_info?: string | null
           featured?: boolean
           id?: string
           image_url?: string | null
           item_id?: string | null
+          item_reference_url?: string | null
           likes_count?: number
           price?: string | null
           pvp_type?: string
@@ -63,10 +67,12 @@ export type Database = {
           currency?: string
           description?: string | null
           expires_at?: string | null
+          extra_info?: string | null
           featured?: boolean
           id?: string
           image_url?: string | null
           item_id?: string | null
+          item_reference_url?: string | null
           likes_count?: number
           price?: string | null
           pvp_type?: string
@@ -653,6 +659,7 @@ export type Database = {
           id: string
           image_url: string | null
           price_per_number: number
+          progress_percent: number | null
           status: string
           title: string
           total_numbers: number
@@ -668,6 +675,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           price_per_number: number
+          progress_percent?: number | null
           status?: string
           title: string
           total_numbers?: number
@@ -683,6 +691,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           price_per_number?: number
+          progress_percent?: number | null
           status?: string
           title?: string
           total_numbers?: number
@@ -880,6 +889,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewed_user_id?: string
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1016,6 +1055,7 @@ export type Database = {
       }
       get_ad_duration_days: { Args: never; Returns: number }
       get_admin_stats: { Args: never; Returns: Json }
+      get_user_reputation: { Args: { p_user_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
