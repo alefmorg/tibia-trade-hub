@@ -154,7 +154,13 @@ const Perfil = () => {
         .eq("status", "active")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data || [];
+      const now = Date.now();
+      // Mantém anúncios ainda válidos OU destacados que ainda têm tempo de destaque pago
+      return (data || []).filter((ad: any) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
     },
   });
 
@@ -172,7 +178,12 @@ const Perfil = () => {
         .in("id", adIds)
         .eq("status", "active");
       if (adsError) throw adsError;
-      return adsData || [];
+      const now = Date.now();
+      return (adsData || []).filter((ad: any) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
     },
   });
 
