@@ -97,13 +97,19 @@ Deno.serve(async (req) => {
       }
 
       case "updateTradeSettings": {
-        const { days, deposit_char_name, gold_to_coins_rate } = payload ?? {};
+        const { days, deposit_char_name, gold_to_coins_rate, vip_price_coins, vip_duration_days, vip_extra_ad_days, vip_max_active_ads, normal_max_active_ads, vip_free_highlights } = payload ?? {};
         const { data: existing, error: selectError } = await adminClient.from("trade_settings").select("id").limit(1).maybeSingle();
         ensureNoError(selectError);
         const updateData: Record<string, unknown> = {};
         if (typeof days === "number" && !Number.isNaN(days)) updateData.ad_duration_days = days;
         if (typeof deposit_char_name === "string") updateData.deposit_char_name = deposit_char_name;
         if (typeof gold_to_coins_rate === "number") updateData.gold_to_coins_rate = gold_to_coins_rate;
+        if (typeof vip_price_coins === "number") updateData.vip_price_coins = vip_price_coins;
+        if (typeof vip_duration_days === "number") updateData.vip_duration_days = vip_duration_days;
+        if (typeof vip_extra_ad_days === "number") updateData.vip_extra_ad_days = vip_extra_ad_days;
+        if (typeof vip_max_active_ads === "number") updateData.vip_max_active_ads = vip_max_active_ads;
+        if (typeof normal_max_active_ads === "number") updateData.normal_max_active_ads = normal_max_active_ads;
+        if (typeof vip_free_highlights === "number") updateData.vip_free_highlights = vip_free_highlights;
         if (Object.keys(updateData).length === 0) throw new Error("Nenhum dado para atualizar");
         if (existing?.id) {
           const { error } = await adminClient.from("trade_settings").update(updateData).eq("id", existing.id);
