@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 const CriarAnuncio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
