@@ -17,6 +17,7 @@ export interface Ad {
   description: string | null;
   image_url: string | null;
   featured: boolean;
+  featured_until?: string | null;
   status: string;
   likes_count: number;
   expires_at?: string | null;
@@ -79,7 +80,12 @@ export const useAds = (filters?: {
 
       const { data, error } = await query;
       if (error) throw error;
-      return (((data as unknown as Ad[]) || []).filter((ad) => !ad.expires_at || new Date(ad.expires_at).getTime() > Date.now())) as Ad[];
+      const now = Date.now();
+      return (((data as unknown as Ad[]) || []).filter((ad) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      })) as Ad[];
     },
   });
 };
@@ -105,7 +111,7 @@ export const useInfiniteAds = (filters?: {
       let query = supabase
         .from("ads")
         .select(
-          "id,user_id,item_id,title,type,price,currency,world,pvp_type,category,image_url,featured,status,likes_count,expires_at,tier,created_at,profiles!ads_user_id_fkey(username, avatar_url),items!ads_item_id_fkey(tier)"
+          "id,user_id,item_id,title,type,price,currency,world,pvp_type,category,image_url,featured,featured_until,status,likes_count,expires_at,tier,created_at,profiles!ads_user_id_fkey(username, avatar_url),items!ads_item_id_fkey(tier)"
         )
         .eq("status", "active");
 
@@ -127,9 +133,12 @@ export const useInfiniteAds = (filters?: {
       const { data, error } = await query;
       if (error) throw error;
 
-      const filtered = ((data as unknown as Ad[]) || []).filter(
-        (ad) => !ad.expires_at || new Date(ad.expires_at).getTime() > Date.now()
-      );
+      const now = Date.now();
+      const filtered = ((data as unknown as Ad[]) || []).filter((ad) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
       return { items: filtered, nextPage: filtered.length === PAGE_SIZE ? (pageParam as number) + 1 : undefined };
     },
     getNextPageParam: (last) => last.nextPage,
