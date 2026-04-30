@@ -17,6 +17,8 @@ import ReputationPanel from "@/components/ReputationPanel";
 import { useUserReputation } from "@/hooks/useReputation";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
+import { useUserVipStatus } from "@/hooks/useVip";
+import { Crown } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
