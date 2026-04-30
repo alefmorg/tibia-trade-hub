@@ -14,11 +14,13 @@ import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 const CriarAnuncio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const createAd = useCreateAd();
   const { data: items } = useItems();
+  const { getCurrencyIcon } = useSiteAssets();
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
@@ -164,13 +166,13 @@ const CriarAnuncio = () => {
                     <SelectContent>
                       <SelectItem value="kk">
                         <span className="flex items-center gap-2">
-                          <img src="/icons/kk.webp" alt="kk" className="w-4 h-4 object-contain" />
+                          <img src={getCurrencyIcon("kk")} alt="kk" className="w-4 h-4 object-contain" />
                           kk
                         </span>
                       </SelectItem>
                       <SelectItem value="coins">
                         <span className="flex items-center gap-2">
-                          <img src="/icons/coins.webp" alt="coins" className="w-4 h-4 object-contain" />
+                          <img src={getCurrencyIcon("coins")} alt="coins" className="w-4 h-4 object-contain" />
                           coins
                         </span>
                       </SelectItem>

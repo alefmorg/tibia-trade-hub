@@ -15,6 +15,7 @@ import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { useRaffles } from "@/hooks/useRaffles";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
 
@@ -49,6 +50,7 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
 
   // Debounce da busca para não disparar query a cada tecla.
@@ -262,7 +264,7 @@ const Index = () => {
                         {activeRaffles[0].title}
                       </h3>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <img src="/icons/coins.webp" alt="" className="w-3 h-3 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                        <img src={getCurrencyIcon("coins")} alt="" className="w-3 h-3 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                         <span className="text-warning font-bold text-xs">{activeRaffles[0].price_per_number}</span>
                         <span className="text-[9px] text-muted-foreground">/bilhete</span>
                       </div>
