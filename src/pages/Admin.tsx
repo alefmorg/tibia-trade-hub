@@ -37,6 +37,7 @@ import FinancialPanel from "@/components/admin/FinancialPanel";
 import RealtimeDashboard from "@/components/admin/RealtimeDashboard";
 import CleanupPanel from "@/components/admin/CleanupPanel";
 import RafflesAdminPanel from "@/components/admin/RafflesAdminPanel";
+import VipAdminPanel from "@/components/admin/VipAdminPanel";
 import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
 import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
@@ -1153,6 +1154,9 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* VIP */}
+                <VipAdminPanel />
 
                 {/* Comunidade */}
                 <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">

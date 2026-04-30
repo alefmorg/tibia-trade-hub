@@ -17,6 +17,8 @@ import ReputationPanel from "@/components/ReputationPanel";
 import { useUserReputation } from "@/hooks/useReputation";
 import UserBadges from "@/components/UserBadges";
 import { useUserBadges } from "@/hooks/useUserBadges";
+import { useUserVipStatus } from "@/hooks/useVip";
+import { Crown } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
@@ -123,6 +125,7 @@ const Perfil = () => {
 
   const { data: badges = [] } = useUserBadges(profileUserId);
   const { data: reputation } = useUserReputation(profileUserId);
+  const { data: vipStatus } = useUserVipStatus(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
@@ -154,7 +157,13 @@ const Perfil = () => {
         .eq("status", "active")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data || [];
+      const now = Date.now();
+      // Mantém anúncios ainda válidos OU destacados que ainda têm tempo de destaque pago
+      return (data || []).filter((ad: any) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
     },
   });
 
@@ -172,7 +181,12 @@ const Perfil = () => {
         .in("id", adIds)
         .eq("status", "active");
       if (adsError) throw adsError;
-      return adsData || [];
+      const now = Date.now();
+      return (adsData || []).filter((ad: any) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
     },
   });
 
@@ -323,6 +337,14 @@ const Perfil = () => {
                           <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
                             {profile.username}
                           </h1>
+                          {vipStatus?.isVip && (
+                            <span
+                              title={`VIP até ${vipStatus.vipUntil!.toLocaleString("pt-BR")}`}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/15 border border-warning/40 text-warning text-[10px] font-pixel uppercase animate-pulse"
+                            >
+                              <Crown className="h-3 w-3" /> VIP
+                            </span>
+                          )}
                         </div>
                         <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
                           <Calendar className="h-3 w-3" /> membro desde {memberSince}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Coins, ChevronDown, Handshake, Heart } from "lucide-react";
+import { Coins, ChevronDown, Handshake, Heart, Crown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useWallet } from "@/hooks/useWallet";
 import { useCreateIntermediation, useDonate } from "@/hooks/useUserActions";
+import { useVipSettings, usePurchaseVip, useMyVipStatus } from "@/hooks/useVip";
 
 const WalletActionsMenu = () => {
   const { data: wallet } = useWallet();
   const [interOpen, setInterOpen] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
+  const [vipOpen, setVipOpen] = useState(false);
+  const { data: vipSettings } = useVipSettings();
+  const { data: myVip } = useMyVipStatus();
+  const purchaseVip = usePurchaseVip();
 
   // Intermédio
   const [type, setType] = useState<"buy" | "sell" | "trade">("buy");
@@ -68,6 +73,17 @@ const WalletActionsMenu = () => {
               <span className="text-[10px] text-muted-foreground">Compre/venda com segurança</span>
             </div>
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setVipOpen(true)} className="cursor-pointer">
+            <Crown className="h-4 w-4 mr-2 text-warning" />
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold">{myVip?.isVip ? "Renovar VIP" : "Tornar-se VIP"}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {myVip?.isVip
+                  ? `Ativo até ${myVip.vipUntil!.toLocaleDateString("pt-BR")}`
+                  : `${vipSettings?.vip_price_coins ?? "—"} coins / ${vipSettings?.vip_duration_days ?? "—"} dias`}
+              </span>
+            </div>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDonateOpen(true)} className="cursor-pointer">
             <Heart className="h-4 w-4 mr-2 text-destructive" />
             <div className="flex flex-col">
@@ -77,6 +93,68 @@ const WalletActionsMenu = () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* VIP Dialog */}
+      <Dialog open={vipOpen} onOpenChange={setVipOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-pixel text-sm uppercase">
+              <Crown className="h-4 w-4 text-warning" />
+              {myVip?.isVip ? "Renovar VIP" : "Tornar-se VIP"}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Vantagens VIP — mais dias de duração nos anúncios, limite maior, selo exclusivo e destaques bônus.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Preço</span>
+                <span className="font-pixel text-warning flex items-center gap-1"><Coins className="h-3.5 w-3.5" />{vipSettings?.vip_price_coins ?? "—"}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Duração</span>
+                <span className="font-semibold">{vipSettings?.vip_duration_days ?? "—"} dias</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">+ dias de anúncio</span>
+                <span className="font-semibold">+{vipSettings?.vip_extra_ad_days ?? 0}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Limite de anúncios</span>
+                <span className="font-semibold">{vipSettings?.vip_max_active_ads ?? "—"} (vs {vipSettings?.normal_max_active_ads ?? "—"})</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Destaques bônus</span>
+                <span className="font-semibold">{vipSettings?.vip_free_highlights ?? 0}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/40 border border-border/40">
+              <span className="text-xs text-muted-foreground">Seu saldo:</span>
+              <div className="flex items-center gap-1">
+                <Coins className="h-3.5 w-3.5 text-warning" />
+                <span className="font-pixel text-xs text-warning">{wallet?.balance || 0}</span>
+              </div>
+            </div>
+            {myVip?.isVip && (
+              <p className="text-[10px] text-center text-muted-foreground">
+                Você já é VIP até <span className="text-warning font-semibold">{myVip.vipUntil!.toLocaleString("pt-BR")}</span>. Renovar adiciona mais {vipSettings?.vip_duration_days ?? "—"} dias.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setVipOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={() => purchaseVip.mutate(undefined, { onSuccess: () => setVipOpen(false) })}
+              disabled={purchaseVip.isPending || !vipSettings || (wallet?.balance || 0) < (vipSettings?.vip_price_coins || Infinity)}
+              className="bg-warning text-warning-foreground hover:bg-warning/90"
+            >
+              <Crown className="h-3.5 w-3.5 mr-1.5" />
+              {myVip?.isVip ? "Renovar" : "Ativar VIP"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Intermédio Dialog */}
       <Dialog open={interOpen} onOpenChange={setInterOpen}>
