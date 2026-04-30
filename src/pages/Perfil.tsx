@@ -125,6 +125,7 @@ const Perfil = () => {
 
   const { data: badges = [] } = useUserBadges(profileUserId);
   const { data: reputation } = useUserReputation(profileUserId);
+  const { data: vipStatus } = useUserVipStatus(profileUserId);
 
   const { data: userRole } = useQuery({
     queryKey: ["user-role", profileUserId],
@@ -336,6 +337,14 @@ const Perfil = () => {
                           <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
                             {profile.username}
                           </h1>
+                          {vipStatus?.isVip && (
+                            <span
+                              title={`VIP até ${vipStatus.vipUntil!.toLocaleString("pt-BR")}`}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/15 border border-warning/40 text-warning text-[10px] font-pixel uppercase animate-pulse"
+                            >
+                              <Crown className="h-3 w-3" /> VIP
+                            </span>
+                          )}
                         </div>
                         <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
                           <Calendar className="h-3 w-3" /> membro desde {memberSince}
