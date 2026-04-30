@@ -50,6 +50,7 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
 
   // Debounce da busca para não disparar query a cada tecla.
