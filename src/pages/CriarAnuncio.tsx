@@ -20,6 +20,7 @@ const CriarAnuncio = () => {
   const navigate = useNavigate();
   const createAd = useCreateAd();
   const { data: items } = useItems();
+  const { getCurrencyIcon } = useSiteAssets();
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
