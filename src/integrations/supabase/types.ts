@@ -23,6 +23,7 @@ export type Database = {
           expires_at: string | null
           extra_info: string | null
           featured: boolean
+          featured_until: string | null
           id: string
           image_url: string | null
           item_id: string | null
@@ -46,6 +47,7 @@ export type Database = {
           expires_at?: string | null
           extra_info?: string | null
           featured?: boolean
+          featured_until?: string | null
           id?: string
           image_url?: string | null
           item_id?: string | null
@@ -69,6 +71,7 @@ export type Database = {
           expires_at?: string | null
           extra_info?: string | null
           featured?: boolean
+          featured_until?: string | null
           id?: string
           image_url?: string | null
           item_id?: string | null
@@ -548,6 +551,7 @@ export type Database = {
           updated_at: string
           user_id: string
           username: string
+          vip_until: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -558,6 +562,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           username: string
+          vip_until?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -568,6 +573,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+          vip_until?: string | null
         }
         Relationships: []
       }
@@ -839,7 +845,13 @@ export type Database = {
           deposit_char_name: string | null
           gold_to_coins_rate: number | null
           id: string
+          normal_max_active_ads: number
           updated_at: string
+          vip_duration_days: number
+          vip_extra_ad_days: number
+          vip_free_highlights: number
+          vip_max_active_ads: number
+          vip_price_coins: number
         }
         Insert: {
           ad_duration_days?: number
@@ -847,7 +859,13 @@ export type Database = {
           deposit_char_name?: string | null
           gold_to_coins_rate?: number | null
           id?: string
+          normal_max_active_ads?: number
           updated_at?: string
+          vip_duration_days?: number
+          vip_extra_ad_days?: number
+          vip_free_highlights?: number
+          vip_max_active_ads?: number
+          vip_price_coins?: number
         }
         Update: {
           ad_duration_days?: number
@@ -855,7 +873,13 @@ export type Database = {
           deposit_char_name?: string | null
           gold_to_coins_rate?: number | null
           id?: string
+          normal_max_active_ads?: number
           updated_at?: string
+          vip_duration_days?: number
+          vip_extra_ad_days?: number
+          vip_free_highlights?: number
+          vip_max_active_ads?: number
+          vip_price_coins?: number
         }
         Relationships: []
       }
@@ -933,6 +957,33 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vip_purchases: {
+        Row: {
+          created_at: string
+          duration_days: number
+          expires_at: string
+          id: string
+          price_coins: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_days: number
+          expires_at: string
+          id?: string
+          price_coins: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_days?: number
+          expires_at?: string
+          id?: string
+          price_coins?: number
           user_id?: string
         }
         Relationships: []
@@ -1029,6 +1080,10 @@ export type Database = {
         Args: { p_older_than_days?: number; p_target: string }
         Returns: number
       }
+      admin_set_vip: {
+        Args: { p_until: string; p_user_id: string }
+        Returns: undefined
+      }
       approve_deposit: { Args: { p_deposit_id: string }; Returns: undefined }
       buy_raffle_number: {
         Args: { p_quantity?: number; p_raffle_id: string }
@@ -1053,8 +1108,11 @@ export type Database = {
         }
         Returns: string
       }
+      expire_featured_ads: { Args: never; Returns: number }
       get_ad_duration_days: { Args: never; Returns: number }
+      get_ad_duration_for_user: { Args: { _user_id: string }; Returns: number }
       get_admin_stats: { Args: never; Returns: Json }
+      get_user_ad_limit: { Args: { _user_id: string }; Returns: number }
       get_user_reputation: { Args: { p_user_id: string }; Returns: Json }
       has_role: {
         Args: {
@@ -1075,10 +1133,12 @@ export type Database = {
         Args: { _ticket_id: string; _user_id: string }
         Returns: boolean
       }
+      is_vip: { Args: { _user_id: string }; Returns: boolean }
       notify_admins: {
         Args: { p_message: string; p_title: string }
         Returns: undefined
       }
+      purchase_vip: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
