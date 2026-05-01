@@ -33,7 +33,6 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@radix-ui") || id.includes("cmdk") || id.includes("vaul")) return "radix";
           if (id.includes("@tanstack")) return "query";
           if (id.includes("@supabase")) return "supabase";
-          if (id.includes("recharts") || id.includes("d3-")) return "charts";
           if (id.includes("embla-carousel")) return "carousel";
           if (id.includes("lucide-react")) return "icons";
           if (id.includes("react-hook-form") || id.includes("zod") || id.includes("@hookform")) return "forms";
