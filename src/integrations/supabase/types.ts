@@ -1039,6 +1039,39 @@ export type Database = {
         }
         Relationships: []
       }
+      worlds: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          pvp_type: string
+          region: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          pvp_type?: string
+          region?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          pvp_type?: string
+          region?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       raffle_numbers_public: {
