@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import LiveStreamersWidget from "@/components/LiveStreamersWidget";
 import { useInfiniteAds } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
-import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
+import { pvpTypes } from "@/lib/tibia-worlds";
+import { useWorlds } from "@/hooks/useWorlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
