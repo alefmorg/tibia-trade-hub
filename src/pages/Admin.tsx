@@ -42,6 +42,7 @@ import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
 import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
 import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
+import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers";
 
@@ -727,88 +728,7 @@ const Admin = () => {
             {tab === "assets" && <AssetsAdminPanel />}
 
             {/* FILTERS TAB */}
-            {tab === "filters" && (
-              <div className="space-y-4">
-                <div className="bg-card/80 border border-border/60 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2 font-body">
-                    <Plus className="h-4 w-4 text-primary" /> {editingFo ? "Editar Filtro" : "Novo Filtro"}
-                  </h3>
-                  <p className="text-[10px] text-muted-foreground mb-4 font-body">
-                    Crie grupos de filtros (ex: "category") e as opções aparecerão como chips na página inicial.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Grupo</Label>
-                      <Input value={foForm.filter_group} onChange={(e) => setFoForm({ ...foForm, filter_group: e.target.value })} placeholder="category" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Label</Label>
-                      <Input value={foForm.label} onChange={(e) => setFoForm({ ...foForm, label: e.target.value })} placeholder="Equipamentos" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Valor</Label>
-                      <Input value={foForm.value} onChange={(e) => setFoForm({ ...foForm, value: e.target.value })} placeholder="equipment" className="bg-secondary/80 border-border" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Ordem</Label>
-                      <Input type="number" value={foForm.sort_order} onChange={(e) => setFoForm({ ...foForm, sort_order: e.target.value })} className="bg-secondary/80 border-border" />
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <Button onClick={() => {
-                      if (editingFo) { filterMut.update.mutate({ id: editingFo, filter_group: foForm.filter_group, label: foForm.label, value: foForm.value, sort_order: Number(foForm.sort_order) }); setEditingFo(null); }
-                      else { filterMut.create.mutate({ filter_group: foForm.filter_group, label: foForm.label, value: foForm.value, sort_order: Number(foForm.sort_order), active: true }); }
-                      setFoForm({ filter_group: "", label: "", value: "", sort_order: "0" });
-                    }} disabled={!foForm.filter_group || !foForm.label || !foForm.value} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                      {editingFo ? "Salvar" : "Adicionar"}
-                    </Button>
-                    {editingFo && <Button variant="outline" onClick={() => { setEditingFo(null); setFoForm({ filter_group: "", label: "", value: "", sort_order: "0" }); }}>Cancelar</Button>}
-                  </div>
-                </div>
-                {(() => {
-                  const groups = [...new Set((filterOptions || []).map((fo) => fo.filter_group))];
-                  return groups.map((group) => (
-                    <div key={group} className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
-                      <div className="px-4 py-3 border-b border-border/60 bg-secondary/20">
-                        <h4 className="text-sm font-semibold text-foreground font-body">Grupo: <span className="text-primary">{group}</span></h4>
-                      </div>
-                      <Table>
-                        <TableHeader><TableRow className="border-border/60">
-                          <TableHead className="text-muted-foreground text-xs">Label</TableHead>
-                          <TableHead className="text-muted-foreground text-xs">Valor</TableHead>
-                          <TableHead className="text-muted-foreground text-xs">Ordem</TableHead>
-                          <TableHead className="text-muted-foreground text-xs">Ativo</TableHead>
-                          <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                        </TableRow></TableHeader>
-                        <TableBody>
-                          {(filterOptions || []).filter((fo) => fo.filter_group === group).map((fo) => (
-                            <TableRow key={fo.id} className="border-border/40 hover:bg-secondary/20 transition-colors">
-                              <TableCell className="text-foreground text-sm font-body">{fo.label}</TableCell>
-                              <TableCell className="text-muted-foreground text-xs font-body">{fo.value}</TableCell>
-                              <TableCell className="text-muted-foreground text-sm font-body">{fo.sort_order}</TableCell>
-                              <TableCell><Switch checked={fo.active} onCheckedChange={(v) => filterMut.update.mutate({ id: fo.id, active: v })} /></TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-0.5">
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-primary hover:bg-primary/10"
-                                    onClick={() => { setEditingFo(fo.id); setFoForm({ filter_group: fo.filter_group, label: fo.label, value: fo.value, sort_order: String(fo.sort_order) }); }}>
-                                    <Eye className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                    onClick={() => { if (confirm(`Remover "${fo.label}"?`)) filterMut.remove.mutate(fo.id); }}>
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  ));
-                })()}
-                {(!filterOptions || filterOptions.length === 0) && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum filtro cadastrado</p>}
-              </div>
-            )}
+            {tab === "filters" && <FiltersAdminPanel />}
 
             {/* WALLET TAB */}
             {tab === "wallet" && (

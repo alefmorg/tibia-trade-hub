@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateAd } from "@/hooks/useAds";
 import { useItems } from "@/hooks/useItems";
-import { rubinotWorlds } from "@/lib/tibia-worlds";
+import { useWorlds } from "@/hooks/useWorlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
@@ -21,6 +21,8 @@ const CriarAnuncio = () => {
   const createAd = useCreateAd();
   const { data: items } = useItems();
   const { getCurrencyIcon } = useSiteAssets();
+  const { data: worldsData } = useWorlds(true);
+  const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",

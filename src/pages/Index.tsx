@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import LiveStreamersWidget from "@/components/LiveStreamersWidget";
 import { useInfiniteAds } from "@/hooks/useAds";
 import { useAuth } from "@/hooks/useAuth";
-import { rubinotWorlds, pvpTypes } from "@/lib/tibia-worlds";
+import { pvpTypes } from "@/lib/tibia-worlds";
+import { useWorlds } from "@/hooks/useWorlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
@@ -50,6 +51,8 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { data: worldsData } = useWorlds(true);
+  const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
 
