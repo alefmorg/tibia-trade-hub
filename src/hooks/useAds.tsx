@@ -270,7 +270,14 @@ export const useAllAdsAdmin = () => {
         .select("*, profiles!ads_user_id_fkey(username), items!ads_item_id_fkey(tier)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data as unknown as Ad[]) || [];
+      const now = Date.now();
+      return ((data as unknown as Ad[]) || []).filter((ad) => {
+        // Para anúncios não-ativos (paused/sold/etc), mantemos visíveis no admin
+        if (ad.status !== "active") return true;
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      }) as Ad[];
     },
   });
 };

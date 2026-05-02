@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, ArrowRight, Sword, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, ArrowRight, Flame, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -39,7 +39,7 @@ const Login = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 border border-primary/20 transition-colors group-hover:bg-primary/15">
-              <Sword className="h-5 w-5 text-primary" strokeWidth={2.25} />
+              <Flame className="h-5 w-5 text-primary" strokeWidth={2.25} />
             </div>
             <span className="text-base font-semibold tracking-tight text-foreground">
               Rubin<span className="text-primary">Trade</span>
