@@ -21,6 +21,8 @@ const CriarAnuncio = () => {
   const createAd = useCreateAd();
   const { data: items } = useItems();
   const { getCurrencyIcon } = useSiteAssets();
+  const { data: worldsData } = useWorlds(true);
+  const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
