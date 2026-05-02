@@ -1,19 +1,24 @@
-## Sistema de Mensagens/Chat
+## Issues to fix
 
-### 1. Banco de dados
-- Tabela **conversations**: liga dois usuários a um anúncio específico
-- Tabela **messages**: mensagens individuais com texto, remetente e timestamp
-- RLS: apenas participantes da conversa podem ler/escrever
-- Realtime habilitado na tabela messages
+### 1) Admin → Anúncios mostra anúncios expirados
+The public listing (`useAds` / `useInfiniteAds`) já filtra `expires_at`/`featured_until`, mas o admin (`useAllAdsAdmin` em `src/hooks/useAds.tsx`) retorna **todos** os anúncios. O usuário quer que anúncios destacados expirados (cujo `featured_until` já passou) e anúncios comuns expirados sumam do painel admin de anúncios também.
 
-### 2. Funcionalidades
-- Botão "Enviar mensagem" nos cards de anúncio (visível para usuários logados, escondido no próprio anúncio)
-- Página **/mensagens** com lista de conversas no lado esquerdo e chat no lado direito
-- Mensagens em tempo real via Supabase Realtime
-- Indicador de mensagens não lidas no Header
-- Link para mensagens no header
+**Fix:** Em `useAllAdsAdmin`, aplicar o mesmo filtro usado em `useAds`:
+- Mantém o anúncio se `expires_at` ainda é futuro **OU** (`featured` + `featured_until` ainda futuro).
+- Anúncios com `status` diferente de `active` (ex.: `paused`, `sold`) continuam aparecendo normalmente — o filtro de tempo só se aplica a `active`, para o admin ainda poder gerenciar pausados/vendidos.
 
-### 3. Fluxo
-1. Usuário clica "Enviar mensagem" no card → cria conversa (ou abre existente) → redireciona para /mensagens
-2. Na página de mensagens, lista todas conversas do usuário
-3. Ao selecionar conversa, mostra histórico + input para nova mensagem
+Resultado: na aba Anúncios do Admin, itens destacados que já passaram do `featured_until` (e do `expires_at`) deixam de aparecer, igual à listagem pública.
+
+### 2) Logo do "foginho" no Login e Registro
+Atualmente `src/pages/Login.tsx` e `src/pages/Registro.tsx` usam o ícone `Sword` da lucide-react. O Header já usa `Flame` (o "foginho" do RubinTrade).
+
+**Fix:** 
+- Substituir o import `Sword` por `Flame` em ambos arquivos.
+- Trocar `<Sword className="h-5 w-5 text-primary" strokeWidth={2.25} />` por `<Flame className="h-5 w-5 text-primary" strokeWidth={2.25} />`.
+
+## Arquivos alterados
+- `src/hooks/useAds.tsx` — filtro de expiração em `useAllAdsAdmin`.
+- `src/pages/Login.tsx` — `Sword` → `Flame`.
+- `src/pages/Registro.tsx` — `Sword` → `Flame`.
+
+Sem mudanças de banco de dados.
