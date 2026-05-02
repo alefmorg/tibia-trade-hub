@@ -51,6 +51,8 @@ const Index = () => {
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
   const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { data: worldsData } = useWorlds(true);
+  const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
 
