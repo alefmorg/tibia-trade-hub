@@ -42,6 +42,7 @@ import ItemsAdminPanel from "@/components/admin/ItemsAdminPanel";
 import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
 import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
+import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers";
 
