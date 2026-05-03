@@ -410,6 +410,37 @@ function RaffleDetailDialog({
             </div>
           </div>
 
+          {/* GRANT NUMBERS MANUALLY */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-primary" /> Doar números (sem cobrar)
+            </h3>
+            <div className="bg-secondary/30 border border-border rounded-xl p-3 grid grid-cols-12 gap-2">
+              <Select value={grantForm.userId} onValueChange={(v) => setGrantForm({ ...grantForm, userId: v })}>
+                <SelectTrigger className="col-span-5 bg-secondary border-border h-9 text-xs"><SelectValue placeholder="Usuário..." /></SelectTrigger>
+                <SelectContent>{(profiles || []).map((p: any) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}</SelectContent>
+              </Select>
+              <Input type="number" min={1} max={100} placeholder="Qtd"
+                value={grantForm.quantity} onChange={(e) => setGrantForm({ ...grantForm, quantity: e.target.value })}
+                className="col-span-2 bg-secondary border-border h-9 text-xs" />
+              <Input placeholder="Ou nºs específicos: 1,5,10"
+                value={grantForm.specific} onChange={(e) => setGrantForm({ ...grantForm, specific: e.target.value })}
+                className="col-span-3 bg-secondary border-border h-9 text-xs" />
+              <Button size="sm" className="col-span-2 h-9 bg-primary text-primary-foreground"
+                disabled={!grantForm.userId || grantMut.isPending}
+                onClick={() => {
+                  const specific = grantForm.specific.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n));
+                  if (specific.length > 0) {
+                    grantMut.mutate({ userId: grantForm.userId, specificNumbers: specific });
+                  } else {
+                    grantMut.mutate({ userId: grantForm.userId, quantity: Number(grantForm.quantity) || 1 });
+                  }
+                }}>
+                Doar
+              </Button>
+            </div>
+          </div>
+
           {/* TOP BUYERS */}
           <div className="space-y-2">
             <h3 className="text-sm font-semibold flex items-center gap-2">
@@ -419,11 +450,20 @@ function RaffleDetailDialog({
               {Object.entries(buyersByUser)
                 .sort(([, a], [, b]) => (b as number[]).length - (a as number[]).length)
                 .map(([uid, nums]) => (
-                  <div key={uid} className="flex items-center justify-between p-2.5 text-xs">
-                    <span className="font-semibold text-foreground">{getProfileName(uid)}</span>
-                    <span className="text-muted-foreground">
+                  <div key={uid} className="flex items-center justify-between gap-2 p-2.5 text-xs">
+                    <span className="font-semibold text-foreground shrink-0">{getProfileName(uid)}</span>
+                    <span className="text-muted-foreground flex-1 truncate">
                       {(nums as number[]).length} nº — {(nums as number[]).slice(0, 8).join(", ")}{(nums as number[]).length > 8 ? "..." : ""}
                     </span>
+                    <Button size="sm" variant="outline" className="h-7 text-[10px] hover:bg-warning/10 hover:border-warning/30 shrink-0"
+                      disabled={refundMut.isPending}
+                      onClick={() => {
+                        if (confirm(`Reembolsar ${getProfileName(uid)}? Vai apagar ${(nums as number[]).length} número(s) e devolver as coins.`)) {
+                          refundMut.mutate(uid);
+                        }
+                      }}>
+                      <Undo2 className="h-3 w-3 mr-1" /> Reembolsar
+                    </Button>
                   </div>
                 ))}
               {Object.keys(buyersByUser).length === 0 && (
