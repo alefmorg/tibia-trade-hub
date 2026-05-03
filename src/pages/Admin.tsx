@@ -43,8 +43,10 @@ import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
 import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
 import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
+import ResetsPanel from "@/components/admin/ResetsPanel";
+import AuditLogPanel from "@/components/admin/AuditLogPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -121,6 +123,7 @@ const Admin = () => {
   const { data: highlightPlans } = useHighlightPlans();
   const plansMut = useHighlightPlansMutations();
   const [walletForm, setWalletForm] = useState({ userId: "", amount: "", reason: "" });
+  const [setBalanceForm, setSetBalanceForm] = useState({ userId: "", target: "" });
   const [planForm, setPlanForm] = useState({ name: "", price_coins: "", duration_days: "", sort_order: "0" });
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
 
@@ -280,6 +283,8 @@ const Admin = () => {
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "cleanup" as TabKey, label: "Limpeza Histórico", icon: Trash2 },
+        { key: "resets" as TabKey, label: "Resets Manuais", icon: ShieldAlert },
+        { key: "audit" as TabKey, label: "Auditoria", icon: Activity },
       ],
     },
   ];
