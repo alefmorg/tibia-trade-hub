@@ -393,6 +393,8 @@ const Admin = () => {
             )}
 
             {tab === "cleanup" && <CleanupPanel isAdmin={isAdmin} />}
+            {tab === "resets" && <ResetsPanel />}
+            {tab === "audit" && <AuditLogPanel getProfileName={getProfileName} />}
 
             {/* ADS TAB */}
             {tab === "ads" && (
