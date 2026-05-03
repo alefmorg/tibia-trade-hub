@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          details: Json
+          id: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       ads: {
         Row: {
           category: string
@@ -1112,6 +1142,35 @@ export type Database = {
       admin_bulk_delete: {
         Args: { p_older_than_days?: number; p_target: string }
         Returns: number
+      }
+      admin_grant_raffle_numbers: {
+        Args: {
+          p_quantity: number
+          p_raffle_id: string
+          p_specific_numbers?: number[]
+          p_user_id: string
+        }
+        Returns: number[]
+      }
+      admin_log: {
+        Args: {
+          p_action: string
+          p_details: Json
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: undefined
+      }
+      admin_refund_raffle_user: {
+        Args: { p_raffle_id: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_reset_all_conversations: { Args: never; Returns: Json }
+      admin_reset_all_favorites: { Args: never; Returns: Json }
+      admin_reset_all_wallets: { Args: never; Returns: Json }
+      admin_set_user_balance: {
+        Args: { p_target: number; p_user_id: string }
+        Returns: Json
       }
       admin_set_vip: {
         Args: { p_until: string; p_user_id: string }
