@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRaffles, useRaffleMutations } from "@/hooks/useRaffles";
 import {
   useRafflePrizes, useRaffleNumbersAdmin, useRafflesAdminMutations,
 } from "@/hooks/useRafflesAdmin";
+import { callAdminActionRaw } from "@/hooks/useAdmin";
+import { supabase } from "@/lib/supabase-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +16,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles } from "lucide-react";
+import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles, UserPlus, Undo2 } from "lucide-react";
 
 interface Props {
   getProfileName: (userId: string) => string;
