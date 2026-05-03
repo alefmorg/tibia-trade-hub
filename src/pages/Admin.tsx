@@ -43,8 +43,10 @@ import SponsorsAdminPanel from "@/components/admin/SponsorsAdminPanel";
 import AssetsAdminPanel from "@/components/admin/AssetsAdminPanel";
 import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
 import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
+import ResetsPanel from "@/components/admin/ResetsPanel";
+import AuditLogPanel from "@/components/admin/AuditLogPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -121,6 +123,7 @@ const Admin = () => {
   const { data: highlightPlans } = useHighlightPlans();
   const plansMut = useHighlightPlansMutations();
   const [walletForm, setWalletForm] = useState({ userId: "", amount: "", reason: "" });
+  const [setBalanceForm, setSetBalanceForm] = useState({ userId: "", target: "" });
   const [planForm, setPlanForm] = useState({ name: "", price_coins: "", duration_days: "", sort_order: "0" });
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
 
@@ -280,6 +283,8 @@ const Admin = () => {
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "cleanup" as TabKey, label: "Limpeza Histórico", icon: Trash2 },
+        { key: "resets" as TabKey, label: "Resets Manuais", icon: ShieldAlert },
+        { key: "audit" as TabKey, label: "Auditoria", icon: Activity },
       ],
     },
   ];
@@ -388,6 +393,8 @@ const Admin = () => {
             )}
 
             {tab === "cleanup" && <CleanupPanel isAdmin={isAdmin} />}
+            {tab === "resets" && <ResetsPanel />}
+            {tab === "audit" && <AuditLogPanel getProfileName={getProfileName} />}
 
             {/* ADS TAB */}
             {tab === "ads" && (
@@ -760,6 +767,51 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="bg-card/80 border border-warning/30 rounded-xl p-5 space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 font-body">
+                    <Coins className="h-4 w-4 text-warning" />Definir saldo exato
+                    <span className="text-[10px] text-muted-foreground font-normal">(substitui o saldo atual pelo valor que você digitar)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Usuário</Label>
+                      <Select value={setBalanceForm.userId} onValueChange={(v) => setSetBalanceForm({ ...setBalanceForm, userId: v })}>
+                        <SelectTrigger className="bg-secondary/80 border-border"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectContent>{profiles.map((p) => <SelectItem key={p.user_id} value={p.user_id}>{p.username}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Saldo final desejado</Label>
+                      <Input type="number" min={0} value={setBalanceForm.target} onChange={(e) => setSetBalanceForm({ ...setBalanceForm, target: e.target.value })} className="bg-secondary/80 border-border" placeholder="0" />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        onClick={async () => {
+                          if (!setBalanceForm.userId || setBalanceForm.target === "") return;
+                          const target = Number(setBalanceForm.target);
+                          if (target < 0 || isNaN(target)) return;
+                          const username = getProfileName(setBalanceForm.userId);
+                          if (!confirm(`Definir saldo de ${username} para exatamente ${target} coins?`)) return;
+                          try {
+                            const { callAdminActionRaw } = await import("@/hooks/useAdmin");
+                            await callAdminActionRaw("setUserBalance", { userId: setBalanceForm.userId, target });
+                            const { toast } = await import("sonner");
+                            toast.success(`Saldo de ${username} definido para ${target}`);
+                            setSetBalanceForm({ userId: "", target: "" });
+                          } catch (e: any) {
+                            const { toast } = await import("sonner");
+                            toast.error(e.message || "Erro ao definir saldo");
+                          }
+                        }}
+                        className="bg-warning text-warning-foreground hover:bg-warning/90 w-full"
+                      >
+                        Definir saldo
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden">
                   <div className="px-4 py-3 border-b border-border/60 bg-secondary/20">
                     <h3 className="text-sm font-semibold text-foreground font-body">Saldos dos Usuários</h3>

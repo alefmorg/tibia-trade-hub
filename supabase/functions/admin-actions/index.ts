@@ -322,6 +322,67 @@ Deno.serve(async (req) => {
         return jsonResponse({ success: true });
       }
 
+      case "resetAllWallets": {
+        const { data, error } = await authClient.rpc("admin_reset_all_wallets");
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "resetAllConversations": {
+        const { data, error } = await authClient.rpc("admin_reset_all_conversations");
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "resetAllFavorites": {
+        const { data, error } = await authClient.rpc("admin_reset_all_favorites");
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "setUserBalance": {
+        const { userId, target } = payload ?? {};
+        if (!userId || typeof target !== "number" || target < 0) throw new Error("Dados inválidos");
+        const { data, error } = await authClient.rpc("admin_set_user_balance", {
+          p_user_id: userId, p_target: target,
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "grantRaffleNumbers": {
+        const { raffleId, userId, quantity, specificNumbers } = payload ?? {};
+        if (!raffleId || !userId) throw new Error("Dados inválidos");
+        const { data, error } = await authClient.rpc("admin_grant_raffle_numbers", {
+          p_raffle_id: raffleId,
+          p_user_id: userId,
+          p_quantity: typeof quantity === "number" ? quantity : null,
+          p_specific_numbers: Array.isArray(specificNumbers) && specificNumbers.length > 0 ? specificNumbers : null,
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true, data: { numbers: data } });
+      }
+
+      case "refundRaffleUser": {
+        const { raffleId, userId } = payload ?? {};
+        if (!raffleId || !userId) throw new Error("Dados inválidos");
+        const { data, error } = await authClient.rpc("admin_refund_raffle_user", {
+          p_raffle_id: raffleId, p_user_id: userId,
+        });
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
+      case "getAuditLog": {
+        const { limit, action: filterAction, adminId } = payload ?? {};
+        let q = adminClient.from("admin_audit_log").select("*").order("created_at", { ascending: false }).limit(typeof limit === "number" ? limit : 200);
+        if (filterAction) q = q.eq("action", filterAction);
+        if (adminId) q = q.eq("admin_id", adminId);
+        const { data, error } = await q;
+        ensureNoError(error);
+        return jsonResponse({ success: true, data });
+      }
+
       default:
         return jsonResponse({ error: "Ação administrativa inválida" }, 400);
     }
