@@ -260,8 +260,38 @@ function RaffleDetailDialog({
   const { data: prizes } = useRafflePrizes(raffleId);
   const { data: numbers } = useRaffleNumbersAdmin(raffleId);
   const { createPrize, deletePrize, markDelivered } = useRafflesAdminMutations();
+  const qc = useQueryClient();
+
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles-mini"],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("user_id, username").order("username");
+      return data || [];
+    },
+  });
 
   const [prizeForm, setPrizeForm] = useState({ prize_number: "", prize_name: "", prize_description: "" });
+  const [grantForm, setGrantForm] = useState({ userId: "", quantity: "1", specific: "" });
+
+  const grantMut = useMutation({
+    mutationFn: (vars: { userId: string; quantity?: number; specificNumbers?: number[] }) =>
+      callAdminActionRaw<{ numbers: number[] }>("grantRaffleNumbers", { raffleId, ...vars }),
+    onSuccess: (data) => {
+      toast.success(`Números doados: ${data?.numbers?.join(", ") || ""}`);
+      qc.invalidateQueries({ queryKey: ["raffle-numbers-admin", raffleId] });
+      setGrantForm({ userId: "", quantity: "1", specific: "" });
+    },
+    onError: (e: any) => toast.error(e.message || "Erro ao doar números"),
+  });
+
+  const refundMut = useMutation({
+    mutationFn: (userId: string) => callAdminActionRaw<{ numbers_removed: number; coins_refunded: number }>("refundRaffleUser", { raffleId, userId }),
+    onSuccess: (data) => {
+      toast.success(`Reembolso: ${data?.coins_refunded} coins (${data?.numbers_removed} nº)`);
+      qc.invalidateQueries({ queryKey: ["raffle-numbers-admin", raffleId] });
+    },
+    onError: (e: any) => toast.error(e.message || "Erro no reembolso"),
+  });
 
   const buyersByUser = (numbers || []).reduce((acc: Record<string, number[]>, n: any) => {
     (acc[n.user_id] ||= []).push(n.number);
