@@ -57,10 +57,11 @@ const Index = () => {
   const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
 
-  // Itens vinculados à categoria escolhida
+  // Itens vinculados à categoria escolhida (array vazio = não há itens, retorna 0 resultados)
   const itemIds = useMemo(() => {
     if (!categoryFilterId) return undefined;
-    return (filterLinks || []).filter(l => l.filter_option_id === categoryFilterId).map(l => l.item_id);
+    const ids = (filterLinks || []).filter(l => l.filter_option_id === categoryFilterId).map(l => l.item_id);
+    return ids.length === 0 ? ["__none__"] : ids;
   }, [filterLinks, categoryFilterId]);
 
   // Debounce da busca para não disparar query a cada tecla.
