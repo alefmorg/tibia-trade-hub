@@ -98,6 +98,7 @@ export const useInfiniteAds = (filters?: {
   world?: string;
   pvpType?: string;
   category?: string;
+  itemIds?: string[];
   onlyWithPrice?: boolean;
   sortBy?: string;
 }) => {
@@ -120,6 +121,7 @@ export const useInfiniteAds = (filters?: {
       if (filters?.world) query = query.eq("world", filters.world);
       if (filters?.pvpType) query = query.eq("pvp_type", filters.pvpType);
       if (filters?.category) query = query.eq("category", filters.category);
+      if (filters?.itemIds && filters.itemIds.length > 0) query = query.in("item_id", filters.itemIds);
       if (filters?.onlyWithPrice) query = query.not("price", "is", null).neq("price", "Aceita ofertas");
 
       switch (filters?.sortBy) {
