@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateAd } from "@/hooks/useAds";
 import { useItems } from "@/hooks/useItems";
 import { useWorlds } from "@/hooks/useWorlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
-import { ArrowLeft, PackagePlus, Sparkles } from "lucide-react";
+import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 const CriarAnuncio = () => {
@@ -23,6 +24,7 @@ const CriarAnuncio = () => {
   const { getCurrencyIcon } = useSiteAssets();
   const { data: worldsData } = useWorlds(true);
   const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
+  const [sourceTab, setSourceTab] = useState<"tibia" | "custom">("tibia");
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
@@ -35,6 +37,9 @@ const CriarAnuncio = () => {
     acceptOffers: false,
     tier: "",
   });
+
+  const tibiaItems = useMemo(() => (items || []).filter(i => i.source !== "custom"), [items]);
+  const customItems = useMemo(() => (items || []).filter(i => i.source === "custom"), [items]);
 
   if (!user) {
     navigate("/login");
@@ -94,11 +99,32 @@ const CriarAnuncio = () => {
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">Selecione o Item</span>
             </div>
-            <ItemCombobox
-              items={items || []}
-              value={form.itemId}
-              onSelect={(id) => setForm({ ...form, itemId: id })}
-            />
+
+            <Tabs value={sourceTab} onValueChange={(v) => { setSourceTab(v as any); setForm({ ...form, itemId: "" }); }}>
+              <TabsList className="grid grid-cols-2 w-full bg-secondary rounded-xl">
+                <TabsTrigger value="tibia" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Gem className="h-3.5 w-3.5 mr-1.5" /> Itens Tibia ({tibiaItems.length})
+                </TabsTrigger>
+                <TabsTrigger value="custom" className="rounded-lg data-[state=active]:bg-warning data-[state=active]:text-warning-foreground">
+                  <Boxes className="h-3.5 w-3.5 mr-1.5" /> Itens Custom ({customItems.length})
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="tibia" className="mt-3">
+                <ItemCombobox
+                  items={tibiaItems}
+                  value={form.itemId}
+                  onSelect={(id) => setForm({ ...form, itemId: id })}
+                />
+              </TabsContent>
+              <TabsContent value="custom" className="mt-3">
+                <ItemCombobox
+                  items={customItems}
+                  value={form.itemId}
+                  onSelect={(id) => setForm({ ...form, itemId: id })}
+                />
+              </TabsContent>
+            </Tabs>
+
             {selectedItem?.image_url && (
               <div className="flex justify-center pt-1">
                 <div className="h-20 w-20 rounded-xl bg-secondary/80 flex items-center justify-center border border-border">

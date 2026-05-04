@@ -16,6 +16,7 @@ import { useWorlds } from "@/hooks/useWorlds";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
+import { useAllFilterOptionItems } from "@/hooks/useFilterOptionItems";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { useRaffles } from "@/hooks/useRaffles";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
@@ -42,19 +43,26 @@ const Index = () => {
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
-  const [customFilters, setCustomFilters] = useState<Record<string, string | undefined>>({});
+  const [categoryFilterId, setCategoryFilterId] = useState<string | undefined>();
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: navLinks } = useNavLinks(true);
   const { data: banners } = useSiteBanners(true);
-  const { data: filterOptions } = useFilterOptions(undefined, true);
+  const { data: filterOptions } = useFilterOptions("category", true);
+  const { data: filterLinks } = useAllFilterOptionItems();
   const { data: worldsData } = useWorlds(true);
   const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const { getCurrencyIcon } = useSiteAssets();
   const { data: activeRaffles } = useRaffles(true);
+
+  // Itens vinculados à categoria escolhida (array vazio = não há itens, retorna 0 resultados)
+  const itemIds = useMemo(() => {
+    if (!categoryFilterId) return undefined;
+    const ids = (filterLinks || []).filter(l => l.filter_option_id === categoryFilterId).map(l => l.item_id);
+    return ids.length === 0 ? ["__none__"] : ids;
+  }, [filterLinks, categoryFilterId]);
 
   // Debounce da busca para não disparar query a cada tecla.
   useEffect(() => {
@@ -73,29 +81,20 @@ const Index = () => {
     type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
     pvpType: pvpFilter,
     world: worldFilter,
-    category: categoryFilter,
+    itemIds,
     onlyWithPrice,
     sortBy,
   });
 
   const ads = useMemo(() => adsPages?.pages.flatMap((p) => p.items) ?? [], [adsPages]);
 
-  const filterGroups = useMemo(() => {
-    return (filterOptions || []).reduce<Record<string, typeof filterOptions>>((acc, fo) => {
-      if (!acc[fo.filter_group]) acc[fo.filter_group] = [];
-      acc[fo.filter_group]!.push(fo);
-      return acc;
-    }, {});
-  }, [filterOptions]);
-
-  const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilter, ...Object.values(customFilters)].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
+  const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilterId].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
   const clearFilters = useCallback(() => {
     setTypeFilter(undefined);
     setPvpFilter(undefined);
     setWorldFilter(undefined);
-    setCategoryFilter(undefined);
-    setCustomFilters({});
+    setCategoryFilterId(undefined);
     setOnlyWithPrice(false);
   }, []);
 
@@ -377,30 +376,21 @@ const Index = () => {
                 </div>
               </div>
 
-              {Object.entries(filterGroups).map(([group, options]) => (
-                <div key={group} className="space-y-2">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{group === "category" ? "Categoria" : group}</h4>
+              {(filterOptions && filterOptions.length > 0) && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categorias</h4>
                   <div className="flex flex-wrap gap-1.5">
-                    {(options || []).map((opt) => (
+                    {filterOptions.map((opt) => (
                       <FilterChip
                         key={opt.id}
                         label={opt.label}
-                        active={group === "category" ? categoryFilter === opt.value : customFilters[group] === opt.value}
-                        onClick={() => {
-                          if (group === "category") {
-                            setCategoryFilter(categoryFilter === opt.value ? undefined : opt.value);
-                          } else {
-                            setCustomFilters((prev) => ({
-                              ...prev,
-                              [group]: prev[group] === opt.value ? undefined : opt.value,
-                            }));
-                          }
-                        }}
+                        active={categoryFilterId === opt.id}
+                        onClick={() => setCategoryFilterId(categoryFilterId === opt.id ? undefined : opt.id)}
                       />
                     ))}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
 
           </aside>

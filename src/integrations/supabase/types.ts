@@ -261,6 +261,42 @@ export type Database = {
           },
         ]
       }
+      filter_option_items: {
+        Row: {
+          created_at: string
+          filter_option_id: string
+          id: string
+          item_id: string
+        }
+        Insert: {
+          created_at?: string
+          filter_option_id: string
+          id?: string
+          item_id: string
+        }
+        Update: {
+          created_at?: string
+          filter_option_id?: string
+          id?: string
+          item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "filter_option_items_filter_option_id_fkey"
+            columns: ["filter_option_id"]
+            isOneToOne: false
+            referencedRelation: "filter_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "filter_option_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       filter_options: {
         Row: {
           active: boolean
@@ -607,6 +643,33 @@ export type Database = {
         }
         Relationships: []
       }
+      raffle_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          raffle_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          raffle_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          raffle_id?: string
+        }
+        Relationships: []
+      }
       raffle_numbers: {
         Row: {
           created_at: string
@@ -638,6 +701,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      raffle_page_settings: {
+        Row: {
+          accent_color: string
+          coming_soon: boolean
+          coming_soon_image_url: string | null
+          coming_soon_message: string
+          coming_soon_title: string
+          cta_text: string
+          id: string
+          page_subtitle: string
+          page_title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          accent_color?: string
+          coming_soon?: boolean
+          coming_soon_image_url?: string | null
+          coming_soon_message?: string
+          coming_soon_title?: string
+          cta_text?: string
+          id?: string
+          page_subtitle?: string
+          page_title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          accent_color?: string
+          coming_soon?: boolean
+          coming_soon_image_url?: string | null
+          coming_soon_message?: string
+          coming_soon_title?: string
+          cta_text?: string
+          id?: string
+          page_subtitle?: string
+          page_title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       raffle_prizes: {
         Row: {
@@ -1204,6 +1309,17 @@ export type Database = {
       get_ad_duration_days: { Args: never; Returns: number }
       get_ad_duration_for_user: { Args: { _user_id: string }; Returns: number }
       get_admin_stats: { Args: never; Returns: Json }
+      get_raffle_history: {
+        Args: { p_limit?: number; p_raffle_id: string }
+        Returns: {
+          action: string
+          actor_id: string
+          actor_name: string
+          created_at: string
+          details: Json
+          id: string
+        }[]
+      }
       get_user_ad_limit: { Args: { _user_id: string }; Returns: number }
       get_user_reputation: { Args: { p_user_id: string }; Returns: Json }
       has_role: {
@@ -1231,6 +1347,10 @@ export type Database = {
         Returns: undefined
       }
       purchase_vip: { Args: never; Returns: string }
+      raffle_log: {
+        Args: { p_action: string; p_details?: Json; p_raffle_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
