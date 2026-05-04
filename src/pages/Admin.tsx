@@ -45,8 +45,9 @@ import StreamersAdminPanel from "@/components/admin/StreamersAdminPanel";
 import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
 import ResetsPanel from "@/components/admin/ResetsPanel";
 import AuditLogPanel from "@/components/admin/AuditLogPanel";
+import RafflePageSettingsPanel from "@/components/admin/RafflePageSettingsPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -260,6 +261,7 @@ const Admin = () => {
         { key: "deposits" as TabKey, label: "Depósitos", icon: Wallet, badge: allDeposits?.filter(d => d.status === "pending").length || undefined },
         { key: "plans" as TabKey, label: "Planos Destaque", icon: Star },
         { key: "raffles" as TabKey, label: "Rifas", icon: Ticket },
+        { key: "raffle-page" as TabKey, label: "Página Rifas", icon: Sparkles },
       ],
     },
     {
@@ -1054,6 +1056,7 @@ const Admin = () => {
 
             {/* RAFFLES TAB */}
             {tab === "raffles" && <RafflesAdminPanel getProfileName={getProfileName} />}
+            {tab === "raffle-page" && <RafflePageSettingsPanel />}
 
             {/* LOGS TAB */}
             {/* SETTINGS TAB */}
