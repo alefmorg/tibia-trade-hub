@@ -48,7 +48,7 @@ import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import RafflePageSettingsPanel from "@/components/admin/RafflePageSettingsPanel";
 import WorldsAdminPanel from "@/components/admin/WorldsAdminPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit" | "worlds";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -284,6 +284,7 @@ const Admin = () => {
       items: [
         { key: "settings" as TabKey, label: "Geral", icon: Settings },
         { key: "filters" as TabKey, label: "Filtros", icon: Filter },
+        { key: "worlds" as TabKey, label: "Mundos", icon: Globe },
         { key: "nav-links" as TabKey, label: "Links Nav", icon: Link2 },
         { key: "cleanup" as TabKey, label: "Limpeza Histórico", icon: Trash2 },
         { key: "resets" as TabKey, label: "Resets Manuais", icon: ShieldAlert },
@@ -739,6 +740,7 @@ const Admin = () => {
 
             {/* FILTERS TAB */}
             {tab === "filters" && <FiltersAdminPanel />}
+            {tab === "worlds" && <WorldsAdminPanel />}
 
             {/* WALLET TAB */}
             {tab === "wallet" && (
