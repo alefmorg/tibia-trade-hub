@@ -46,6 +46,7 @@ import FiltersAdminPanel from "@/components/admin/FiltersAdminPanel";
 import ResetsPanel from "@/components/admin/ResetsPanel";
 import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import RafflePageSettingsPanel from "@/components/admin/RafflePageSettingsPanel";
+import WorldsAdminPanel from "@/components/admin/WorldsAdminPanel";
 
 type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit";
 
