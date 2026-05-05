@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MessageCircle, Send, ArrowLeft, ExternalLink, Trash2, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
+import { safeHref } from "@/lib/safe-url";
 
 const Mensagens = () => {
   const { user } = useAuth();
