@@ -273,6 +273,44 @@ const RifaPage = () => {
   // ===== LISTA =====
   if (!id) {
     const activeCount = raffles?.length || 0;
+
+    // Coming soon mode
+    if (pageSettings?.coming_soon) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="container py-16 max-w-3xl">
+            <div className="relative overflow-hidden bg-card p-10 text-center" style={goldenBox}>
+              <div aria-hidden className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-warning/10 blur-3xl" />
+              {pageSettings.coming_soon_image_url ? (
+                <img
+                  src={pageSettings.coming_soon_image_url}
+                  alt="Em breve"
+                  className="mx-auto mb-6 max-h-48 object-contain"
+                  style={{ imageRendering: "pixelated" as const }}
+                />
+              ) : (
+                <div
+                  className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-warning/15"
+                  style={{ borderRadius: 2, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.5), inset 0 0 0 2px hsl(var(--background))" }}
+                >
+                  <Clock className="h-10 w-10 text-warning" strokeWidth={2.5} />
+                </div>
+              )}
+              <h1 className="font-pixel text-lg md:text-2xl text-warning mb-3 flex items-center gap-2 justify-center">
+                <Sparkles className="h-5 w-5" />
+                {pageSettings.coming_soon_title}
+                <Sparkles className="h-5 w-5" />
+              </h1>
+              <p className="text-sm text-muted-foreground font-body max-w-xl mx-auto leading-relaxed whitespace-pre-wrap">
+                {pageSettings.coming_soon_message}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-background">
         <Header />
