@@ -706,7 +706,16 @@ const RifaPage = () => {
                     </div>
                   </div>
 
-                  {raffle.status === "active" && availableCount > 0 ? (
+                  {raffle.sales_blocked && raffle.status === "active" ? (
+                    <div
+                      className="text-center py-4 bg-destructive/10 space-y-1"
+                      style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--destructive) / 0.4)" }}
+                    >
+                      <Clock className="h-5 w-5 text-destructive mx-auto mb-1" />
+                      <p className="font-pixel text-[10px] text-destructive uppercase tracking-wider">Vendas pausadas</p>
+                      <p className="text-[10px] text-muted-foreground font-body px-3">As compras desta rifa estão temporariamente bloqueadas pelo administrador.</p>
+                    </div>
+                  ) : raffle.status === "active" && availableCount > 0 ? (
                     <Button
                       onClick={() => setBuyDialogOpen(true)}
                       className="w-full bg-warning text-warning-foreground hover:bg-warning/90 h-12 font-pixel text-[11px] uppercase tracking-wider"
