@@ -146,8 +146,8 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                   </div>
                 )}
                 <div className="absolute top-2 right-2">
-                  <Badge variant={r.status === "active" ? "default" : isFinished ? "secondary" : "destructive"} className="text-[9px] uppercase">
-                    {r.status === "active" ? "Ativa" : isFinished ? "Finalizada" : "Cancelada"}
+                  <Badge variant={r.status === "active" ? "default" : isFinished ? "secondary" : r.status === "paused" ? "outline" : "destructive"} className="text-[9px] uppercase">
+                    {r.status === "active" ? "Ativa" : isFinished ? "Finalizada" : r.status === "paused" ? "Pausada" : "Cancelada"}
                   </Badge>
                 </div>
               </div>
