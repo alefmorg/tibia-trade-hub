@@ -341,11 +341,10 @@ const RifaPage = () => {
               <div className="text-center md:text-left flex-1">
                 <h1 className="font-pixel text-base md:text-lg text-foreground mb-2 flex items-center gap-2 justify-center md:justify-start">
                   <Sparkles className="h-4 w-4 text-warning" />
-                  CAMPANHAS ATIVAS
+                  {pageSettings?.page_title || "CAMPANHAS ATIVAS"}
                 </h1>
                 <p className="text-xs text-muted-foreground font-body max-w-md leading-relaxed">
-                  Escolha sua sorte e garanta seus bilhetes! Sorteio oficial baseado na{" "}
-                  <span className="text-warning font-semibold">Loteria Federal</span> — total transparência.
+                  {pageSettings?.page_subtitle || "Escolha sua sorte e garanta seus bilhetes! Sorteio oficial baseado na Loteria Federal — total transparência."}
                 </p>
               </div>
               <div
