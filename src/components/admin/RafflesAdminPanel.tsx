@@ -159,10 +159,15 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                     <Ticket className="h-8 w-8 text-warning/30" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2">
+                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
                   <Badge variant={r.status === "active" ? "default" : isFinished ? "secondary" : r.status === "paused" ? "outline" : "destructive"} className="text-[9px] uppercase">
                     {r.status === "active" ? "Ativa" : isFinished ? "Finalizada" : r.status === "paused" ? "Pausada" : "Cancelada"}
                   </Badge>
+                  {r.sales_blocked && !isFinished && (
+                    <Badge className="text-[9px] uppercase bg-destructive/90 text-destructive-foreground gap-1">
+                      <Lock className="h-2.5 w-2.5" /> Vendas bloqueadas
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -249,6 +254,13 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                       ▶ Reativar
                     </Button>
                   ) : null}
+                  {!isFinished && (
+                    <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]"
+                      title={r.sales_blocked ? "Liberar vendas" : "Bloquear vendas"}
+                      onClick={() => raffleMut.update.mutate({ id: r.id, sales_blocked: !r.sales_blocked })}>
+                      {r.sales_blocked ? <><Unlock className="h-3 w-3 mr-1" /> Liberar</> : <><Lock className="h-3 w-3 mr-1" /> Bloquear</>}
+                    </Button>
+                  )}
                   {!isFinished && (
                     <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" title="Encerrar (cancelar)"
                       onClick={() => { if (confirm(`Encerrar "${r.title}" sem sorteio?`)) raffleMut.update.mutate({ id: r.id, status: "cancelled" }); }}>
