@@ -71,7 +71,14 @@ const RaffleCard = ({ r }: { r: any }) => {
       </div>
 
       {/* Status pin direito */}
-      {isActive && daysLeft !== null && daysLeft <= 3 && (
+      {isActive && r.sales_blocked ? (
+        <div
+          className="absolute -top-2.5 right-3 z-20 px-2.5 py-1 bg-destructive text-destructive-foreground font-pixel text-[8px] uppercase tracking-wider"
+          style={{ borderRadius: 1, boxShadow: "0 0 0 2px hsl(var(--destructive) / 0.4)" }}
+        >
+          🔒 Vendas pausadas
+        </div>
+      ) : isActive && daysLeft !== null && daysLeft <= 3 && (
         <div
           className="absolute -top-2.5 right-3 z-20 px-2.5 py-1 bg-destructive text-destructive-foreground font-pixel text-[8px] uppercase tracking-wider animate-pulse"
           style={{ borderRadius: 1, boxShadow: "0 0 0 2px hsl(var(--destructive) / 0.4)" }}
