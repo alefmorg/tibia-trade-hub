@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Megaphone, Sparkles } from "lucide-react";
 import type { SiteBanner } from "@/hooks/useSiteConfig";
+import { safeHref } from "@/lib/safe-url";
 
 interface Props {
   banners?: SiteBanner[];
