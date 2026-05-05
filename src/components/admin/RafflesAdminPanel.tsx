@@ -16,7 +16,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles, UserPlus, Undo2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles, UserPlus, Undo2, Lock, Unlock } from "lucide-react";
 
 interface Props {
   getProfileName: (userId: string) => string;
