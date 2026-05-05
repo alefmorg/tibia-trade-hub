@@ -268,6 +268,7 @@ const RifaPage = () => {
   const buyNumbers = useBuyRaffleNumbers();
 
   const { data: raffles } = useRaffles(true);
+  const { data: pageSettings } = useRafflePageSettings();
 
   // ===== LISTA =====
   if (!id) {
