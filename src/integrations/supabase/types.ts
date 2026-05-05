@@ -801,6 +801,7 @@ export type Database = {
           image_url: string | null
           price_per_number: number
           progress_percent: number | null
+          sales_blocked: boolean
           status: string
           title: string
           total_numbers: number
@@ -817,6 +818,7 @@ export type Database = {
           image_url?: string | null
           price_per_number: number
           progress_percent?: number | null
+          sales_blocked?: boolean
           status?: string
           title: string
           total_numbers?: number
@@ -833,6 +835,7 @@ export type Database = {
           image_url?: string | null
           price_per_number?: number
           progress_percent?: number | null
+          sales_blocked?: boolean
           status?: string
           title?: string
           total_numbers?: number
@@ -1178,6 +1181,8 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          flag_emoji: string | null
+          flag_url: string | null
           id: string
           name: string
           pvp_type: string
@@ -1188,6 +1193,8 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          flag_emoji?: string | null
+          flag_url?: string | null
           id?: string
           name: string
           pvp_type?: string
@@ -1198,6 +1205,8 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          flag_emoji?: string | null
+          flag_url?: string | null
           id?: string
           name?: string
           pvp_type?: string

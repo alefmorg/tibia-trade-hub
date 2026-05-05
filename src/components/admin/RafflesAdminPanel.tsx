@@ -16,7 +16,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles, UserPlus, Undo2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Ticket, Trash2, Trophy, Gift, Eye, Pencil, Check, X, Sparkles, UserPlus, Undo2, Lock, Unlock } from "lucide-react";
 
 interface Props {
   getProfileName: (userId: string) => string;
@@ -30,6 +31,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
   const [form, setForm] = useState({
     title: "", description: "", image_url: "", price_per_number: "",
     total_numbers: "100", draw_date: "", federal_lottery_ref: "", progress_percent: "",
+    sales_blocked: false,
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [winnerInputs, setWinnerInputs] = useState<Record<string, string>>({});
@@ -38,7 +40,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
 
   const resetForm = () =>
     setForm({ title: "", description: "", image_url: "", price_per_number: "",
-              total_numbers: "100", draw_date: "", federal_lottery_ref: "", progress_percent: "" });
+              total_numbers: "100", draw_date: "", federal_lottery_ref: "", progress_percent: "", sales_blocked: false });
 
   const handleSubmit = () => {
     if (!form.title || !form.price_per_number) return;
@@ -51,6 +53,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
       draw_date: form.draw_date ? new Date(form.draw_date).toISOString() : undefined,
       federal_lottery_ref: form.federal_lottery_ref || undefined,
       progress_percent: form.progress_percent === "" ? null : Math.max(0, Math.min(100, Number(form.progress_percent))),
+      sales_blocked: form.sales_blocked,
     };
     if (editingId) {
       raffleMut.update.mutate({ id: editingId, ...data });
@@ -69,6 +72,7 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
       draw_date: r.draw_date ? r.draw_date.slice(0, 10) : "",
       federal_lottery_ref: r.federal_lottery_ref || "",
       progress_percent: r.progress_percent != null ? String(r.progress_percent) : "",
+      sales_blocked: !!r.sales_blocked,
     });
   };
 
@@ -120,6 +124,16 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
             <Label className="text-xs font-body">Descrição</Label>
             <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes, prêmio principal, regras..." className="bg-secondary/80 border-border min-h-[70px]" />
           </div>
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-secondary/40 border border-border/40">
+            <div className="flex items-center gap-2">
+              <Lock className={`h-4 w-4 ${form.sales_blocked ? "text-destructive" : "text-muted-foreground"}`} />
+              <div>
+                <Label className="text-xs font-semibold cursor-pointer">Bloquear compra de bilhetes</Label>
+                <p className="text-[10px] text-muted-foreground">Usuários veem a rifa mas não podem comprar.</p>
+              </div>
+            </div>
+            <Switch checked={form.sales_blocked} onCheckedChange={(v) => setForm({ ...form, sales_blocked: v })} />
+          </div>
           <div className="flex gap-2">
             <Button onClick={handleSubmit} disabled={!form.title || !form.price_per_number} className="bg-warning text-warning-foreground hover:bg-warning/90">
               <Ticket className="h-4 w-4 mr-1" /> {editingId ? "Salvar" : "Criar Rifa"}
@@ -145,10 +159,15 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                     <Ticket className="h-8 w-8 text-warning/30" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2">
+                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
                   <Badge variant={r.status === "active" ? "default" : isFinished ? "secondary" : r.status === "paused" ? "outline" : "destructive"} className="text-[9px] uppercase">
                     {r.status === "active" ? "Ativa" : isFinished ? "Finalizada" : r.status === "paused" ? "Pausada" : "Cancelada"}
                   </Badge>
+                  {r.sales_blocked && !isFinished && (
+                    <Badge className="text-[9px] uppercase bg-destructive/90 text-destructive-foreground gap-1">
+                      <Lock className="h-2.5 w-2.5" /> Vendas bloqueadas
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -235,6 +254,13 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                       ▶ Reativar
                     </Button>
                   ) : null}
+                  {!isFinished && (
+                    <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]"
+                      title={r.sales_blocked ? "Liberar vendas" : "Bloquear vendas"}
+                      onClick={() => raffleMut.update.mutate({ id: r.id, sales_blocked: !r.sales_blocked })}>
+                      {r.sales_blocked ? <><Unlock className="h-3 w-3 mr-1" /> Liberar</> : <><Lock className="h-3 w-3 mr-1" /> Bloquear</>}
+                    </Button>
+                  )}
                   {!isFinished && (
                     <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" title="Encerrar (cancelar)"
                       onClick={() => { if (confirm(`Encerrar "${r.title}" sem sorteio?`)) raffleMut.update.mutate({ id: r.id, status: "cancelled" }); }}>

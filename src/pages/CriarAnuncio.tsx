@@ -13,9 +13,17 @@ import { useItems } from "@/hooks/useItems";
 import { useWorlds } from "@/hooks/useWorlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
-import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes } from "lucide-react";
+import WorldFlag from "@/components/WorldFlag";
+import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2 } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
+import { cn } from "@/lib/utils";
+
+const REGION_LABEL: Record<string, string> = {
+  BR: "Brasil", NA: "North America", SA: "South America",
+  EU: "Europe", ASIA: "Asia", AS: "Asia", OCE: "Oceania", AU: "Oceania", US: "North America",
+};
+
 const CriarAnuncio = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -23,8 +31,8 @@ const CriarAnuncio = () => {
   const { data: items } = useItems();
   const { getCurrencyIcon } = useSiteAssets();
   const { data: worldsData } = useWorlds(true);
-  const rubinotWorlds = (worldsData || []).map(w => ({ name: w.name, pvp: w.pvp_type, region: w.region }));
   const [sourceTab, setSourceTab] = useState<"tibia" | "custom">("tibia");
+  const [worldSearch, setWorldSearch] = useState("");
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
@@ -41,16 +49,30 @@ const CriarAnuncio = () => {
   const tibiaItems = useMemo(() => (items || []).filter(i => i.source !== "custom"), [items]);
   const customItems = useMemo(() => (items || []).filter(i => i.source === "custom"), [items]);
 
+  // Group worlds by region
+  const worldsByRegion = useMemo(() => {
+    const filtered = (worldsData || []).filter(w =>
+      !worldSearch || w.name.toLowerCase().includes(worldSearch.toLowerCase())
+    );
+    const grouped: Record<string, typeof filtered> = {};
+    filtered.forEach(w => {
+      const key = (w.region || "OUTROS").toUpperCase();
+      (grouped[key] = grouped[key] || []).push(w);
+    });
+    return grouped;
+  }, [worldsData, worldSearch]);
+
   if (!user) {
     navigate("/login");
     return null;
   }
 
   const selectedItem = items?.find(i => i.id === form.itemId);
+  const selectedWorld = (worldsData || []).find(w => w.name === form.world);
 
-  const handleWorldChange = (worldName: string) => {
-    const world = rubinotWorlds.find(w => w.name === worldName);
-    setForm({ ...form, world: worldName, pvp_type: world?.pvp || form.pvp_type });
+  const handleWorldSelect = (worldName: string) => {
+    const world = (worldsData || []).find(w => w.name === worldName);
+    setForm({ ...form, world: worldName, pvp_type: world?.pvp_type || form.pvp_type });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,103 +94,157 @@ const CriarAnuncio = () => {
     navigate("/");
   };
 
+  const steps = [
+    { n: 1, label: "Item", icon: Sparkles, done: !!form.itemId },
+    { n: 2, label: "Tipo & Preço", icon: Tag, done: !!form.itemId && (form.acceptOffers || !!form.price) },
+    { n: 3, label: "Mundo", icon: Globe, done: !!form.world },
+    { n: 4, label: "Publicar", icon: CheckCircle2, done: false },
+  ];
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/20">
       <Header />
-      <div className="container py-8 max-w-xl">
-        {/* Back button */}
+      <div className="container py-8 max-w-2xl">
         <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </button>
 
-        {/* Title */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-            <PackagePlus className="h-5 w-5 text-primary" />
+        {/* Hero */}
+        <div className="relative overflow-hidden rounded-3xl mb-6 p-6 bg-gradient-to-br from-primary/15 via-card to-warning/10 border border-primary/20">
+          <div aria-hidden className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/30">
+              <PackagePlus className="h-7 w-7 text-primary-foreground" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold leading-tight">Criar Anúncio</h1>
+              <p className="text-xs text-muted-foreground font-body">Publique seu item e comece a negociar</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg leading-tight">Criar Anúncio</h1>
-            <p className="text-xs text-muted-foreground font-body">Publique seu item para vender ou comprar</p>
+
+          {/* Stepper */}
+          <div className="relative mt-5 flex items-center justify-between gap-2">
+            {steps.map((s, idx) => (
+              <div key={s.n} className="flex items-center gap-2 flex-1">
+                <div className={cn(
+                  "h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border",
+                  s.done ? "bg-primary text-primary-foreground border-primary shadow shadow-primary/30"
+                         : "bg-secondary border-border text-muted-foreground"
+                )}>
+                  {s.done ? <CheckCircle2 className="h-4 w-4" /> : s.n}
+                </div>
+                <span className={cn("text-[10px] uppercase tracking-wider hidden sm:block",
+                  s.done ? "text-primary font-semibold" : "text-muted-foreground"
+                )}>{s.label}</span>
+                {idx < steps.length - 1 && (
+                  <div className={cn("flex-1 h-px", s.done ? "bg-primary/40" : "bg-border")} />
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Item Selection Card */}
-          <div className="card-gaming p-5 space-y-4 rounded-2xl">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold text-foreground">Selecione o Item</span>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Item Selection */}
+          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold">1. Selecione o item</h2>
+                <p className="text-[10px] text-muted-foreground">Escolha entre Tibia oficial ou itens custom</p>
+              </div>
             </div>
 
             <Tabs value={sourceTab} onValueChange={(v) => { setSourceTab(v as any); setForm({ ...form, itemId: "" }); }}>
-              <TabsList className="grid grid-cols-2 w-full bg-secondary rounded-xl">
-                <TabsTrigger value="tibia" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Gem className="h-3.5 w-3.5 mr-1.5" /> Itens Tibia ({tibiaItems.length})
+              <TabsList className="grid grid-cols-2 w-full bg-secondary/60 rounded-xl p-1 h-12">
+                <TabsTrigger value="tibia" className="rounded-lg h-10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow data-[state=active]:shadow-primary/20">
+                  <Gem className="h-4 w-4 mr-1.5" /> Tibia <span className="ml-1.5 text-[10px] opacity-70">({tibiaItems.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="custom" className="rounded-lg data-[state=active]:bg-warning data-[state=active]:text-warning-foreground">
-                  <Boxes className="h-3.5 w-3.5 mr-1.5" /> Itens Custom ({customItems.length})
+                <TabsTrigger value="custom" className="rounded-lg h-10 data-[state=active]:bg-warning data-[state=active]:text-warning-foreground data-[state=active]:shadow data-[state=active]:shadow-warning/20">
+                  <Boxes className="h-4 w-4 mr-1.5" /> Custom <span className="ml-1.5 text-[10px] opacity-70">({customItems.length})</span>
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="tibia" className="mt-3">
-                <ItemCombobox
-                  items={tibiaItems}
-                  value={form.itemId}
-                  onSelect={(id) => setForm({ ...form, itemId: id })}
-                />
+                <ItemCombobox items={tibiaItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
               </TabsContent>
               <TabsContent value="custom" className="mt-3">
-                <ItemCombobox
-                  items={customItems}
-                  value={form.itemId}
-                  onSelect={(id) => setForm({ ...form, itemId: id })}
-                />
+                <ItemCombobox items={customItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
               </TabsContent>
             </Tabs>
 
-            {selectedItem?.image_url && (
-              <div className="flex justify-center pt-1">
-                <div className="h-20 w-20 rounded-xl bg-secondary/80 flex items-center justify-center border border-border">
-                  <img src={selectedItem.image_url} alt={selectedItem.name} className="h-14 w-14 object-contain" />
+            {selectedItem && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/5 to-transparent border border-primary/20 animate-in fade-in slide-in-from-top-1">
+                {selectedItem.image_url && (
+                  <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center shrink-0">
+                    <img src={selectedItem.image_url} alt={selectedItem.name} className="h-12 w-12 object-contain" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold truncate">{selectedItem.name}</p>
+                  <div className="flex gap-1.5 mt-1 flex-wrap">
+                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
+                      {selectedItem.category}
+                    </span>
+                    {selectedItem.source === "custom" && (
+                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 text-warning">Custom</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
-            {items?.length === 0 && (
-              <p className="text-xs text-muted-foreground">Nenhum item cadastrado. O admin precisa cadastrar itens primeiro.</p>
             )}
 
             {/* Tier */}
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Tier do Item</Label>
+              <Label className="text-xs text-muted-foreground">Tier do item (opcional)</Label>
               <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-                <SelectTrigger className="bg-secondary border-border rounded-xl h-11">
-                  <SelectValue placeholder="Selecione o tier (opcional)" />
+                <SelectTrigger className="bg-secondary/60 border-border rounded-xl h-11">
+                  <SelectValue placeholder="Sem tier" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sem tier</SelectItem>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(t => (
-                    <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>
-                  ))}
+                  {[1,2,3,4,5,6,7,8,9,10].map(t => <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Type & Price Card */}
-          <div className="card-gaming p-5 space-y-4 rounded-2xl">
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Tipo do Anúncio</Label>
-              <div className="flex gap-2">
-                <Button type="button" size="sm"
-                  className={`flex-1 rounded-xl h-11 font-semibold transition-all ${form.type === "selling" ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "bg-secondary border border-border text-muted-foreground hover:text-foreground"}`}
-                  onClick={() => setForm({ ...form, type: "selling" })}>
-                  Vendendo
-                </Button>
-                <Button type="button" size="sm"
-                  className={`flex-1 rounded-xl h-11 font-semibold transition-all ${form.type === "buying" ? "bg-warning text-warning-foreground shadow-lg shadow-warning/20" : "bg-secondary border border-border text-muted-foreground hover:text-foreground"}`}
-                  onClick={() => setForm({ ...form, type: "buying" })}>
-                  Comprando
-                </Button>
+          {/* Type & Price */}
+          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-warning/15 flex items-center justify-center">
+                <Tag className="h-4 w-4 text-warning" />
               </div>
+              <div>
+                <h2 className="text-sm font-bold">2. Tipo & Preço</h2>
+                <p className="text-[10px] text-muted-foreground">Define como o anúncio vai aparecer</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => setForm({ ...form, type: "selling" })}
+                className={cn(
+                  "rounded-2xl p-4 text-left transition-all border-2",
+                  form.type === "selling"
+                    ? "bg-gradient-to-br from-primary to-primary/70 text-primary-foreground border-primary shadow-lg shadow-primary/30 scale-[1.02]"
+                    : "bg-secondary/40 border-border hover:border-primary/40"
+                )}>
+                <ShoppingBag className="h-5 w-5 mb-2" />
+                <p className="text-sm font-bold">Vendendo</p>
+                <p className="text-[10px] opacity-80 mt-0.5">Tenho o item para vender</p>
+              </button>
+              <button type="button" onClick={() => setForm({ ...form, type: "buying" })}
+                className={cn(
+                  "rounded-2xl p-4 text-left transition-all border-2",
+                  form.type === "buying"
+                    ? "bg-gradient-to-br from-warning to-warning/70 text-warning-foreground border-warning shadow-lg shadow-warning/30 scale-[1.02]"
+                    : "bg-secondary/40 border-border hover:border-warning/40"
+                )}>
+                <ShoppingCart className="h-5 w-5 mb-2" />
+                <p className="text-sm font-bold">Comprando</p>
+                <p className="text-[10px] opacity-80 mt-0.5">Procurando este item</p>
+              </button>
             </div>
 
             <div className="space-y-2">
@@ -181,27 +257,28 @@ const CriarAnuncio = () => {
               </div>
               {!form.acceptOffers && (
                 <div className="flex gap-2">
-                  <Input
-                    value={form.price}
-                    onChange={(e) => setForm({ ...form, price: formatPriceWithDots(e.target.value) })}
-                    placeholder="Ex: 1.000.000"
-                    className="bg-secondary border-border flex-1 rounded-xl h-11"
-                  />
+                  <div className="relative flex-1">
+                    <CoinsIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      value={form.price}
+                      onChange={(e) => setForm({ ...form, price: formatPriceWithDots(e.target.value) })}
+                      placeholder="1.000.000"
+                      className="bg-secondary/60 border-border rounded-xl h-12 pl-10 font-semibold"
+                    />
+                  </div>
                   <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
-                    <SelectTrigger className="w-28 bg-secondary border-border rounded-xl h-11">
+                    <SelectTrigger className="w-28 bg-secondary/60 border-border rounded-xl h-12">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="kk">
                         <span className="flex items-center gap-2">
-                          <img src={getCurrencyIcon("kk")} alt="kk" className="w-4 h-4 object-contain" />
-                          kk
+                          <img src={getCurrencyIcon("kk")} alt="kk" className="w-4 h-4 object-contain" /> kk
                         </span>
                       </SelectItem>
                       <SelectItem value="coins">
                         <span className="flex items-center gap-2">
-                          <img src={getCurrencyIcon("coins")} alt="coins" className="w-4 h-4 object-contain" />
-                          coins
+                          <img src={getCurrencyIcon("coins")} alt="coins" className="w-4 h-4 object-contain" /> coins
                         </span>
                       </SelectItem>
                     </SelectContent>
@@ -211,32 +288,87 @@ const CriarAnuncio = () => {
             </div>
           </div>
 
-          {/* World Card */}
-          <div className="card-gaming p-5 space-y-4 rounded-2xl">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Mundo</Label>
-              <Select value={form.world} onValueChange={handleWorldChange}>
-                <SelectTrigger className="bg-secondary border-border rounded-xl h-11">
-                  <SelectValue placeholder="Selecione o mundo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rubinotWorlds.map(w => (
-                    <SelectItem key={w.name} value={w.name}>
-                      {w.name} ({w.pvp})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* World */}
+          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                <Globe className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-sm font-bold">3. Mundo</h2>
+                <p className="text-[10px] text-muted-foreground">Selecione o mundo onde está o item</p>
+              </div>
+              {selectedWorld && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/30">
+                  <WorldFlag world={selectedWorld} size="sm" />
+                  <span className="text-xs font-semibold">{selectedWorld.name}</span>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Descrição</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes sobre o item..." className="bg-secondary border-border min-h-[80px] rounded-xl" />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar mundo..."
+                value={worldSearch}
+                onChange={(e) => setWorldSearch(e.target.value)}
+                className="bg-secondary/60 border-border rounded-xl h-10 pl-10"
+              />
+            </div>
+
+            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+              {Object.keys(worldsByRegion).sort().map((region) => (
+                <div key={region} className="space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-1">
+                    {REGION_LABEL[region] || region}
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {worldsByRegion[region].map((w) => {
+                      const active = form.world === w.name;
+                      return (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => handleWorldSelect(w.name)}
+                          className={cn(
+                            "flex items-center gap-2 rounded-xl p-2.5 border-2 transition-all text-left",
+                            active
+                              ? "bg-primary/15 border-primary shadow shadow-primary/20 scale-[1.02]"
+                              : "bg-secondary/40 border-border/40 hover:border-primary/40 hover:bg-secondary/70"
+                          )}
+                        >
+                          <WorldFlag world={w} size="md" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold truncate">{w.name}</p>
+                            <p className="text-[9px] text-muted-foreground truncate">{w.pvp_type}</p>
+                          </div>
+                          {active && <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              {Object.keys(worldsByRegion).length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-6">Nenhum mundo encontrado</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5 pt-2 border-t border-border/40">
+              <Label className="text-xs text-muted-foreground">Descrição (opcional)</Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value.slice(0, 500) })}
+                placeholder="Detalhes sobre o item, condições, etc..."
+                className="bg-secondary/60 border-border min-h-[80px] rounded-xl"
+              />
+              <p className="text-[10px] text-muted-foreground text-right">{form.description.length}/500</p>
             </div>
           </div>
 
           <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 rounded-xl font-semibold text-sm shadow-lg shadow-primary/20 transition-all">
+            className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90 h-14 rounded-2xl font-bold text-sm shadow-xl shadow-primary/30 transition-all">
+            <Sparkles className="h-5 w-5 mr-2" />
             {createAd.isPending ? "Publicando..." : "Publicar Anúncio"}
           </Button>
         </form>

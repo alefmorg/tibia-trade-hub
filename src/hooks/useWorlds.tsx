@@ -8,6 +8,8 @@ export type World = {
   name: string;
   pvp_type: string;
   region: string | null;
+  flag_url?: string | null;
+  flag_emoji?: string | null;
   active: boolean;
   sort_order: number;
 };

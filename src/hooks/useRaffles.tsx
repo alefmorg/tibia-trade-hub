@@ -17,6 +17,8 @@ export interface Raffle {
   winner_number: number | null;
   winner_user_id: string | null;
   federal_lottery_ref: string | null;
+  progress_percent?: number | null;
+  sales_blocked?: boolean;
   created_at: string;
 }
 
