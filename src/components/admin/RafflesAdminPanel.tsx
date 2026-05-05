@@ -124,6 +124,16 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
             <Label className="text-xs font-body">Descrição</Label>
             <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detalhes, prêmio principal, regras..." className="bg-secondary/80 border-border min-h-[70px]" />
           </div>
+          <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-secondary/40 border border-border/40">
+            <div className="flex items-center gap-2">
+              <Lock className={`h-4 w-4 ${form.sales_blocked ? "text-destructive" : "text-muted-foreground"}`} />
+              <div>
+                <Label className="text-xs font-semibold cursor-pointer">Bloquear compra de bilhetes</Label>
+                <p className="text-[10px] text-muted-foreground">Usuários veem a rifa mas não podem comprar.</p>
+              </div>
+            </div>
+            <Switch checked={form.sales_blocked} onCheckedChange={(v) => setForm({ ...form, sales_blocked: v })} />
+          </div>
           <div className="flex gap-2">
             <Button onClick={handleSubmit} disabled={!form.title || !form.price_per_number} className="bg-warning text-warning-foreground hover:bg-warning/90">
               <Ticket className="h-4 w-4 mr-1" /> {editingId ? "Salvar" : "Criar Rifa"}
