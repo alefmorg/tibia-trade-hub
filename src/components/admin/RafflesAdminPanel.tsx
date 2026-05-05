@@ -217,13 +217,30 @@ export default function RafflesAdminPanel({ getProfileName }: Props) {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 pt-1">
-                  <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={() => setDetailRaffleId(r.id)}>
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
+                  <Button size="sm" variant="outline" className="flex-1 h-8 text-xs min-w-[140px]" onClick={() => setDetailRaffleId(r.id)}>
                     <Sparkles className="h-3.5 w-3.5 mr-1" /> Prêmios & Detalhes
                   </Button>
-                  <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleEdit(r)}>
+                  <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleEdit(r)} title="Editar">
                     <Pencil className="h-3.5 w-3.5 text-primary" />
                   </Button>
+                  {r.status === "active" ? (
+                    <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" title="Pausar"
+                      onClick={() => raffleMut.update.mutate({ id: r.id, status: "paused" })}>
+                      ⏸ Pausar
+                    </Button>
+                  ) : r.status === "paused" ? (
+                    <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" title="Reativar"
+                      onClick={() => raffleMut.update.mutate({ id: r.id, status: "active" })}>
+                      ▶ Reativar
+                    </Button>
+                  ) : null}
+                  {!isFinished && (
+                    <Button size="sm" variant="outline" className="h-8 px-2 text-[10px]" title="Encerrar (cancelar)"
+                      onClick={() => { if (confirm(`Encerrar "${r.title}" sem sorteio?`)) raffleMut.update.mutate({ id: r.id, status: "cancelled" }); }}>
+                      ⛔ Encerrar
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-destructive/10 hover:border-destructive/30"
                     onClick={() => { if (confirm(`Remover "${r.title}"?`)) raffleMut.remove.mutate(r.id); }}>
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
