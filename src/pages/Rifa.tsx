@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { useRaffle, useRaffleNumbers, useBuyRaffleNumbers, useRaffles } from "@/hooks/useRaffles";
+import { useRafflePageSettings } from "@/hooks/useRafflePageSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
@@ -267,10 +268,49 @@ const RifaPage = () => {
   const buyNumbers = useBuyRaffleNumbers();
 
   const { data: raffles } = useRaffles(true);
+  const { data: pageSettings } = useRafflePageSettings();
 
   // ===== LISTA =====
   if (!id) {
     const activeCount = raffles?.length || 0;
+
+    // Coming soon mode
+    if (pageSettings?.coming_soon) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="container py-16 max-w-3xl">
+            <div className="relative overflow-hidden bg-card p-10 text-center" style={goldenBox}>
+              <div aria-hidden className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-warning/10 blur-3xl" />
+              {pageSettings.coming_soon_image_url ? (
+                <img
+                  src={pageSettings.coming_soon_image_url}
+                  alt="Em breve"
+                  className="mx-auto mb-6 max-h-48 object-contain"
+                  style={{ imageRendering: "pixelated" as const }}
+                />
+              ) : (
+                <div
+                  className="w-20 h-20 flex items-center justify-center mx-auto mb-6 bg-warning/15"
+                  style={{ borderRadius: 2, boxShadow: "0 0 0 2px hsl(var(--warning) / 0.5), inset 0 0 0 2px hsl(var(--background))" }}
+                >
+                  <Clock className="h-10 w-10 text-warning" strokeWidth={2.5} />
+                </div>
+              )}
+              <h1 className="font-pixel text-lg md:text-2xl text-warning mb-3 flex items-center gap-2 justify-center">
+                <Sparkles className="h-5 w-5" />
+                {pageSettings.coming_soon_title}
+                <Sparkles className="h-5 w-5" />
+              </h1>
+              <p className="text-sm text-muted-foreground font-body max-w-xl mx-auto leading-relaxed whitespace-pre-wrap">
+                {pageSettings.coming_soon_message}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -301,11 +341,10 @@ const RifaPage = () => {
               <div className="text-center md:text-left flex-1">
                 <h1 className="font-pixel text-base md:text-lg text-foreground mb-2 flex items-center gap-2 justify-center md:justify-start">
                   <Sparkles className="h-4 w-4 text-warning" />
-                  CAMPANHAS ATIVAS
+                  {pageSettings?.page_title || "CAMPANHAS ATIVAS"}
                 </h1>
                 <p className="text-xs text-muted-foreground font-body max-w-md leading-relaxed">
-                  Escolha sua sorte e garanta seus bilhetes! Sorteio oficial baseado na{" "}
-                  <span className="text-warning font-semibold">Loteria Federal</span> — total transparência.
+                  {pageSettings?.page_subtitle || "Escolha sua sorte e garanta seus bilhetes! Sorteio oficial baseado na Loteria Federal — total transparência."}
                 </p>
               </div>
               <div
