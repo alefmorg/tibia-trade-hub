@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Megaphone, Sparkles } from "lucide-react";
 import type { SiteBanner } from "@/hooks/useSiteConfig";
+import { safeHref } from "@/lib/safe-url";
 
 interface Props {
   banners?: SiteBanner[];
@@ -15,7 +16,7 @@ const SponsorCard = ({ b }: { b: SiteBanner }) => {
   const name = b.sponsor_name || b.title || "Patrocinador";
   return (
     <a
-      href={b.link_url || "#"}
+      href={safeHref(b.link_url)}
       target={b.link_url ? "_blank" : undefined}
       rel="noopener noreferrer sponsored"
       className="group relative flex-1 flex items-center gap-3 px-3 py-2.5 overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-secondary/40 via-secondary/20 to-transparent transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_24px_hsl(var(--primary)/0.18)] hover:-translate-y-0.5 animate-in fade-in slide-in-from-right-2"

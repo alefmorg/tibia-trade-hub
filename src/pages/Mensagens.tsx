@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MessageCircle, Send, ArrowLeft, ExternalLink, Trash2, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
+import { safeHref } from "@/lib/safe-url";
 
 const Mensagens = () => {
   const { user } = useAuth();
@@ -203,7 +204,7 @@ const Mensagens = () => {
                       )}
                       {selectedConv.ads.item_reference_url && (
                         <a
-                          href={selectedConv.ads.item_reference_url}
+                          href={safeHref(selectedConv.ads.item_reference_url)}
                           target="_blank" rel="noopener noreferrer"
                           className="text-[11px] text-primary hover:underline inline-flex items-center gap-1 mt-1"
                         >
