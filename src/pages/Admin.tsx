@@ -26,7 +26,7 @@ import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
-  Sparkles, Activity, Clock, ArrowRightLeft, LifeBuoy, DollarSign,
+  Sparkles, Activity, Clock, ArrowRightLeft, LifeBuoy, DollarSign, Globe,
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
