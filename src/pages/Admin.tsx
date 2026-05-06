@@ -743,6 +743,7 @@ const Admin = () => {
             {/* FILTERS TAB */}
             {tab === "filters" && <FiltersAdminPanel />}
             {tab === "worlds" && <WorldsAdminPanel />}
+            {tab === "houses" && <HousesAdminPanel />}
 
             {/* WALLET TAB */}
             {tab === "wallet" && (
