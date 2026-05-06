@@ -88,7 +88,7 @@ const TradeCard = ({
   return (
     <article
       className={cn(
-        "trade-card trade-card-grid group flex flex-col overflow-hidden relative",
+        "trade-card trade-card-grid group flex flex-col overflow-hidden relative animate-fade-in-up",
         featured && "trade-card-featured"
       )}
     >
