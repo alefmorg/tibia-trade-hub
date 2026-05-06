@@ -438,7 +438,7 @@ const CriarAnuncio = () => {
             </div>
           </div>
 
-          <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world}
+          <Button type="submit" disabled={createAd.isPending || !stepDoneItem || !form.world}
             className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90 h-14 rounded-2xl font-bold text-sm shadow-xl shadow-primary/30 transition-all">
             <Sparkles className="h-5 w-5 mr-2" />
             {createAd.isPending ? "Publicando..." : "Publicar Anúncio"}
