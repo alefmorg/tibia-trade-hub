@@ -26,7 +26,7 @@ import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
   Settings, PanelLeft, Ticket, Wallet, ImagePlus, FileText, CheckSquare, Square, BadgeCheck, Award, Crown, Gem,
-  Sparkles, Activity, Clock, ArrowRightLeft, LifeBuoy, DollarSign, Globe,
+  Sparkles, Activity, Clock, ArrowRightLeft, LifeBuoy, DollarSign, Globe, Home,
 } from "lucide-react";
 import { useBadgeMutations, useUserBadges, type BadgeType } from "@/hooks/useUserBadges";
 import UserBadgeControls from "@/components/admin/UserBadgeControls";
@@ -47,8 +47,9 @@ import ResetsPanel from "@/components/admin/ResetsPanel";
 import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import RafflePageSettingsPanel from "@/components/admin/RafflePageSettingsPanel";
 import WorldsAdminPanel from "@/components/admin/WorldsAdminPanel";
+import HousesAdminPanel from "@/components/admin/HousesAdminPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit" | "worlds";
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit" | "worlds" | "houses";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -244,6 +245,7 @@ const Admin = () => {
         { key: "ads" as TabKey, label: "Anúncios", icon: Package, badge: stats.totalAds },
         { key: "users" as TabKey, label: "Usuários", icon: Users, badge: stats.totalUsers },
         { key: "items" as TabKey, label: "Itens", icon: Image, badge: stats.totalItems },
+        { key: "houses" as TabKey, label: "Houses", icon: Home },
       ],
     },
     {
