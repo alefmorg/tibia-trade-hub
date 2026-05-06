@@ -1,81 +1,51 @@
-## Objetivos
+## Objetivo
 
-1. **Redesenho visual de Criar Anúncio** com cards modernos, bandeiras por região do mundo, e seleção mais rica.
-2. **Painel admin de Mundos** (novo) — gerenciar nome, PvP, **região e URL/emoji da bandeira**, ativo/sort.
-3. **Rifas** — opção de **bloquear compra de bilhetes** (modo "somente visualização" / vendas pausadas) por rifa, configurável no admin e respeitada na página pública.
+Fazer um passe de polimento visual em todo o site mantendo a identidade atual (tema escuro, verde primário `160 84% 44%`, fonte pixel para títulos, layout existente). Foco em **microinterações, efeitos, hierarquia e consistência** — nada de redesenhar telas.
 
----
+## Escopo
 
-## 1. Banco de dados (migration)
+### 1. Sistema de animações global (`tailwind.config.ts` + `src/index.css`)
+Adicionar utilitários reutilizáveis que hoje não existem:
+- Keyframes: `fade-in`, `fade-in-up`, `scale-in`, `slide-in-right`, `shimmer`, `glow-pulse`, `bounce-soft`
+- Animações combinadas: `enter` (fade + scale)
+- Classes utilitárias: `.hover-scale`, `.hover-lift`, `.story-link` (underline animado), `.shimmer-text`, `.glass-strong`, `.gradient-border`
+- Variáveis novas: `--glow-warning`, `--glow-destructive` para reaproveitar o padrão de glow já existente
 
-**Tabela `worlds`** — adicionar:
-- `flag_url text` (URL de imagem da bandeira, opcional)
-- `flag_emoji text` (fallback rápido tipo 🇧🇷, opcional)
+### 2. Componentes-base UI (efeitos sutis sem mudar API)
+- `button.tsx`: adicionar `active:scale-[0.98]`, `transition-all` em vez de só `transition-colors`, leve `shadow` no `default`/`destructive` e ring focus mais suave
+- `card.tsx`: variante implícita via classe — borda com `hover:border-primary/30` e `transition-colors` quando usado como `card-gaming`
+- `input.tsx` / `textarea.tsx`: focus ring mais suave (`focus-visible:ring-primary/40`) e `transition-colors`
+- `dialog.tsx`: já tem animações Radix; reforçar com `backdrop-blur-sm` no overlay
+- `tabs.tsx`: indicador ativo com leve glow primário
+- `badge.tsx`: garantir consistência com `badge-active/selling/buying` já definidos no CSS
 
-**Tabela `raffles`** — adicionar:
-- `sales_blocked boolean default false` — quando true, usuários veem a rifa mas não conseguem comprar bilhetes (botão desabilitado + aviso). Status continua "active" para aparecer na listagem.
+### 3. Páginas / componentes principais (apenas classes)
+Aplicar as novas utilitárias onde já existe estrutura, sem reescrever lógica:
+- `Header.tsx`: navegação com `.story-link`, logo com `hover-scale`
+- `Index.tsx`: hero com `animate-fade-in-up`, seções com `animate-fade-in` em stagger leve
+- `TradeCard.tsx`: já tem `.trade-card`; adicionar `animate-fade-in` no mount e `group-hover` no título
+- `Rifa.tsx`: hero/coming-soon com `animate-fade-in`, números/contadores com leve `animate-pulse-glow` no destaque
+- `CriarAnuncio.tsx`: stepper com transição entre passos (`animate-fade-in` ao trocar step), chips de mundo com `hover-scale` + `active:scale-95`
+- `Admin.tsx`: tabs com transição `animate-fade-in` ao trocar
+- `LiveStreamersWidget.tsx` / `SponsorsCarousel.tsx`: `hover-lift` nos cards, dot "ao vivo" com pulse vermelho
+- `OffersPanel.tsx` / `Mensagens.tsx`: itens de lista com `transition-colors` e `hover:bg-secondary/60`
 
-Trigger de audit log em raffles já cobre updates dessa coluna.
+### 4. Consistência e detalhes
+- Padronizar `rounded` (usar `rounded-lg`/`rounded-xl` já no padrão)
+- Skeletons: usar `.shimmer` nas áreas de loading que hoje só mostram texto "Carregando..."
+- Toaster (`sonner`): garantir tema escuro consistente com cores `success`/`destructive`/`warning`
+- Scrollbar: aumentar leve contraste no `::-webkit-scrollbar-thumb` em hover
 
----
+## O que NÃO muda
+- Paleta de cores, tipografia, layout das páginas, estrutura de componentes, lógica/estado, schema do banco, hooks. Nenhum redesenho — só polimento.
 
-## 2. Painel admin de Mundos (novo)
+## Detalhes técnicos
 
-**Arquivo novo:** `src/components/admin/WorldsAdminPanel.tsx`
-- Listar todos os mundos (`useWorlds(false)`).
-- Form: nome, PvP type (select), região (select com valores comuns: BR, EU, NA, SA, ASIA + custom), `flag_url`, `flag_emoji`, `active`, `sort_order`.
-- Preview da bandeira ao lado.
-- CRUD usando `useWorldMutations` (já existe).
+Arquivos editados (estimativa):
+- `tailwind.config.ts` — novos keyframes/animations
+- `src/index.css` — novas utilitárias (`.hover-scale`, `.hover-lift`, `.story-link`, `.shimmer`, `.glass-strong`)
+- `src/components/ui/{button,card,input,textarea,dialog,tabs}.tsx` — ajustes mínimos de classes
+- `src/components/Header.tsx`, `TradeCard.tsx`, `LiveStreamersWidget.tsx`, `SponsorsCarousel.tsx`, `OffersPanel.tsx`
+- `src/pages/{Index,Rifa,CriarAnuncio,Admin,Mensagens}.tsx` — adicionar classes de animação/hover
 
-**`src/pages/Admin.tsx`:** adicionar nova aba "Mundos" apontando para esse painel.
-
----
-
-## 3. Bandeiras por região — utilitário compartilhado
-
-**Arquivo novo:** `src/lib/world-flags.ts`
-- Mapa default `region -> emoji` (BR🇧🇷, EU🇪🇺, NA🇺🇸, SA🌎, ASIA🌏).
-- Função `getWorldFlag(world)` que retorna `{ url?, emoji }` priorizando `flag_url > flag_emoji > mapa default por região`.
-- Componente `<WorldFlag world={...} size="sm|md" />` que renderiza img ou emoji.
-
----
-
-## 4. Redesenho de `CriarAnuncio.tsx`
-
-Manter funcionalidade existente, melhorar visual:
-
-- **Stepper visual** (1. Item → 2. Tipo & Preço → 3. Mundo → 4. Publicar) no topo com ícones e progresso.
-- **Card "Selecione o item"**: tabs Tibia/Custom maiores, com contador estilizado, preview do item selecionado em card destacado com nome + tier badge + categoria.
-- **Card "Tipo & Preço"**: dois botões grandes (Vendendo/Comprando) com ícones e gradient quando ativo. Campo de preço com ícone da moeda dentro.
-- **Card "Mundo"**: substituir Select simples por **grid de chips clicáveis**, agrupados por região com **bandeira** ao lado de cada mundo. Cada chip mostra: bandeira, nome, badge PvP. Selecionado ganha destaque com `ring` warning/primary. Filtro/busca por nome no topo.
-  - Mostrar PvP detectado abaixo após selecionar.
-- **Card "Descrição"**: textarea estilizada com contador de caracteres.
-- **Botão final** maior, com gradient e shadow, ícone Sparkles.
-- Animações suaves (`transition-all`), mantendo paleta atual (warning/primary/secondary).
-
----
-
-## 5. Bloqueio de compra de bilhetes nas rifas
-
-**Admin (`RafflesAdminPanel.tsx`):**
-- Adicionar `sales_blocked` no form (Switch "Bloquear compra de bilhetes").
-- Botão de toggle rápido em cada card da rifa: "🔒 Bloquear vendas" / "🔓 Liberar vendas".
-- Badge visual na lista quando bloqueado.
-
-**Hooks (`useRaffles.tsx` / `useRafflesAdmin.tsx`):**
-- Incluir `sales_blocked` nos selects e nas mutations create/update.
-
-**Pública (`Rifa.tsx`):**
-- No card da listagem (`RaffleCard`): se `sales_blocked`, trocar CTA "Garantir meus bilhetes" por badge "🔒 Vendas pausadas" e desabilitar hover de compra.
-- Na página de detalhe da rifa: desabilitar input de quantidade + botão "Comprar", mostrar aviso destacado "As vendas desta rifa estão temporariamente pausadas pelo administrador."
-- `useBuyRaffleNumbers` faz validação extra: se `sales_blocked`, retorna erro antes de chamar a RPC (defesa em profundidade — backend continua aceitando, mas UI bloqueia).
-
----
-
-## Arquivos afetados
-
-- **Migration nova**: `worlds.flag_url`, `worlds.flag_emoji`, `raffles.sales_blocked`.
-- **Novos**: `src/components/admin/WorldsAdminPanel.tsx`, `src/lib/world-flags.ts`, `src/components/WorldFlag.tsx`.
-- **Editados**: `src/pages/Admin.tsx`, `src/pages/CriarAnuncio.tsx`, `src/pages/Rifa.tsx`, `src/components/admin/RafflesAdminPanel.tsx`, `src/hooks/useRaffles.tsx`, `src/hooks/useRafflesAdmin.tsx`.
-
-Pronto para aprovar?
+Sem migrações, sem novas dependências, sem mudança de comportamento.
