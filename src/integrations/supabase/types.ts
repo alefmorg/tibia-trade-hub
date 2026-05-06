@@ -54,6 +54,8 @@ export type Database = {
           extra_info: string | null
           featured: boolean
           featured_until: string | null
+          house_city: string | null
+          house_id: string | null
           id: string
           image_url: string | null
           item_id: string | null
@@ -78,6 +80,8 @@ export type Database = {
           extra_info?: string | null
           featured?: boolean
           featured_until?: string | null
+          house_city?: string | null
+          house_id?: string | null
           id?: string
           image_url?: string | null
           item_id?: string | null
@@ -102,6 +106,8 @@ export type Database = {
           extra_info?: string | null
           featured?: boolean
           featured_until?: string | null
+          house_city?: string | null
+          house_id?: string | null
           id?: string
           image_url?: string | null
           item_id?: string | null
@@ -118,6 +124,13 @@ export type Database = {
           world?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ads_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ads_item_id_fkey"
             columns: ["item_id"]
@@ -354,6 +367,51 @@ export type Database = {
           name?: string
           price_coins?: number
           sort_order?: number
+        }
+        Relationships: []
+      }
+      houses: {
+        Row: {
+          beds: number | null
+          city: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          rent_gold: number | null
+          size_sqm: number | null
+          source: string
+          type: string
+          updated_at: string
+          wiki_url: string | null
+        }
+        Insert: {
+          beds?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          rent_gold?: number | null
+          size_sqm?: number | null
+          source?: string
+          type?: string
+          updated_at?: string
+          wiki_url?: string | null
+        }
+        Update: {
+          beds?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          rent_gold?: number | null
+          size_sqm?: number | null
+          source?: string
+          type?: string
+          updated_at?: string
+          wiki_url?: string | null
         }
         Relationships: []
       }

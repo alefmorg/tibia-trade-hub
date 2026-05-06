@@ -13,8 +13,10 @@ import { useItems } from "@/hooks/useItems";
 import { useWorlds } from "@/hooks/useWorlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
+import HouseCombobox from "@/components/HouseCombobox";
+import { useHouses } from "@/hooks/useHouses";
 import WorldFlag from "@/components/WorldFlag";
-import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2, Home } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { cn } from "@/lib/utils";
@@ -29,10 +31,13 @@ const CriarAnuncio = () => {
   const navigate = useNavigate();
   const createAd = useCreateAd();
   const { data: items } = useItems();
+  const { data: houses } = useHouses();
   const { getCurrencyIcon } = useSiteAssets();
   const { data: worldsData } = useWorlds(true);
+  const [kindTab, setKindTab] = useState<"item" | "house">("item");
   const [sourceTab, setSourceTab] = useState<"tibia" | "custom">("tibia");
   const [worldSearch, setWorldSearch] = useState("");
+  const [houseId, setHouseId] = useState("");
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
@@ -77,6 +82,25 @@ const CriarAnuncio = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (kindTab === "house") {
+      const house = (houses || []).find((h) => h.id === houseId);
+      if (!house || !form.world) return;
+      await createAd.mutateAsync({
+        title: house.name,
+        house_id: house.id,
+        house_city: house.city || undefined,
+        type: form.type,
+        price: form.acceptOffers ? "Aceita ofertas" : form.price,
+        currency: form.currency,
+        world: form.world,
+        pvp_type: form.pvp_type,
+        category: "house",
+        description: form.description || undefined,
+        image_url: house.image_url || undefined,
+      });
+      navigate("/");
+      return;
+    }
     if (!selectedItem) return;
     await createAd.mutateAsync({
       title: selectedItem.name,
@@ -94,9 +118,10 @@ const CriarAnuncio = () => {
     navigate("/");
   };
 
+  const stepDoneItem = kindTab === "item" ? !!form.itemId : !!houseId;
   const steps = [
-    { n: 1, label: "Item", icon: Sparkles, done: !!form.itemId },
-    { n: 2, label: "Tipo & Preço", icon: Tag, done: !!form.itemId && (form.acceptOffers || !!form.price) },
+    { n: 1, label: kindTab === "house" ? "House" : "Item", icon: kindTab === "house" ? Home : Sparkles, done: stepDoneItem },
+    { n: 2, label: "Tipo & Preço", icon: Tag, done: stepDoneItem && (form.acceptOffers || !!form.price) },
     { n: 3, label: "Mundo", icon: Globe, done: !!form.world },
     { n: 4, label: "Publicar", icon: CheckCircle2, done: false },
   ];
@@ -145,69 +170,116 @@ const CriarAnuncio = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Item Selection */}
-          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold">1. Selecione o item</h2>
-                <p className="text-[10px] text-muted-foreground">Escolha entre Tibia oficial ou itens custom</p>
-              </div>
-            </div>
-
-            <Tabs value={sourceTab} onValueChange={(v) => { setSourceTab(v as any); setForm({ ...form, itemId: "" }); }}>
+          {/* Kind selector: Item vs House */}
+          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-2 shadow-sm">
+            <Tabs value={kindTab} onValueChange={(v) => { setKindTab(v as any); setForm({ ...form, itemId: "", category: v === "house" ? "house" : "item" }); setHouseId(""); }}>
               <TabsList className="grid grid-cols-2 w-full bg-secondary/60 rounded-xl p-1 h-12">
-                <TabsTrigger value="tibia" className="rounded-lg h-10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow data-[state=active]:shadow-primary/20">
-                  <Gem className="h-4 w-4 mr-1.5" /> Tibia <span className="ml-1.5 text-[10px] opacity-70">({tibiaItems.length})</span>
+                <TabsTrigger value="item" className="rounded-lg h-10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Sparkles className="h-4 w-4 mr-1.5" /> Item
                 </TabsTrigger>
-                <TabsTrigger value="custom" className="rounded-lg h-10 data-[state=active]:bg-warning data-[state=active]:text-warning-foreground data-[state=active]:shadow data-[state=active]:shadow-warning/20">
-                  <Boxes className="h-4 w-4 mr-1.5" /> Custom <span className="ml-1.5 text-[10px] opacity-70">({customItems.length})</span>
+                <TabsTrigger value="house" className="rounded-lg h-10 data-[state=active]:bg-warning data-[state=active]:text-warning-foreground">
+                  <Home className="h-4 w-4 mr-1.5" /> House <span className="ml-1.5 text-[10px] opacity-70">({(houses || []).length})</span>
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="tibia" className="mt-3">
-                <ItemCombobox items={tibiaItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
-              </TabsContent>
-              <TabsContent value="custom" className="mt-3">
-                <ItemCombobox items={customItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
-              </TabsContent>
             </Tabs>
+          </div>
 
-            {selectedItem && (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/5 to-transparent border border-primary/20 animate-in fade-in slide-in-from-top-1">
-                {selectedItem.image_url && (
-                  <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center shrink-0">
-                    <img src={selectedItem.image_url} alt={selectedItem.name} className="h-12 w-12 object-contain" />
+          {/* Item / House Selection */}
+          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm animate-fade-in">
+            <div className="flex items-center gap-2">
+              <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", kindTab === "house" ? "bg-warning/15" : "bg-primary/15")}>
+                {kindTab === "house" ? <Home className="h-4 w-4 text-warning" /> : <Sparkles className="h-4 w-4 text-primary" />}
+              </div>
+              <div>
+                <h2 className="text-sm font-bold">1. {kindTab === "house" ? "Selecione a house" : "Selecione o item"}</h2>
+                <p className="text-[10px] text-muted-foreground">
+                  {kindTab === "house" ? "Catálogo importado da TibiaWiki" : "Escolha entre Tibia oficial ou itens custom"}
+                </p>
+              </div>
+            </div>
+
+            {kindTab === "item" ? (
+              <>
+                <Tabs value={sourceTab} onValueChange={(v) => { setSourceTab(v as any); setForm({ ...form, itemId: "" }); }}>
+                  <TabsList className="grid grid-cols-2 w-full bg-secondary/60 rounded-xl p-1 h-12">
+                    <TabsTrigger value="tibia" className="rounded-lg h-10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow data-[state=active]:shadow-primary/20">
+                      <Gem className="h-4 w-4 mr-1.5" /> Tibia <span className="ml-1.5 text-[10px] opacity-70">({tibiaItems.length})</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="custom" className="rounded-lg h-10 data-[state=active]:bg-warning data-[state=active]:text-warning-foreground data-[state=active]:shadow data-[state=active]:shadow-warning/20">
+                      <Boxes className="h-4 w-4 mr-1.5" /> Custom <span className="ml-1.5 text-[10px] opacity-70">({customItems.length})</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="tibia" className="mt-3">
+                    <ItemCombobox items={tibiaItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
+                  </TabsContent>
+                  <TabsContent value="custom" className="mt-3">
+                    <ItemCombobox items={customItems} value={form.itemId} onSelect={(id) => setForm({ ...form, itemId: id })} />
+                  </TabsContent>
+                </Tabs>
+
+                {selectedItem && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary/5 to-transparent border border-primary/20 animate-fade-in">
+                    {selectedItem.image_url && (
+                      <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center shrink-0">
+                        <img src={selectedItem.image_url} alt={selectedItem.name} className="h-12 w-12 object-contain" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{selectedItem.name}</p>
+                      <div className="flex gap-1.5 mt-1 flex-wrap">
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
+                          {selectedItem.category}
+                        </span>
+                        {selectedItem.source === "custom" && (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 text-warning">Custom</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate">{selectedItem.name}</p>
-                  <div className="flex gap-1.5 mt-1 flex-wrap">
-                    <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                      {selectedItem.category}
-                    </span>
-                    {selectedItem.source === "custom" && (
-                      <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-warning/15 text-warning">Custom</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Tier */}
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Tier do item (opcional)</Label>
-              <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
-                <SelectTrigger className="bg-secondary/60 border-border rounded-xl h-11">
-                  <SelectValue placeholder="Sem tier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Sem tier</SelectItem>
-                  {[1,2,3,4,5,6,7,8,9,10].map(t => <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+                {/* Tier */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Tier do item (opcional)</Label>
+                  <Select value={form.tier} onValueChange={(v) => setForm({ ...form, tier: v })}>
+                    <SelectTrigger className="bg-secondary/60 border-border rounded-xl h-11">
+                      <SelectValue placeholder="Sem tier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sem tier</SelectItem>
+                      {[1,2,3,4,5,6,7,8,9,10].map(t => <SelectItem key={t} value={String(t)}>Tier {t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            ) : (
+              <>
+                <HouseCombobox houses={houses || []} value={houseId} onSelect={setHouseId} />
+                {(() => {
+                  const h = (houses || []).find((x) => x.id === houseId);
+                  if (!h) return null;
+                  return (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-warning/5 to-transparent border border-warning/20 animate-fade-in">
+                      <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center shrink-0">
+                        <Home className="h-7 w-7 text-warning" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-xs">
+                        <p className="text-sm font-bold truncate">{h.name}</p>
+                        <p className="text-muted-foreground">{h.city || "Sem cidade"} · {h.beds ?? "?"} cama(s) · {h.size_sqm ?? "?"} sqm · aluguel {h.rent_gold?.toLocaleString() ?? "?"} gp</p>
+                        {h.wiki_url && (
+                          <a href={h.wiki_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-[10px]">Ver na TibiaWiki ↗</a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+                {(houses || []).length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-4">
+                    Nenhuma house cadastrada ainda. Peça a um admin para importar da TibiaWiki.
+                  </p>
+                )}
+              </>
+            )}
           </div>
 
           {/* Type & Price */}
@@ -366,7 +438,7 @@ const CriarAnuncio = () => {
             </div>
           </div>
 
-          <Button type="submit" disabled={createAd.isPending || !form.itemId || !form.world}
+          <Button type="submit" disabled={createAd.isPending || !stepDoneItem || !form.world}
             className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90 h-14 rounded-2xl font-bold text-sm shadow-xl shadow-primary/30 transition-all">
             <Sparkles className="h-5 w-5 mr-2" />
             {createAd.isPending ? "Publicando..." : "Publicar Anúncio"}

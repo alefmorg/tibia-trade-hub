@@ -155,6 +155,8 @@ export const useCreateAd = () => {
     mutationFn: async (ad: {
       title: string;
       item_id?: string;
+      house_id?: string;
+      house_city?: string;
       type: string;
       price?: string;
       currency?: string;
