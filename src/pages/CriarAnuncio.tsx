@@ -13,8 +13,10 @@ import { useItems } from "@/hooks/useItems";
 import { useWorlds } from "@/hooks/useWorlds";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
+import HouseCombobox from "@/components/HouseCombobox";
+import { useHouses } from "@/hooks/useHouses";
 import WorldFlag from "@/components/WorldFlag";
-import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2, Home } from "lucide-react";
 import { formatPriceWithDots } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { cn } from "@/lib/utils";
@@ -29,10 +31,13 @@ const CriarAnuncio = () => {
   const navigate = useNavigate();
   const createAd = useCreateAd();
   const { data: items } = useItems();
+  const { data: houses } = useHouses();
   const { getCurrencyIcon } = useSiteAssets();
   const { data: worldsData } = useWorlds(true);
+  const [kindTab, setKindTab] = useState<"item" | "house">("item");
   const [sourceTab, setSourceTab] = useState<"tibia" | "custom">("tibia");
   const [worldSearch, setWorldSearch] = useState("");
+  const [houseId, setHouseId] = useState("");
   const [form, setForm] = useState({
     itemId: "",
     type: "selling",
@@ -77,6 +82,25 @@ const CriarAnuncio = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (kindTab === "house") {
+      const house = (houses || []).find((h) => h.id === houseId);
+      if (!house || !form.world) return;
+      await createAd.mutateAsync({
+        title: house.name,
+        house_id: house.id,
+        house_city: house.city || undefined,
+        type: form.type,
+        price: form.acceptOffers ? "Aceita ofertas" : form.price,
+        currency: form.currency,
+        world: form.world,
+        pvp_type: form.pvp_type,
+        category: "house",
+        description: form.description || undefined,
+        image_url: house.image_url || undefined,
+      });
+      navigate("/");
+      return;
+    }
     if (!selectedItem) return;
     await createAd.mutateAsync({
       title: selectedItem.name,
@@ -94,9 +118,10 @@ const CriarAnuncio = () => {
     navigate("/");
   };
 
+  const stepDoneItem = kindTab === "item" ? !!form.itemId : !!houseId;
   const steps = [
-    { n: 1, label: "Item", icon: Sparkles, done: !!form.itemId },
-    { n: 2, label: "Tipo & Preço", icon: Tag, done: !!form.itemId && (form.acceptOffers || !!form.price) },
+    { n: 1, label: kindTab === "house" ? "House" : "Item", icon: kindTab === "house" ? Home : Sparkles, done: stepDoneItem },
+    { n: 2, label: "Tipo & Preço", icon: Tag, done: stepDoneItem && (form.acceptOffers || !!form.price) },
     { n: 3, label: "Mundo", icon: Globe, done: !!form.world },
     { n: 4, label: "Publicar", icon: CheckCircle2, done: false },
   ];
