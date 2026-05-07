@@ -40,6 +40,7 @@ const TradeCard = ({
   likes = 0,
   featured,
   tier,
+  category,
   profiles
 }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
