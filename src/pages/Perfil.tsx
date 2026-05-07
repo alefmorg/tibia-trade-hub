@@ -475,7 +475,7 @@ const Perfil = () => {
                             id={ad.id} title={ad.title} type={ad.type} price={ad.price}
                             world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
                             imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
-                            tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id}
+                            tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={(ad as any).category}
                           />
                           {isOwnProfile && !ad.featured && activePlans.length > 0 && (
                             <button
@@ -522,7 +522,7 @@ const Perfil = () => {
                         key={ad.id} id={ad.id} title={ad.title} type={ad.type} price={ad.price}
                         world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
                         imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
-                        tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id}
+                        tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={(ad as any).category}
                       />
                     ))}
                   </div>

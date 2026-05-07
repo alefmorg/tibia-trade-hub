@@ -1,4 +1,4 @@
-import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
@@ -21,6 +21,7 @@ interface TradeCardProps {
   likes?: number;
   featured?: boolean;
   tier?: number | null;
+  category?: string;
   profiles?: { username: string; avatar_url: string | null };
 }
 
@@ -39,6 +40,7 @@ const TradeCard = ({
   likes = 0,
   featured,
   tier,
+  category,
   profiles
 }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
@@ -136,6 +138,8 @@ const TradeCard = ({
                 className="h-14 w-14 object-contain pixelated drop-shadow-[0_4px_10px_hsl(0_0%_0%/0.6)]"
                 loading="lazy"
               />
+            ) : category === "house" ? (
+              <Home className="h-12 w-12 text-warning drop-shadow-[0_4px_10px_hsl(var(--warning)/0.45)]" strokeWidth={1.6} />
             ) : (
               <div className="h-14 w-14 rounded-full bg-secondary/50" />
             )}
