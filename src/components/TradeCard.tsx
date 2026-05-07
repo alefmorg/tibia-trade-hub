@@ -21,6 +21,7 @@ interface TradeCardProps {
   likes?: number;
   featured?: boolean;
   tier?: number | null;
+  category?: string;
   profiles?: { username: string; avatar_url: string | null };
 }
 
