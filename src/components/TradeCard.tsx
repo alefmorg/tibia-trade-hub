@@ -138,6 +138,8 @@ const TradeCard = ({
                 className="h-14 w-14 object-contain pixelated drop-shadow-[0_4px_10px_hsl(0_0%_0%/0.6)]"
                 loading="lazy"
               />
+            ) : category === "house" ? (
+              <Home className="h-12 w-12 text-warning drop-shadow-[0_4px_10px_hsl(var(--warning)/0.45)]" strokeWidth={1.6} />
             ) : (
               <div className="h-14 w-14 rounded-full bg-secondary/50" />
             )}
