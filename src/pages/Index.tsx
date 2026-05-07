@@ -205,6 +205,7 @@ const Index = () => {
                         tier={(ad as any).tier}
                         profiles={ad.profiles}
                         userId={ad.user_id}
+                        category={ad.category}
                       />
                     ))}
                   </div>
