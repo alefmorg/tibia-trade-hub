@@ -170,19 +170,7 @@ const CriarAnuncio = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Kind selector: Item vs House */}
-          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-2 shadow-sm">
-            <Tabs value={kindTab} onValueChange={(v) => { setKindTab(v as any); setForm({ ...form, itemId: "", category: v === "house" ? "house" : "item" }); setHouseId(""); }}>
-              <TabsList className="grid grid-cols-2 w-full bg-secondary/60 rounded-xl p-1 h-12">
-                <TabsTrigger value="item" className="rounded-lg h-10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Sparkles className="h-4 w-4 mr-1.5" /> Item
-                </TabsTrigger>
-                <TabsTrigger value="house" className="rounded-lg h-10 data-[state=active]:bg-warning data-[state=active]:text-warning-foreground">
-                  <Home className="h-4 w-4 mr-1.5" /> House <span className="ml-1.5 text-[10px] opacity-70">({(houses || []).length})</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+          {/* Anúncios de House temporariamente desativados */}
 
           {/* Item / House Selection */}
           <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-5 space-y-4 shadow-sm animate-fade-in">
