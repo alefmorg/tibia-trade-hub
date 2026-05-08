@@ -306,9 +306,15 @@ const Admin = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {sidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         {/* Sidebar */}
-        <aside className={`${sidebarOpen ? "w-60" : "w-0 overflow-hidden"} transition-all duration-300 border-r border-border/60 bg-card/50 backdrop-blur-sm shrink-0 flex flex-col`}>
+        <aside className={`${sidebarOpen ? "w-[260px] translate-x-0" : "w-0 -translate-x-full lg:translate-x-0 lg:w-0 overflow-hidden"} fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto transition-all duration-300 border-r border-border/60 bg-card lg:bg-card/50 backdrop-blur-md shrink-0 flex flex-col`}>
           <div className="px-4 py-4 border-b border-border/60 bg-gradient-to-br from-primary/10 via-card to-card relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"6px 6px"}} />
             <div className="relative flex items-center gap-2.5">
@@ -319,6 +325,9 @@ const Admin = () => {
                 <p className="font-pixel text-[11px] text-foreground leading-none">Admin Panel</p>
                 <p className="text-[9px] text-muted-foreground mt-1 font-body uppercase tracking-wider">Rubin Trade</p>
               </div>
+              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-secondary text-muted-foreground">
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
@@ -330,7 +339,7 @@ const Admin = () => {
                   {section.items.map(({ key, label, icon: Icon, badge }) => (
                     <button
                       key={key}
-                      onClick={() => { setTab(key); setSearch(""); }}
+                      onClick={() => { setTab(key); setSearch(""); if (typeof window !== "undefined" && window.innerWidth < 1024) setSidebarOpen(false); }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
                         tab === key
                           ? "bg-primary/15 text-primary border border-primary/20"
@@ -375,17 +384,17 @@ const Admin = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto w-full min-w-0">
           {/* Top bar */}
-          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/60 px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-secondary transition-colors">
+          <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-sm border-b border-border/60 px-3 sm:px-6 py-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-secondary transition-colors shrink-0">
                 <PanelLeft className="h-4 w-4" />
               </button>
-              <h1 className="text-sm font-semibold text-foreground font-body">{getTabTitle()}</h1>
+              <h1 className="text-sm font-semibold text-foreground font-body truncate">{getTabTitle()}</h1>
             </div>
             {["ads", "users", "conversations"].includes(tab) && (
-              <div className="relative w-64">
+              <div className="relative w-36 sm:w-64 shrink-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-secondary/80 border-border h-9 rounded-xl text-sm" />
               </div>
