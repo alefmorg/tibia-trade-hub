@@ -66,6 +66,15 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><defs><filter id='g' x='-50%' y='-50%' width='200%' height='200%'><feGaussianBlur stdDeviation='0.6'/></filter></defs><path d='M3 2 L3 18 L7.5 14 L10 20 L13 19 L10.5 13 L17 13 Z' fill='%2313c296' stroke='%23042f24' stroke-width='1.2' stroke-linejoin='round'/></svg>") 2 2, auto;
+  }
+
+  a, button, [role="button"], [data-cursor="pointer"], label, summary, select, .cursor-pointer {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><path d='M10 2 L10 14 L7 12 L5.5 13.5 L9 21 L11 21 L10 16 L13 16 L13 22 L16 22 L16 16 L19 16 L19 22 L22 22 L22 13 C22 11 20.5 10 19 10 L13 10 L13 2 Z' fill='%2313c296' stroke='%23042f24' stroke-width='1.2' stroke-linejoin='round'/></svg>") 6 2, pointer;
+  }
+
+  input, textarea, [contenteditable="true"] {
+    cursor: text;
   }
 
   h1, h2, h3 {
