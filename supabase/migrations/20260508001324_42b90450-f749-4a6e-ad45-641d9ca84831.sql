@@ -1,0 +1,4 @@
+DROP TRIGGER IF EXISTS guard_intermediation_privileged_columns_trg ON public.intermediation_requests;
+CREATE TRIGGER guard_intermediation_privileged_columns_trg
+BEFORE UPDATE ON public.intermediation_requests
+FOR EACH ROW EXECUTE FUNCTION public.guard_intermediation_privileged_columns();
