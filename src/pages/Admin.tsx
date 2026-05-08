@@ -62,7 +62,7 @@ const Admin = () => {
 
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<TabKey>("stats");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window === "undefined" ? true : window.innerWidth >= 1024);
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newCategoryInput, setNewCategoryInput] = useState("");
