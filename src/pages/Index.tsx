@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import TradeCard from "@/components/TradeCard";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
