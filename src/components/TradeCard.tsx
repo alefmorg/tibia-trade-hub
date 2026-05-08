@@ -99,8 +99,8 @@ const TradeCard = ({
         aria-hidden
         className={cn(
           "pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-          "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.18),transparent_60%)]",
-          featured && "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--warning)/0.22),transparent_60%)]"
+          "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.08),transparent_60%)]",
+          featured && "bg-[radial-gradient(circle_at_50%_0%,hsl(var(--warning)/0.10),transparent_60%)]"
         )}
       />
 
