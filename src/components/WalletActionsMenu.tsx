@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useWallet } from "@/hooks/useWallet";
 import { useCreateIntermediation, useDonate } from "@/hooks/useUserActions";
 import { useVipSettings, usePurchaseVip, useMyVipStatus } from "@/hooks/useVip";
+import { FEATURES } from "@/lib/feature-flags";
 
 const WalletActionsMenu = () => {
   const { data: wallet } = useWallet();
@@ -73,17 +74,19 @@ const WalletActionsMenu = () => {
               <span className="text-[10px] text-muted-foreground">Compre/venda com segurança</span>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setVipOpen(true)} className="cursor-pointer">
-            <Crown className="h-4 w-4 mr-2 text-warning" />
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold">{myVip?.isVip ? "Renovar VIP" : "Tornar-se VIP"}</span>
-              <span className="text-[10px] text-muted-foreground">
-                {myVip?.isVip
-                  ? `Ativo até ${myVip.vipUntil!.toLocaleDateString("pt-BR")}`
-                  : `${vipSettings?.vip_price_coins ?? "—"} coins / ${vipSettings?.vip_duration_days ?? "—"} dias`}
-              </span>
-            </div>
-          </DropdownMenuItem>
+          {FEATURES.VIP_ENABLED && (
+            <DropdownMenuItem onClick={() => setVipOpen(true)} className="cursor-pointer">
+              <Crown className="h-4 w-4 mr-2 text-warning" />
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold">{myVip?.isVip ? "Renovar VIP" : "Tornar-se VIP"}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {myVip?.isVip
+                    ? `Ativo até ${myVip.vipUntil!.toLocaleDateString("pt-BR")}`
+                    : `${vipSettings?.vip_price_coins ?? "—"} coins / ${vipSettings?.vip_duration_days ?? "—"} dias`}
+                </span>
+              </div>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => setDonateOpen(true)} className="cursor-pointer">
             <Heart className="h-4 w-4 mr-2 text-destructive" />
             <div className="flex flex-col">
