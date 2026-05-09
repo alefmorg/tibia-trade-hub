@@ -197,6 +197,8 @@ const Registro = () => {
               </Link>
             </p>
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>
