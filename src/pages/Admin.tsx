@@ -49,7 +49,10 @@ import RafflePageSettingsPanel from "@/components/admin/RafflePageSettingsPanel"
 import WorldsAdminPanel from "@/components/admin/WorldsAdminPanel";
 import HousesAdminPanel from "@/components/admin/HousesAdminPanel";
 
-type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit" | "worlds" | "houses";
+import AffiliateLinksPanel from "@/components/admin/AffiliateLinksPanel";
+import WelcomePanel from "@/components/admin/WelcomePanel";
+
+type TabKey = "ads" | "users" | "items" | "conversations" | "stats" | "nav-links" | "banners" | "filters" | "wallet" | "plans" | "notifications" | "deposits" | "raffles" | "raffle-page" | "intermediations" | "support" | "financial" | "settings" | "cleanup" | "assets" | "streamers" | "resets" | "audit" | "worlds" | "houses" | "affiliates" | "welcome";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -279,6 +282,8 @@ const Admin = () => {
       title: "PERSONALIZAÇÃO",
       items: [
         { key: "assets" as TabKey, label: "Ícones do Site", icon: ImagePlus },
+        { key: "welcome" as TabKey, label: "Tela de Boas-Vindas", icon: Sparkles },
+        { key: "affiliates" as TabKey, label: "Links de Afiliado", icon: Link2 },
       ],
     },
     {
@@ -410,6 +415,8 @@ const Admin = () => {
             {tab === "cleanup" && <CleanupPanel isAdmin={isAdmin} />}
             {tab === "resets" && <ResetsPanel />}
             {tab === "audit" && <AuditLogPanel getProfileName={getProfileName} />}
+            {tab === "affiliates" && <AffiliateLinksPanel />}
+            {tab === "welcome" && <WelcomePanel />}
 
             {/* ADS TAB */}
             {tab === "ads" && (
@@ -1145,8 +1152,8 @@ const Admin = () => {
                   </div>
                 </div>
 
-                {/* VIP */}
-                <VipAdminPanel />
+                {/* VIP — desativado por feature flag */}
+                {false && <VipAdminPanel />}
 
                 {/* Comunidade */}
                 <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
