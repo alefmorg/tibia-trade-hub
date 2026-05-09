@@ -80,23 +80,35 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const {
-    data: adsPages,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteAds({
-    search,
-    type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
-    pvpType: pvpFilter,
-    world: worldFilter,
-    itemIds,
-    onlyWithPrice,
-    sortBy,
-  });
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 24;
 
-  const ads = useMemo(() => adsPages?.pages.flatMap((p) => p.items) ?? [], [adsPages]);
+  // Reset à página 1 quando filtros/busca mudam
+  useEffect(() => {
+    setPage(1);
+  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, onlyWithPrice, sortBy]);
+
+  const {
+    data: pagedData,
+    isLoading,
+    isFetching,
+  } = usePagedAds(
+    {
+      search,
+      type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
+      pvpType: pvpFilter,
+      world: worldFilter,
+      itemIds,
+      onlyWithPrice,
+      sortBy,
+    },
+    page,
+    PAGE_SIZE,
+  );
+
+  const ads = pagedData?.items ?? [];
+  const total = pagedData?.total ?? 0;
+  const totalPages = pagedData?.totalPages ?? 1;
 
   const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilterId].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
@@ -111,19 +123,28 @@ const Index = () => {
   const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
   const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
 
-  // Sentinel para scroll infinito.
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    }, { rootMargin: "400px" });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const listTopRef = useRef<HTMLDivElement | null>(null);
+  const goToPage = useCallback((p: number) => {
+    const target = Math.max(1, Math.min(totalPages, p));
+    setPage(target);
+    listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [totalPages]);
+
+  // Gera lista de páginas com elipses (1 … prev cur next … last)
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "ellipsis")[] = [];
+    const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) add(i);
+    } else {
+      add(1);
+      if (page > 3) pages.push("ellipsis");
+      for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) add(i);
+      if (page < totalPages - 2) pages.push("ellipsis");
+      add(totalPages);
+    }
+    return pages;
+  }, [page, totalPages]);
 
   return (
     <div className="min-h-screen bg-background">
