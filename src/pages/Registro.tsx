@@ -44,11 +44,6 @@ const Registro = () => {
       setLoading(false);
     }
   };
-      toast.error(err?.message || "Erro ao criar conta");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const Rule = ({ ok, label }: { ok: boolean; label: string }) => (
     <li className="flex items-center gap-1.5 text-xs">
