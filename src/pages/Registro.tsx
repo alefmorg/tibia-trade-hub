@@ -36,13 +36,14 @@ const Registro = () => {
     setLoading(true);
     try {
       await signUp(email.trim(), password, username.trim());
-      try {
-        await signIn(email.trim(), password);
-        navigate("/");
-      } catch {
-        navigate("/login");
-      }
+      setSignedUp(true);
+      toast.success("Conta criada! Confirme seu email para acessar.");
     } catch (err: any) {
+      toast.error(err?.message || "Erro ao criar conta");
+    } finally {
+      setLoading(false);
+    }
+  };
       toast.error(err?.message || "Erro ao criar conta");
     } finally {
       setLoading(false);
