@@ -122,13 +122,12 @@ const UserBadges = ({ badges, role, size = "sm", showRole = true }: UserBadgesPr
       items.push({
         key: b.id,
         node: (
-          <PixelPill
+          <CustomPixelPill
             size={size}
-            tone="muted"
-            Icon={Award}
             label={(b.custom_label || "SELO").toUpperCase()}
             title={b.custom_label || "Selo"}
-            customColor={b.custom_color || undefined}
+            color={b.custom_color || undefined}
+            iconUrl={(b as any).custom_icon_url || null}
           />
         ),
       });
