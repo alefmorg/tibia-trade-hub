@@ -428,11 +428,11 @@ const Index = () => {
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0 max-w-4xl">
+          <main ref={listTopRef} className="flex-1 min-w-0 max-w-4xl scroll-mt-20">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {ads.length} resultados{hasNextPage ? "+" : ""}
+                  {total} resultado{total === 1 ? "" : "s"}
                 </span>
                 {activeFilterCount > 0 && (
                   <span className="bg-primary/15 text-primary text-xs px-2 py-0.5 rounded-full font-semibold">
@@ -447,8 +447,6 @@ const Index = () => {
                 <SelectContent>
                   <SelectItem value="most_liked">Mais curtidos</SelectItem>
                   <SelectItem value="recent">Mais recentes</SelectItem>
-                  <SelectItem value="price_asc">Menor preço</SelectItem>
-                  <SelectItem value="price_desc">Maior preço</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -485,7 +483,7 @@ const Index = () => {
                       <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
                     ))}
                   </div>
-                ) : (
+                ) : featuredAds.length === 0 ? (
                   <div className="text-center py-20 bg-card/50 rounded-2xl border border-border">
                     <div className="text-4xl mb-4">🔍</div>
                     <p className="text-muted-foreground text-sm mb-1">Nenhum anúncio encontrado</p>
@@ -495,16 +493,49 @@ const Index = () => {
                       Criar primeiro anúncio
                     </Button>
                   </div>
+                ) : null}
+
+                {totalPages > 1 && (
+                  <Pagination className="mt-8">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={(e) => { e.preventDefault(); if (page > 1) goToPage(page - 1); }}
+                          className={`cursor-pointer ${page === 1 ? "pointer-events-none opacity-40" : ""}`}
+                        />
+                      </PaginationItem>
+                      {pageNumbers.map((p, idx) =>
+                        p === "ellipsis" ? (
+                          <PaginationItem key={`e-${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={p}>
+                            <PaginationLink
+                              isActive={p === page}
+                              onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                              className="cursor-pointer"
+                            >
+                              {p}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={(e) => { e.preventDefault(); if (page < totalPages) goToPage(page + 1); }}
+                          className={`cursor-pointer ${page === totalPages ? "pointer-events-none opacity-40" : ""}`}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 )}
-                {/* Sentinel para scroll infinito */}
-                <div ref={sentinelRef} className="h-10 flex items-center justify-center">
-                  {isFetchingNextPage && (
-                    <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                  )}
-                  {!hasNextPage && ads.length > 0 && (
-                    <span className="text-xs text-muted-foreground/50">— fim dos resultados —</span>
-                  )}
-                </div>
+
+                {isFetching && !isLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="h-5 w-5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                  </div>
+                )}
               </>
             )}
           </main>
