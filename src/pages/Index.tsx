@@ -21,6 +21,8 @@ import { useAllFilterOptionItems } from "@/hooks/useFilterOptionItems";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { useRaffles } from "@/hooks/useRaffles";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
+import FlipFeaturedCard from "@/components/FlipFeaturedCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const adTypes = ["Vendendo", "Comprando"];
 
