@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, ArrowLeft, Sword, Send, CheckCircle2 } from "lucide-react";
+import { Mail, ArrowLeft, Flame, Send, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { toast } from "sonner";
 
@@ -31,81 +31,51 @@ const EsqueciSenha = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-background">
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div className="absolute top-1/4 -left-32 w-72 h-72 rounded-full bg-warning/10 blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-sm relative z-10">
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-3 group">
-            <div
-              className="w-12 h-12 flex items-center justify-center bg-primary/10"
-              style={{
-                borderRadius: 2,
-                boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4), inset 0 0 0 2px hsl(var(--background))",
-              }}
-            >
-              <Sword className="h-5 w-5 text-primary" strokeWidth={2.5} />
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-background">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 border border-primary/20 transition-colors group-hover:bg-primary/15">
+              <Flame className="h-5 w-5 text-primary" strokeWidth={2.25} />
             </div>
-            <span className="font-pixel text-[11px] text-foreground leading-none">
-              Rubin <span className="text-primary">TRADE</span>
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              Rubin<span className="text-primary">Trade</span>
             </span>
           </Link>
         </div>
 
-        <div
-          className="bg-card/95 backdrop-blur-xl p-7"
-          style={{
-            borderRadius: 4,
-            boxShadow:
-              "0 0 0 2px hsl(var(--border)), 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--warning) / 0.3), 0 20px 60px -10px hsl(0 0% 0% / 0.5)",
-          }}
-        >
+        {/* Card */}
+        <div className="rounded-2xl border border-border bg-card p-7 shadow-lg">
           {sent ? (
-            <div className="text-center space-y-4 py-4">
-              <div
-                className="w-16 h-16 mx-auto flex items-center justify-center bg-primary/15"
-                style={{
-                  borderRadius: 2,
-                  boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4)",
-                }}
-              >
-                <CheckCircle2 className="h-8 w-8 text-primary" />
+            <div className="text-center space-y-5 py-2">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20">
+                <CheckCircle2 className="h-7 w-7 text-primary" />
               </div>
               <div>
-                <h1 className="font-pixel text-sm text-foreground mb-2">EMAIL ENVIADO</h1>
-                <p className="text-xs text-muted-foreground font-body leading-relaxed">
-                  Enviamos instruções para <span className="text-foreground font-semibold">{email}</span>. Verifique sua caixa de entrada e o spam.
+                <h1 className="text-xl font-semibold text-foreground mb-2">Email enviado</h1>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Enviamos instruções para <span className="text-foreground font-medium">{email}</span>. Verifique sua caixa de entrada e o spam.
                 </p>
               </div>
               <Link to="/login">
-                <Button
-                  className="w-full bg-secondary text-foreground hover:bg-secondary/80 h-11 font-pixel text-[11px] uppercase tracking-wider"
-                  style={{ borderRadius: 2 }}
-                >
+                <Button className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
                   Voltar ao login
                 </Button>
               </Link>
             </div>
           ) : (
             <>
-              <div className="text-center mb-6">
-                <h1 className="font-pixel text-sm text-foreground mb-2">RECUPERAR</h1>
-                <div className="h-px bg-gradient-to-r from-transparent via-warning/40 to-transparent" />
-                <p className="text-muted-foreground text-xs font-body mt-3">Enviaremos um link para redefinir sua senha</p>
+              <div className="mb-6">
+                <h1 className="text-xl font-semibold text-foreground">Recuperar senha</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Enviaremos um link para redefinir sua senha
+                </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">
+                  <Label htmlFor="email" className="text-xs text-muted-foreground">
                     Email
                   </Label>
                   <div className="relative">
@@ -118,8 +88,7 @@ const EsqueciSenha = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="seu@email.com"
                       required
-                      className="pl-10 bg-secondary/60 border-border h-11 focus:border-primary"
-                      style={{ borderRadius: 2 }}
+                      className="pl-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                     />
                   </div>
                 </div>
@@ -127,15 +96,11 @@ const EsqueciSenha = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-warning text-warning-foreground hover:bg-warning/90 h-11 font-pixel text-[11px] uppercase tracking-wider"
-                  style={{
-                    borderRadius: 2,
-                    boxShadow: "0 0 0 2px hsl(var(--warning) / 0.4), 0 4px 0 hsl(var(--warning) / 0.5)",
-                  }}
+                  className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
                 >
                   {loading ? "Enviando..." : (
                     <span className="flex items-center gap-2">
-                      <Send className="h-3.5 w-3.5" />
+                      <Send className="h-4 w-4" />
                       Enviar link
                     </span>
                   )}
@@ -143,8 +108,8 @@ const EsqueciSenha = () => {
               </form>
 
               <div className="mt-6 pt-5 border-t border-border/60 text-center">
-                <Link to="/login" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-body">
-                  <ArrowLeft className="h-3 w-3" />
+                <Link to="/login" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <ArrowLeft className="h-3.5 w-3.5" />
                   Voltar ao login
                 </Link>
               </div>
