@@ -29,29 +29,43 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-14 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group hover-scale">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+      <div className="container flex h-14 items-center justify-between gap-2">
+        <Link to="/" className="flex items-center gap-2 group hover-scale shrink-0 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
             <Flame className="h-4 w-4 text-primary" />
           </div>
-          <span className="font-pixel text-sm text-foreground">
+          <span className="font-pixel text-xs sm:text-sm text-foreground truncate">
             Rubin <span className="text-primary">TRADE</span>
           </span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           {user ? (
             <>
               {isAdmin && (
-                <Button variant="ghost" size="sm" className="text-warning hover:bg-warning/10 rounded-xl" onClick={() => navigate("/admin")}>
-                  <Shield className="h-4 w-4 mr-1" />
-                  Admin
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-warning hover:bg-warning/10 rounded-xl px-2 sm:px-3"
+                  onClick={() => navigate("/admin")}
+                  title="Admin"
+                >
+                  <Shield className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Admin</span>
                 </Button>
               )}
-              <WalletActionsMenu />
-              <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 rounded-xl" onClick={() => navigate("/criar-anuncio")}>
-                <Plus className="h-4 w-4 mr-1" />
-                Anúncio
+              <div className="hidden sm:block">
+                <WalletActionsMenu />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:bg-primary/10 rounded-xl px-2 sm:px-3"
+                onClick={() => navigate("/criar-anuncio")}
+                title="Criar anúncio"
+              >
+                <Plus className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Anúncio</span>
               </Button>
 
               {/* Notifications bell */}
@@ -66,7 +80,7 @@ const Header = () => {
                 </button>
 
                 {showNotifs && (
-                  <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-border/60 flex items-center justify-between">
                       <span className="text-sm font-semibold text-foreground">Notificações</span>
                       {(unreadNotifs ?? 0) > 0 && (
@@ -103,10 +117,10 @@ const Header = () => {
                 )}
               </div>
 
-              <button onClick={() => navigate("/suporte")} title="Suporte" className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+              <button onClick={() => navigate("/suporte")} title="Suporte" className="hidden sm:inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
                 <LifeBuoy className="h-5 w-5" />
               </button>
-              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title="Mensagens">
                 <MessageCircle className="h-5 w-5" />
                 {(unreadCount ?? 0) > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
@@ -114,18 +128,22 @@ const Header = () => {
                   </span>
                 )}
               </button>
-              <button onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-xl px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all">
-                <User className="h-4 w-4 text-primary" />
-                <span className="text-xs font-medium text-foreground">{profile?.username || user.email?.split("@")[0]}</span>
+              <button
+                onClick={() => navigate("/perfil")}
+                className="flex items-center gap-2 border border-border rounded-xl px-2 sm:px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all max-w-[140px]"
+                title="Meu perfil"
+              >
+                <User className="h-4 w-4 text-primary shrink-0" />
+                <span className="hidden sm:inline text-xs font-medium text-foreground truncate">{profile?.username || user.email?.split("@")[0]}</span>
               </button>
-              <button onClick={signOut} className="text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all">
+              <button onClick={signOut} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all" title="Sair">
                 <LogOut className="h-4 w-4" />
               </button>
             </>
           ) : (
             <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-xl" onClick={() => navigate("/login")}>
-              <User className="h-4 w-4 mr-1" />
-              Entrar
+              <User className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Entrar</span>
             </Button>
           )}
         </div>
