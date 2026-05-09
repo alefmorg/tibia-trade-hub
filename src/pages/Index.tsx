@@ -245,41 +245,28 @@ const Index = () => {
                 ) : (
                   <button
                     onClick={() => navigate(user ? "/perfil" : "/login")}
-                    className="group relative w-full overflow-hidden rounded-xl border-2 border-warning/40 min-h-[260px] flex flex-col sm:flex-row items-center gap-5 p-6 sm:p-8 text-left transition-all duration-300 hover:border-warning/70 hover:shadow-[0_0_40px_hsl(var(--warning)/0.35)]"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, hsl(var(--warning) / 0.18) 0%, hsl(var(--card)) 45%, hsl(var(--primary) / 0.12) 100%)",
-                    }}
+                    className="group relative w-full overflow-hidden rounded-xl border border-warning/30 bg-secondary/40 hover:border-warning/55 hover:bg-secondary/60 transition-all duration-200 p-5 sm:p-6 text-left flex flex-col sm:flex-row items-center gap-5"
                   >
-                    {/* Animated orbs */}
-                    <span aria-hidden className="pointer-events-none absolute -top-12 -left-10 w-44 h-44 rounded-full bg-warning/30 blur-3xl animate-pulse" />
-                    <span aria-hidden className="pointer-events-none absolute -bottom-16 -right-10 w-56 h-56 rounded-full bg-primary/25 blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-                    {/* Diagonal shine */}
-                    <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                    <div className="relative shrink-0 flex flex-col items-center justify-center">
-                      <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-warning to-warning/60 flex items-center justify-center shadow-[0_0_30px_hsl(var(--warning)/0.5)] group-hover:scale-105 transition-transform duration-300">
-                        <Flame className="h-12 w-12 text-warning-foreground drop-shadow-md animate-pulse" strokeWidth={2.4} />
+                    <div className="relative shrink-0">
+                      <div className="trade-card-item-orb trade-card-item-orb-featured">
+                        <Flame className="h-9 w-9 text-warning" strokeWidth={2.2} />
                       </div>
-                      <span className="mt-3 text-[9px] font-pixel uppercase tracking-widest text-warning">Espaço VIP</span>
                     </div>
 
-                    <div className="relative flex-1 min-w-0 text-center sm:text-left space-y-3">
-                      <div>
-                        <h4 className="font-pixel text-base sm:text-xl text-foreground leading-tight mb-1">
-                          Seu anúncio <span className="text-warning">no topo</span>
-                        </h4>
-                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md">
-                          Fure a fila, ganhe destaque dourado e venda <span className="text-warning font-semibold">3x mais rápido</span>.
-                        </p>
+                    <div className="flex-1 min-w-0 text-center sm:text-left space-y-2.5">
+                      <div className="flex items-center gap-2 justify-center sm:justify-start">
+                        <span className="text-[9px] font-pixel uppercase tracking-widest text-warning bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
+                          Espaço Disponível
+                        </span>
                       </div>
-                      <ul className="hidden sm:flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-foreground/80">
-                        <li className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-warning" /> Fixado no topo da home</li>
-                        <li className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-warning" /> Selo dourado de destaque</li>
-                        <li className="flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-warning" /> Mais visualizações e ofertas</li>
-                      </ul>
-                      <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-warning text-warning-foreground font-bold text-sm shadow-[0_8px_24px_hsl(var(--warning)/0.4)] group-hover:shadow-[0_12px_32px_hsl(var(--warning)/0.6)] transition-all">
-                        <Megaphone className="h-4 w-4" />
+                      <h4 className="font-pixel text-sm sm:text-base text-foreground leading-snug">
+                        Seu anúncio <span className="text-warning">aqui no topo</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                        Destaque seu item e apareça antes de todos os outros anúncios.
+                      </p>
+                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-warning/15 border border-warning/35 text-warning font-semibold text-xs group-hover:bg-warning/25 transition-colors">
+                        <Megaphone className="h-3.5 w-3.5" />
                         Destacar meu anúncio
                       </span>
                     </div>
