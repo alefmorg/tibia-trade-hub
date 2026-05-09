@@ -337,9 +337,9 @@ const Perfil = () => {
                           <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
                             {profile.username}
                           </h1>
-                          {vipStatus?.isVip && (
+                          {false && vipStatus?.isVip && (
                             <span
-                              title={`VIP até ${vipStatus.vipUntil!.toLocaleString("pt-BR")}`}
+                              title={`VIP até ${vipStatus?.vipUntil?.toLocaleString("pt-BR")}`}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/15 border border-warning/40 text-warning text-[10px] font-pixel uppercase animate-pulse"
                             >
                               <Crown className="h-3 w-3" /> VIP

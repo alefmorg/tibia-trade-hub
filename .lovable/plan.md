@@ -1,49 +1,83 @@
-## Mudanças na home (`src/pages/Index.tsx`)
+# Plano de implementação
 
-**1. Paginação numerada (substitui scroll infinito)**
-- Trocar `useInfiniteAds` por `useAds` com paginação tradicional (page + pageSize).
-- Tamanho de página: **24 anúncios** por página.
-- Adicionar componente `Pagination` (já existe em `src/components/ui/pagination.tsx`) no fim da lista, com botões anterior/próxima e numeração (ex: `1 2 3 … 8`).
-- Remover sentinel/IntersectionObserver e o spinner de "carregando próxima".
-- Ao trocar filtros/busca, reseta para a página 1 e faz scroll suave pro topo da lista.
-- Atualizar `useAds` (ou criar `usePagedAds`) em `src/hooks/useAds.tsx` para aceitar `page` e retornar `{ items, total, totalPages }` usando `range()` + `count: 'exact'`.
+São 5 entregas independentes. Posso fazer tudo numa só leva.
 
-**2. Ordenação no filtro**
-- Remover **"Menor preço"** e **"Maior preço"** do `<Select>` de ordenação.
-- Manter **"Mais curtidos"** (já é o default — nada a acrescentar, já existe).
-- Resultado final do select: `Mais curtidos` · `Mais recentes`.
+## 1. Card de destaque (Top 3) mais chamativo
+Quando não há anúncios em destaque, o card atual fica pequeno e sem peso visual.
 
-**3. Card "Itens em Destaque" sem destaques → CTA**
-- Quando `featuredAds.length === 0`, em vez de mostrar regulares ou texto vazio, exibir um **CTA visual** dentro do mesmo card incentivando o usuário a destacar:
-  - Ícone Flame grande, headline "Seu anúncio aqui em destaque", subtítulo curto explicando o benefício (mais visibilidade, topo da home), e botão "Destacar meu anúncio" → leva para `/perfil` (ou `/criar-anuncio` se não logado).
-- Manter a estética warning/dourado já usada no card.
+- Reescrever o estado vazio do card "Em destaque" no `Index.tsx`:
+  - Ocupar **toda a altura** dos cards do top 3 ao lado (`h-full`, `min-h-[260px]`).
+  - Fundo com gradiente animado (laranja/amarelo/primary) + glow + ícone `Flame` grande pulsando.
+  - Headline forte ("Seu anúncio em destaque aqui"), bullets curtos com benefícios e CTA grande "Destacar meu anúncio" → leva pra `/perfil` (gerenciar anúncios) ou `/criar-anuncio`.
+  - Animação suave (framer-motion já é hábito? usar puro CSS via `animate-pulse` + gradient shift do tailwind config).
 
-**4. Copy do badge "Top 3"**
-- O texto pequeno embaixo de "Itens em Destaque" diz "Selecionados pela comunidade", o que é incorreto (são anúncios pagos/promovidos).
-- Trocar para algo mais honesto: **"Anúncios em destaque"** ou **"Promovidos pelos anunciantes"**. Usar a segunda opção.
+## 2. Desativar VIP por enquanto
+- Esconder painel `VipAdminPanel` da tela de admin.
+- Esconder botões "Comprar VIP" / "VIP" da UI pública (Header, Perfil, etc).
+- **Não** remover tabelas / RPCs — apenas flag de UI (`const VIP_ENABLED = false`) num arquivo `src/lib/feature-flags.ts` para reativar fácil.
 
-## Header mobile (`src/components/Header.tsx`)
+## 3. Selos (badges) customizáveis no admin
+Hoje os selos são tipos enum fixos. Vou estender pro tipo `custom` com label, cor e ícone livres.
 
-- Revisar layout em viewports < 640px: garantir que logo, ações (criar anúncio, sino, avatar) caibam sem quebrar, esconder texto de itens não essenciais, usar ícones apenas, e/ou mover ações secundárias para o menu hambúrguer.
-- Ajustar paddings/gaps para densidade mobile.
-- (Vou ler o Header atual antes de implementar para preservar a estrutura existente.)
+**Banco:**
+- Adicionar coluna `custom_icon_url text` em `user_badges`.
+- Criar bucket de storage `badge-icons` (público) com policies: leitura pública, upload/delete só admin.
 
-## Página Reset de Senha (`src/pages/ResetPassword.tsx`)
+**Admin:**
+- Novo componente `CustomBadgeDialog` em `UserBadgeControls.tsx`:
+  - Inputs: label, cor (color picker), upload de ícone (PNG/SVG ≤ 200KB).
+  - Salva como `badge_type='custom'` com `custom_label`, `custom_color`, `custom_icon_url`.
+- Atualizar `UserBadges.tsx` para renderizar o ícone customizado quando `badge_type='custom'` e existir url.
 
-A página já tem o mesmo "frame pixel" da `EsqueciSenha`, mas o usuário acha que está fora do padrão do **resto do site** (que usa cards arredondados `rounded-2xl`, sem moldura pixel). Proposta: **alinhar `ResetPassword` E `EsqueciSenha` ao visual do Login/Registro** (mesmas bordas, mesmos botões, mesma tipografia), garantindo consistência total.
+## 4. Links de afiliado interno com tracking
+Sistema simples de short-links com contador de clicks, gerenciado só no admin.
 
-Antes de codar, preciso confirmar a direção (ver pergunta abaixo).
+**Banco — nova tabela `affiliate_links`:**
+- `slug` (unique), `target_url`, `label`, `description`, `active`, `click_count`, `created_by`, `created_at`.
+- Tabela `affiliate_link_clicks`: `link_id`, `created_at`, `referrer`, `user_agent_hash` (não guardar IP cru).
+- RLS: SELECT público apenas em `affiliate_links` (precisa pra resolver slug); INSERT/UPDATE/DELETE só admin. `affiliate_link_clicks` só admin.
+- RPC `register_affiliate_click(p_slug text)` SECURITY DEFINER que incrementa contador e insere registro.
 
-## Exigir confirmação de e-mail
+**Frontend:**
+- Nova rota `/go/:slug` → componente que chama a RPC, mostra tela de redirect curtinha e `window.location.href = target_url`.
+- Novo painel `AffiliateLinksPanel` no admin: CRUD + tabela com clicks totais + botão "copiar link" (`https://site/go/slug`).
 
-- Desativar `auto_confirm_email` em auth (via `configure_auth`) — usuário precisa clicar no link enviado por e-mail antes de logar.
-- No fluxo de signup (`Registro.tsx`): após cadastro bem-sucedido, mostrar mensagem "Confirme seu e-mail para acessar" e **não** fazer login automático.
-- No login (`Login.tsx`): tratar erro `email_not_confirmed` exibindo aviso amigável + botão "Reenviar e-mail de confirmação" (`supabase.auth.resend({ type: 'signup', email })`).
-- Templates de signup já existem em `_shared/email-templates/signup.tsx` (criados anteriormente) — nada a fazer ali.
+## 5. Splash / página de boas-vindas
+Tela fullscreen exibida antes do site, só na primeira visita da sessão (configurável).
+
+**Banco — extender `site_assets` ou criar `welcome_screen_settings`:**
+- Tabela `welcome_screen_settings` (single-row): `enabled`, `title`, `subtitle`, `cta_text`, `cta_url`, `background_image_url`, `accent_color`, `show_once_per_session` (bool).
+
+**Frontend:**
+- Componente `WelcomeOverlay` montado no `App.tsx` (acima das rotas).
+  - Busca settings; se `enabled` e `!sessionStorage.welcome_seen`, renderiza overlay fullscreen.
+  - Visual: hero com background, ícone animado, gradiente vibrante, título grande (display font), CTA grande "Entrar", botão "fechar".
+  - Animação de entrada (scale + fade) e saída.
+- Painel admin `WelcomePanel`: toggle ativo, editar textos, upload de imagem de fundo, escolher cor de destaque, preview.
+
+## Arquivos novos
+- `src/lib/feature-flags.ts`
+- `src/components/admin/CustomBadgeDialog.tsx`
+- `src/components/admin/AffiliateLinksPanel.tsx`
+- `src/components/admin/WelcomePanel.tsx`
+- `src/components/WelcomeOverlay.tsx`
+- `src/pages/AffiliateRedirect.tsx`
+- `src/hooks/useAffiliateLinks.tsx`
+- `src/hooks/useWelcomeSettings.tsx`
+
+## Arquivos editados
+- `src/pages/Index.tsx` (CTA card)
+- `src/pages/Admin.tsx` (esconder VIP, adicionar painéis novos)
+- `src/components/admin/UserBadgeControls.tsx` (botão "novo selo custom")
+- `src/components/UserBadges.tsx` (renderizar ícone custom)
+- `src/components/Header.tsx` (esconder UI VIP)
+- `src/App.tsx` (rota /go/:slug + WelcomeOverlay)
+- 1 migration nova
 
 ## Detalhes técnicos
+- Storage: bucket `badge-icons` público, `welcome-bg` público.
+- Tracking de clicks: hash SHA-256 do `user-agent + dia` para deduplicar grosseiramente sem armazenar PII.
+- Splash usa `sessionStorage` (some ao fechar a aba); admin pode forçar "sempre mostrar" via flag.
+- Feature flag VIP é só de UI; código de back-end fica intacto pra reativar depois.
 
-- `useAds`: adicionar `page`/`pageSize` com `.range(from, to)` e `{ count: 'exact' }` para devolver total.
-- Filtros que afetam a query devem invalidar a página atual (resetar para 1 via `useEffect`).
-- Featured ads continuam buscados separadamente (ou a query principal mantém ordenação por `featured desc`) — manter comportamento atual onde featured aparecem destacados acima dos regulares na mesma página.
-- Confirmação de e-mail é alteração de configuração do backend de auth (não migração SQL).
+Posso começar?

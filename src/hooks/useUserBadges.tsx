@@ -12,6 +12,7 @@ export interface UserBadge {
   badge_type: BadgeType;
   custom_label: string | null;
   custom_color: string | null;
+  custom_icon_url?: string | null;
   granted_by: string | null;
   created_at: string;
 }

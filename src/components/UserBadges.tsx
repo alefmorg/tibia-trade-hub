@@ -102,6 +102,36 @@ const PixelPill = ({
   );
 };
 
+const CustomPixelPill = ({
+  size, label, title, color, iconUrl,
+}: { size: "sm" | "md"; label: string; title: string; color?: string; iconUrl?: string | null }) => {
+  const fg = color || "hsl(var(--foreground))";
+  const border = color || "hsl(var(--border))";
+  const bg = color ? `color-mix(in oklab, ${color} 14%, transparent)` : "hsl(var(--secondary))";
+  return (
+    <span
+      title={title}
+      className={cn(
+        "inline-flex items-center gap-1.5 font-pixel uppercase select-none",
+        size === "md" ? "text-[9px] px-2.5 py-1.5" : "text-[8px] px-2 py-1"
+      )}
+      style={{
+        color: fg, background: bg, border: `2px solid ${border}`,
+        boxShadow: `0 0 0 1px hsl(var(--background)), inset 0 0 0 1px hsl(0 0% 0% / 0.35)`,
+        borderRadius: 2, letterSpacing: "0.06em",
+        textShadow: "1px 1px 0 hsl(0 0% 0% / 0.45)",
+      }}
+    >
+      {iconUrl ? (
+        <img src={iconUrl} alt="" className={size === "md" ? "h-3.5 w-3.5 object-contain" : "h-3 w-3 object-contain"} />
+      ) : (
+        <Award className={size === "md" ? "h-3 w-3" : "h-2.5 w-2.5"} strokeWidth={2.75} />
+      )}
+      {label}
+    </span>
+  );
+};
+
 const UserBadges = ({ badges, role, size = "sm", showRole = true }: UserBadgesProps) => {
   const items: { key: string; node: React.ReactNode }[] = [];
 
@@ -122,13 +152,12 @@ const UserBadges = ({ badges, role, size = "sm", showRole = true }: UserBadgesPr
       items.push({
         key: b.id,
         node: (
-          <PixelPill
+          <CustomPixelPill
             size={size}
-            tone="muted"
-            Icon={Award}
             label={(b.custom_label || "SELO").toUpperCase()}
             title={b.custom_label || "Selo"}
-            customColor={b.custom_color || undefined}
+            color={b.custom_color || undefined}
+            iconUrl={(b as any).custom_icon_url || null}
           />
         ),
       });
