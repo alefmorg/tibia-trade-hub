@@ -147,6 +147,77 @@ export type Database = {
           },
         ]
       }
+      affiliate_link_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          link_id: string
+          referrer: string | null
+          ua_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link_id: string
+          referrer?: string | null
+          ua_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link_id?: string
+          referrer?: string | null
+          ua_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_link_clicks_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_links: {
+        Row: {
+          active: boolean
+          click_count: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          label: string
+          slug: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label: string
+          slug: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label?: string
+          slug?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           ad_id: string
@@ -1195,6 +1266,7 @@ export type Database = {
           badge_type: Database["public"]["Enums"]["badge_type"]
           created_at: string
           custom_color: string | null
+          custom_icon_url: string | null
           custom_label: string | null
           granted_by: string | null
           id: string
@@ -1204,6 +1276,7 @@ export type Database = {
           badge_type: Database["public"]["Enums"]["badge_type"]
           created_at?: string
           custom_color?: string | null
+          custom_icon_url?: string | null
           custom_label?: string | null
           granted_by?: string | null
           id?: string
@@ -1213,6 +1286,7 @@ export type Database = {
           badge_type?: Database["public"]["Enums"]["badge_type"]
           created_at?: string
           custom_color?: string | null
+          custom_icon_url?: string | null
           custom_label?: string | null
           granted_by?: string | null
           id?: string
@@ -1343,6 +1417,48 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      welcome_screen_settings: {
+        Row: {
+          accent_color: string
+          background_image_url: string | null
+          cta_text: string
+          cta_url: string
+          enabled: boolean
+          id: string
+          show_once_per_session: boolean
+          subtitle: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          accent_color?: string
+          background_image_url?: string | null
+          cta_text?: string
+          cta_url?: string
+          enabled?: boolean
+          id?: string
+          show_once_per_session?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          accent_color?: string
+          background_image_url?: string | null
+          cta_text?: string
+          cta_url?: string
+          enabled?: boolean
+          id?: string
+          show_once_per_session?: boolean
+          subtitle?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -1553,6 +1669,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      register_affiliate_click: {
+        Args: { p_referrer?: string; p_slug: string; p_ua_hash?: string }
+        Returns: string
       }
     }
     Enums: {
