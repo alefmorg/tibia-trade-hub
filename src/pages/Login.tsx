@@ -157,6 +157,8 @@ const Login = () => {
               </div>
             )}
 
+            <Button
+              type="submit"
               disabled={loading}
               className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
             >
