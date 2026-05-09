@@ -13,6 +13,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [resending, setResending] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -23,13 +25,41 @@ const Login = () => {
       return;
     }
     setLoading(true);
+    setNeedsConfirm(false);
     try {
       await signIn(email.trim(), password);
       navigate("/");
     } catch (err: any) {
-      toast.error(err?.message || "Erro ao fazer login");
+      const msg = (err?.message || "").toLowerCase();
+      if (msg.includes("not confirmed") || msg.includes("email not confirmed") || msg.includes("confirm")) {
+        setNeedsConfirm(true);
+        toast.error("Confirme seu email antes de entrar");
+      } else {
+        toast.error(err?.message || "Erro ao fazer login");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) {
+      toast.error("Digite seu email primeiro");
+      return;
+    }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      if (error) throw error;
+      toast.success("Email de confirmação reenviado!");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao reenviar email");
+    } finally {
+      setResending(false);
     }
   };
 
