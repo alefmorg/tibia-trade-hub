@@ -443,20 +443,52 @@ const Index = () => {
               <>
                 {featuredAds.length > 0 && (
                   <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-sm font-semibold text-foreground font-body flex items-center gap-2">
+                    {/* Separador visual antes dos destaques */}
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-warning/40 to-warning/40" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 border border-warning/30 text-warning text-[11px] px-3 py-1 font-bold uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" />
                         Anúncios destacados
-                      </h2>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 border border-warning/20 text-warning text-xs px-3 py-1 font-semibold">
-                        ✨ Destaque seu anúncio!
                       </span>
+                      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-warning/40 to-warning/40" />
                     </div>
-                    <div className="trade-card-list-featured">
-                      {featuredAds.map((ad) => (
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {pagedFeatured.map((ad) => (
                         <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
                       ))}
                     </div>
+
+                    {featuredTotalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-6">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFeaturedPage((p) => Math.max(0, p - 1))}
+                          disabled={featuredPage === 0}
+                          className="rounded-xl"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </Button>
+                        <span className="text-xs text-muted-foreground px-3">
+                          Página <span className="text-foreground font-semibold">{featuredPage + 1}</span> de {featuredTotalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFeaturedPage((p) => Math.min(featuredTotalPages - 1, p + 1))}
+                          disabled={featuredPage >= featuredTotalPages - 1}
+                          className="rounded-xl"
+                        >
+                          Próxima
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Separador depois dos destaques */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mt-8" />
                   </div>
                 )}
                 {regularAds.length > 0 ? (
