@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, ArrowRight, Flame, Eye, EyeOff, Check, X } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Flame, Eye, EyeOff, Check, X, MailCheck } from "lucide-react";
 import { toast } from "sonner";
 
 const Registro = () => {
@@ -13,7 +13,8 @@ const Registro = () => {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const [signedUp, setSignedUp] = useState(false);
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const rules = {
@@ -35,12 +36,8 @@ const Registro = () => {
     setLoading(true);
     try {
       await signUp(email.trim(), password, username.trim());
-      try {
-        await signIn(email.trim(), password);
-        navigate("/");
-      } catch {
-        navigate("/login");
-      }
+      setSignedUp(true);
+      toast.success("Conta criada! Confirme seu email para acessar.");
     } catch (err: any) {
       toast.error(err?.message || "Erro ao criar conta");
     } finally {
@@ -72,6 +69,29 @@ const Registro = () => {
 
         {/* Card */}
         <div className="rounded-2xl border border-border bg-card p-7 shadow-lg">
+          {signedUp ? (
+            <div className="text-center space-y-5 py-2">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20">
+                <MailCheck className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-foreground mb-2">Confirme seu email</h1>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Enviamos um link de confirmação para <span className="text-foreground font-medium">{email}</span>.
+                  Clique no link para ativar sua conta antes de entrar.
+                </p>
+                <p className="text-xs text-muted-foreground/70 mt-2">
+                  Não recebeu? Verifique a pasta de spam.
+                </p>
+              </div>
+              <Link to="/login">
+                <Button className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
+                  Ir para o login
+                </Button>
+              </Link>
+            </div>
+          ) : (
+          <>
           <div className="mb-6">
             <h1 className="text-xl font-semibold text-foreground">Criar conta</h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -177,6 +197,8 @@ const Registro = () => {
               </Link>
             </p>
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>

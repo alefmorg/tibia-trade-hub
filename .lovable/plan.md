@@ -1,51 +1,49 @@
-## Objetivo
+## Mudanças na home (`src/pages/Index.tsx`)
 
-Fazer um passe de polimento visual em todo o site mantendo a identidade atual (tema escuro, verde primário `160 84% 44%`, fonte pixel para títulos, layout existente). Foco em **microinterações, efeitos, hierarquia e consistência** — nada de redesenhar telas.
+**1. Paginação numerada (substitui scroll infinito)**
+- Trocar `useInfiniteAds` por `useAds` com paginação tradicional (page + pageSize).
+- Tamanho de página: **24 anúncios** por página.
+- Adicionar componente `Pagination` (já existe em `src/components/ui/pagination.tsx`) no fim da lista, com botões anterior/próxima e numeração (ex: `1 2 3 … 8`).
+- Remover sentinel/IntersectionObserver e o spinner de "carregando próxima".
+- Ao trocar filtros/busca, reseta para a página 1 e faz scroll suave pro topo da lista.
+- Atualizar `useAds` (ou criar `usePagedAds`) em `src/hooks/useAds.tsx` para aceitar `page` e retornar `{ items, total, totalPages }` usando `range()` + `count: 'exact'`.
 
-## Escopo
+**2. Ordenação no filtro**
+- Remover **"Menor preço"** e **"Maior preço"** do `<Select>` de ordenação.
+- Manter **"Mais curtidos"** (já é o default — nada a acrescentar, já existe).
+- Resultado final do select: `Mais curtidos` · `Mais recentes`.
 
-### 1. Sistema de animações global (`tailwind.config.ts` + `src/index.css`)
-Adicionar utilitários reutilizáveis que hoje não existem:
-- Keyframes: `fade-in`, `fade-in-up`, `scale-in`, `slide-in-right`, `shimmer`, `glow-pulse`, `bounce-soft`
-- Animações combinadas: `enter` (fade + scale)
-- Classes utilitárias: `.hover-scale`, `.hover-lift`, `.story-link` (underline animado), `.shimmer-text`, `.glass-strong`, `.gradient-border`
-- Variáveis novas: `--glow-warning`, `--glow-destructive` para reaproveitar o padrão de glow já existente
+**3. Card "Itens em Destaque" sem destaques → CTA**
+- Quando `featuredAds.length === 0`, em vez de mostrar regulares ou texto vazio, exibir um **CTA visual** dentro do mesmo card incentivando o usuário a destacar:
+  - Ícone Flame grande, headline "Seu anúncio aqui em destaque", subtítulo curto explicando o benefício (mais visibilidade, topo da home), e botão "Destacar meu anúncio" → leva para `/perfil` (ou `/criar-anuncio` se não logado).
+- Manter a estética warning/dourado já usada no card.
 
-### 2. Componentes-base UI (efeitos sutis sem mudar API)
-- `button.tsx`: adicionar `active:scale-[0.98]`, `transition-all` em vez de só `transition-colors`, leve `shadow` no `default`/`destructive` e ring focus mais suave
-- `card.tsx`: variante implícita via classe — borda com `hover:border-primary/30` e `transition-colors` quando usado como `card-gaming`
-- `input.tsx` / `textarea.tsx`: focus ring mais suave (`focus-visible:ring-primary/40`) e `transition-colors`
-- `dialog.tsx`: já tem animações Radix; reforçar com `backdrop-blur-sm` no overlay
-- `tabs.tsx`: indicador ativo com leve glow primário
-- `badge.tsx`: garantir consistência com `badge-active/selling/buying` já definidos no CSS
+**4. Copy do badge "Top 3"**
+- O texto pequeno embaixo de "Itens em Destaque" diz "Selecionados pela comunidade", o que é incorreto (são anúncios pagos/promovidos).
+- Trocar para algo mais honesto: **"Anúncios em destaque"** ou **"Promovidos pelos anunciantes"**. Usar a segunda opção.
 
-### 3. Páginas / componentes principais (apenas classes)
-Aplicar as novas utilitárias onde já existe estrutura, sem reescrever lógica:
-- `Header.tsx`: navegação com `.story-link`, logo com `hover-scale`
-- `Index.tsx`: hero com `animate-fade-in-up`, seções com `animate-fade-in` em stagger leve
-- `TradeCard.tsx`: já tem `.trade-card`; adicionar `animate-fade-in` no mount e `group-hover` no título
-- `Rifa.tsx`: hero/coming-soon com `animate-fade-in`, números/contadores com leve `animate-pulse-glow` no destaque
-- `CriarAnuncio.tsx`: stepper com transição entre passos (`animate-fade-in` ao trocar step), chips de mundo com `hover-scale` + `active:scale-95`
-- `Admin.tsx`: tabs com transição `animate-fade-in` ao trocar
-- `LiveStreamersWidget.tsx` / `SponsorsCarousel.tsx`: `hover-lift` nos cards, dot "ao vivo" com pulse vermelho
-- `OffersPanel.tsx` / `Mensagens.tsx`: itens de lista com `transition-colors` e `hover:bg-secondary/60`
+## Header mobile (`src/components/Header.tsx`)
 
-### 4. Consistência e detalhes
-- Padronizar `rounded` (usar `rounded-lg`/`rounded-xl` já no padrão)
-- Skeletons: usar `.shimmer` nas áreas de loading que hoje só mostram texto "Carregando..."
-- Toaster (`sonner`): garantir tema escuro consistente com cores `success`/`destructive`/`warning`
-- Scrollbar: aumentar leve contraste no `::-webkit-scrollbar-thumb` em hover
+- Revisar layout em viewports < 640px: garantir que logo, ações (criar anúncio, sino, avatar) caibam sem quebrar, esconder texto de itens não essenciais, usar ícones apenas, e/ou mover ações secundárias para o menu hambúrguer.
+- Ajustar paddings/gaps para densidade mobile.
+- (Vou ler o Header atual antes de implementar para preservar a estrutura existente.)
 
-## O que NÃO muda
-- Paleta de cores, tipografia, layout das páginas, estrutura de componentes, lógica/estado, schema do banco, hooks. Nenhum redesenho — só polimento.
+## Página Reset de Senha (`src/pages/ResetPassword.tsx`)
+
+A página já tem o mesmo "frame pixel" da `EsqueciSenha`, mas o usuário acha que está fora do padrão do **resto do site** (que usa cards arredondados `rounded-2xl`, sem moldura pixel). Proposta: **alinhar `ResetPassword` E `EsqueciSenha` ao visual do Login/Registro** (mesmas bordas, mesmos botões, mesma tipografia), garantindo consistência total.
+
+Antes de codar, preciso confirmar a direção (ver pergunta abaixo).
+
+## Exigir confirmação de e-mail
+
+- Desativar `auto_confirm_email` em auth (via `configure_auth`) — usuário precisa clicar no link enviado por e-mail antes de logar.
+- No fluxo de signup (`Registro.tsx`): após cadastro bem-sucedido, mostrar mensagem "Confirme seu e-mail para acessar" e **não** fazer login automático.
+- No login (`Login.tsx`): tratar erro `email_not_confirmed` exibindo aviso amigável + botão "Reenviar e-mail de confirmação" (`supabase.auth.resend({ type: 'signup', email })`).
+- Templates de signup já existem em `_shared/email-templates/signup.tsx` (criados anteriormente) — nada a fazer ali.
 
 ## Detalhes técnicos
 
-Arquivos editados (estimativa):
-- `tailwind.config.ts` — novos keyframes/animations
-- `src/index.css` — novas utilitárias (`.hover-scale`, `.hover-lift`, `.story-link`, `.shimmer`, `.glass-strong`)
-- `src/components/ui/{button,card,input,textarea,dialog,tabs}.tsx` — ajustes mínimos de classes
-- `src/components/Header.tsx`, `TradeCard.tsx`, `LiveStreamersWidget.tsx`, `SponsorsCarousel.tsx`, `OffersPanel.tsx`
-- `src/pages/{Index,Rifa,CriarAnuncio,Admin,Mensagens}.tsx` — adicionar classes de animação/hover
-
-Sem migrações, sem novas dependências, sem mudança de comportamento.
+- `useAds`: adicionar `page`/`pageSize` com `.range(from, to)` e `{ count: 'exact' }` para devolver total.
+- Filtros que afetam a query devem invalidar a página atual (resetar para 1 via `useEffect`).
+- Featured ads continuam buscados separadamente (ou a query principal mantém ordenação por `featured desc`) — manter comportamento atual onde featured aparecem destacados acima dos regulares na mesma página.
+- Confirmação de e-mail é alteração de configuração do backend de auth (não migração SQL).

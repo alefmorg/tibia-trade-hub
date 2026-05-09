@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Sword, Eye, EyeOff, Check, X, ShieldCheck } from "lucide-react";
+import { Lock, Flame, Eye, EyeOff, Check, X, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { toast } from "sonner";
 
@@ -16,7 +16,6 @@ const ResetPassword = () => {
   const [validSession, setValidSession] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Detecta sessão de recovery vinda pelo hash do link de email.
     const check = async () => {
       const { data } = await supabase.auth.getSession();
       const hash = window.location.hash;
@@ -59,64 +58,44 @@ const ResetPassword = () => {
   };
 
   const Rule = ({ ok, label }: { ok: boolean; label: string }) => (
-    <li className="flex items-center gap-1.5 text-[10px] font-body">
+    <li className="flex items-center gap-1.5 text-xs">
       {ok ? <Check className="h-3 w-3 text-primary" /> : <X className="h-3 w-3 text-muted-foreground/60" />}
       <span className={ok ? "text-primary" : "text-muted-foreground/70"}>{label}</span>
     </li>
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-background">
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-
-      <div className="w-full max-w-sm relative z-10">
-        <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-3 group">
-            <div
-              className="w-12 h-12 flex items-center justify-center bg-primary/10"
-              style={{
-                borderRadius: 2,
-                boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4), inset 0 0 0 2px hsl(var(--background))",
-              }}
-            >
-              <Sword className="h-5 w-5 text-primary" strokeWidth={2.5} />
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-background">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 border border-primary/20 transition-colors group-hover:bg-primary/15">
+              <Flame className="h-5 w-5 text-primary" strokeWidth={2.25} />
             </div>
-            <span className="font-pixel text-[11px] text-foreground leading-none">
-              Rubin <span className="text-primary">TRADE</span>
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              Rubin<span className="text-primary">Trade</span>
             </span>
           </Link>
         </div>
 
-        <div
-          className="bg-card/95 backdrop-blur-xl p-7"
-          style={{
-            borderRadius: 4,
-            boxShadow:
-              "0 0 0 2px hsl(var(--border)), 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--primary) / 0.3), 0 20px 60px -10px hsl(0 0% 0% / 0.5)",
-          }}
-        >
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 mb-3 bg-primary/15" style={{ borderRadius: 2, boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4)" }}>
-              <ShieldCheck className="h-6 w-6 text-primary" />
+        {/* Card */}
+        <div className="rounded-2xl border border-border bg-card p-7 shadow-lg">
+          <div className="mb-6 flex items-start gap-3">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 shrink-0">
+              <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="font-pixel text-sm text-foreground mb-2">NOVA SENHA</h1>
-            <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-            <p className="text-muted-foreground text-xs font-body mt-3">Defina uma senha forte e segura</p>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">Nova senha</h1>
+              <p className="text-sm text-muted-foreground mt-1">Defina uma senha forte e segura</p>
+            </div>
           </div>
 
           {validSession === false ? (
-            <div className="text-center py-4 space-y-3">
-              <p className="text-xs text-destructive font-body">Link inválido ou expirado.</p>
+            <div className="text-center py-4 space-y-4">
+              <p className="text-sm text-destructive">Link inválido ou expirado.</p>
               <Link to="/esqueci-senha">
-                <Button className="bg-primary text-primary-foreground" style={{ borderRadius: 2 }}>
+                <Button className="h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">
                   Solicitar novo link
                 </Button>
               </Link>
@@ -124,7 +103,7 @@ const ResetPassword = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">Nova senha</Label>
+                <Label className="text-xs text-muted-foreground">Nova senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -134,13 +113,13 @@ const ResetPassword = () => {
                     placeholder="••••••••"
                     required
                     autoComplete="new-password"
-                    className="pl-10 pr-10 bg-secondary/60 border-border h-11"
-                    style={{ borderRadius: 2 }}
+                    className="pl-10 pr-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPwd((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -148,7 +127,7 @@ const ResetPassword = () => {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-[10px] text-muted-foreground font-pixel uppercase tracking-wider">Confirmar senha</Label>
+                <Label className="text-xs text-muted-foreground">Confirmar senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -158,8 +137,7 @@ const ResetPassword = () => {
                     placeholder="••••••••"
                     required
                     autoComplete="new-password"
-                    className="pl-10 bg-secondary/60 border-border h-11"
-                    style={{ borderRadius: 2 }}
+                    className="pl-10 bg-secondary/40 border-border h-11 rounded-lg focus:border-primary"
                   />
                 </div>
               </div>
@@ -174,11 +152,7 @@ const ResetPassword = () => {
               <Button
                 type="submit"
                 disabled={loading || !allValid}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 font-pixel text-[11px] uppercase tracking-wider disabled:opacity-50"
-                style={{
-                  borderRadius: 2,
-                  boxShadow: "0 0 0 2px hsl(var(--primary) / 0.4), 0 4px 0 hsl(var(--primary) / 0.5)",
-                }}
+                className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {loading ? "Salvando..." : "Atualizar senha"}
               </Button>

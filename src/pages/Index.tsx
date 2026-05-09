@@ -10,7 +10,16 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LiveStreamersWidget from "@/components/LiveStreamersWidget";
-import { useInfiniteAds } from "@/hooks/useAds";
+import { usePagedAds } from "@/hooks/useAds";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useAuth } from "@/hooks/useAuth";
 import { pvpTypes } from "@/lib/tibia-worlds";
 import { useWorlds } from "@/hooks/useWorlds";
@@ -71,23 +80,35 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const {
-    data: adsPages,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteAds({
-    search,
-    type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
-    pvpType: pvpFilter,
-    world: worldFilter,
-    itemIds,
-    onlyWithPrice,
-    sortBy,
-  });
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 24;
 
-  const ads = useMemo(() => adsPages?.pages.flatMap((p) => p.items) ?? [], [adsPages]);
+  // Reset à página 1 quando filtros/busca mudam
+  useEffect(() => {
+    setPage(1);
+  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, onlyWithPrice, sortBy]);
+
+  const {
+    data: pagedData,
+    isLoading,
+    isFetching,
+  } = usePagedAds(
+    {
+      search,
+      type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
+      pvpType: pvpFilter,
+      world: worldFilter,
+      itemIds,
+      onlyWithPrice,
+      sortBy,
+    },
+    page,
+    PAGE_SIZE,
+  );
+
+  const ads = pagedData?.items ?? [];
+  const total = pagedData?.total ?? 0;
+  const totalPages = pagedData?.totalPages ?? 1;
 
   const activeFilterCount = [typeFilter, pvpFilter, worldFilter, categoryFilterId].filter(Boolean).length + (onlyWithPrice ? 1 : 0);
 
@@ -102,19 +123,28 @@ const Index = () => {
   const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
   const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
 
-  // Sentinel para scroll infinito.
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    }, { rootMargin: "400px" });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const listTopRef = useRef<HTMLDivElement | null>(null);
+  const goToPage = useCallback((p: number) => {
+    const target = Math.max(1, Math.min(totalPages, p));
+    setPage(target);
+    listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [totalPages]);
+
+  // Gera lista de páginas com elipses (1 … prev cur next … last)
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "ellipsis")[] = [];
+    const add = (n: number) => { if (!pages.includes(n)) pages.push(n); };
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) add(i);
+    } else {
+      add(1);
+      if (page > 3) pages.push("ellipsis");
+      for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) add(i);
+      if (page < totalPages - 2) pages.push("ellipsis");
+      add(totalPages);
+    }
+    return pages;
+  }, [page, totalPages]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -179,17 +209,19 @@ const Index = () => {
                     </span>
                     <div>
                       <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
-                      <p className="text-[10px] text-muted-foreground/80">Selecionados pela comunidade</p>
+                      <p className="text-[10px] text-muted-foreground/80">Anúncios promovidos pelos vendedores</p>
                     </div>
                   </div>
-                  <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                    Top {Math.min(3, (featuredAds.length || regularAds?.length || 0))}
-                  </span>
+                  {featuredAds.length > 0 && (
+                    <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
+                      Top {Math.min(3, featuredAds.length)}
+                    </span>
+                  )}
                 </div>
 
-                {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).length > 0 ? (
+                {featuredAds.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).map((ad) => (
+                    {featuredAds.slice(0, 3).map((ad) => (
                       <TradeCard
                         key={ad.id}
                         id={ad.id}
@@ -211,8 +243,23 @@ const Index = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-xs text-muted-foreground/60">Nenhum item em destaque ainda</p>
+                  <div className="relative overflow-hidden rounded-xl border border-warning/30 bg-gradient-to-br from-warning/[0.08] via-card to-primary/[0.05] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
+                    <div className="shrink-0 w-16 h-16 rounded-2xl bg-warning/15 border border-warning/30 flex items-center justify-center">
+                      <Flame className="h-8 w-8 text-warning" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-foreground mb-1">Seu anúncio em destaque aqui</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Apareça no topo da home, ganhe visibilidade e venda mais rápido. Destaque seus anúncios agora.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => navigate(user ? "/perfil" : "/login")}
+                      className="shrink-0 bg-warning text-warning-foreground hover:bg-warning/90 rounded-xl font-semibold shadow-[0_0_20px_hsl(var(--warning)/0.25)]"
+                    >
+                      <Megaphone className="h-4 w-4 mr-1.5" />
+                      Destacar anúncio
+                    </Button>
                   </div>
                 )}
               </div>
@@ -398,11 +445,11 @@ const Index = () => {
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0 max-w-4xl">
+          <main ref={listTopRef} className="flex-1 min-w-0 max-w-4xl scroll-mt-20">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {ads.length} resultados{hasNextPage ? "+" : ""}
+                  {total} resultado{total === 1 ? "" : "s"}
                 </span>
                 {activeFilterCount > 0 && (
                   <span className="bg-primary/15 text-primary text-xs px-2 py-0.5 rounded-full font-semibold">
@@ -417,8 +464,6 @@ const Index = () => {
                 <SelectContent>
                   <SelectItem value="most_liked">Mais curtidos</SelectItem>
                   <SelectItem value="recent">Mais recentes</SelectItem>
-                  <SelectItem value="price_asc">Menor preço</SelectItem>
-                  <SelectItem value="price_desc">Maior preço</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -455,7 +500,7 @@ const Index = () => {
                       <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
                     ))}
                   </div>
-                ) : (
+                ) : featuredAds.length === 0 ? (
                   <div className="text-center py-20 bg-card/50 rounded-2xl border border-border">
                     <div className="text-4xl mb-4">🔍</div>
                     <p className="text-muted-foreground text-sm mb-1">Nenhum anúncio encontrado</p>
@@ -465,16 +510,49 @@ const Index = () => {
                       Criar primeiro anúncio
                     </Button>
                   </div>
+                ) : null}
+
+                {totalPages > 1 && (
+                  <Pagination className="mt-8">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={(e) => { e.preventDefault(); if (page > 1) goToPage(page - 1); }}
+                          className={`cursor-pointer ${page === 1 ? "pointer-events-none opacity-40" : ""}`}
+                        />
+                      </PaginationItem>
+                      {pageNumbers.map((p, idx) =>
+                        p === "ellipsis" ? (
+                          <PaginationItem key={`e-${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={p}>
+                            <PaginationLink
+                              isActive={p === page}
+                              onClick={(e) => { e.preventDefault(); goToPage(p); }}
+                              className="cursor-pointer"
+                            >
+                              {p}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={(e) => { e.preventDefault(); if (page < totalPages) goToPage(page + 1); }}
+                          className={`cursor-pointer ${page === totalPages ? "pointer-events-none opacity-40" : ""}`}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 )}
-                {/* Sentinel para scroll infinito */}
-                <div ref={sentinelRef} className="h-10 flex items-center justify-center">
-                  {isFetchingNextPage && (
-                    <div className="h-6 w-6 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                  )}
-                  {!hasNextPage && ads.length > 0 && (
-                    <span className="text-xs text-muted-foreground/50">— fim dos resultados —</span>
-                  )}
-                </div>
+
+                {isFetching && !isLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="h-5 w-5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                  </div>
+                )}
               </>
             )}
           </main>

@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, ArrowRight, Flame, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, ArrowRight, Flame, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase-client";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -12,6 +13,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [resending, setResending] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -22,13 +25,41 @@ const Login = () => {
       return;
     }
     setLoading(true);
+    setNeedsConfirm(false);
     try {
       await signIn(email.trim(), password);
       navigate("/");
     } catch (err: any) {
-      toast.error(err?.message || "Erro ao fazer login");
+      const msg = (err?.message || "").toLowerCase();
+      if (msg.includes("not confirmed") || msg.includes("email not confirmed") || msg.includes("confirm")) {
+        setNeedsConfirm(true);
+        toast.error("Confirme seu email antes de entrar");
+      } else {
+        toast.error(err?.message || "Erro ao fazer login");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) {
+      toast.error("Digite seu email primeiro");
+      return;
+    }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      if (error) throw error;
+      toast.success("Email de confirmação reenviado!");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao reenviar email");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -107,6 +138,24 @@ const Login = () => {
                 </button>
               </div>
             </div>
+
+            {needsConfirm && (
+              <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-foreground font-medium">Confirme seu email para entrar</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Enviamos um link para {email}. Verifique sua caixa de entrada e o spam.</p>
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resending}
+                    className="text-xs text-primary hover:underline mt-1.5 disabled:opacity-60"
+                  >
+                    {resending ? "Reenviando..." : "Reenviar email de confirmação"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             <Button
               type="submit"
