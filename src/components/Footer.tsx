@@ -7,28 +7,6 @@ const Footer = () => {
     <footer className="mt-16 border-t border-border/60 bg-gradient-to-b from-card/30 to-background relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)", backgroundSize: "8px 8px" }} />
 
-      {/* Trust strip */}
-      <div className="relative border-b border-border/50">
-        <div className="container max-w-6xl py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: Shield, title: "Negociação Segura", desc: "Intermediação por admins" },
-            { icon: Lock, title: "Dados Protegidos", desc: "Conformidade LGPD" },
-            { icon: Zap, title: "Tempo Real", desc: "Notificações instantâneas" },
-            { icon: CheckCircle2, title: "Suporte Ativo", desc: "Tickets respondidos rápido" },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                <Icon className="h-4 w-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground leading-tight">{title}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Main columns */}
       <div className="relative container max-w-6xl py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
         <div className="col-span-2 md:col-span-1">
