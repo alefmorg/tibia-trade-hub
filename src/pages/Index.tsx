@@ -209,17 +209,19 @@ const Index = () => {
                     </span>
                     <div>
                       <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
-                      <p className="text-[10px] text-muted-foreground/80">Selecionados pela comunidade</p>
+                      <p className="text-[10px] text-muted-foreground/80">Anúncios promovidos pelos vendedores</p>
                     </div>
                   </div>
-                  <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                    Top {Math.min(3, (featuredAds.length || regularAds?.length || 0))}
-                  </span>
+                  {featuredAds.length > 0 && (
+                    <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
+                      Top {Math.min(3, featuredAds.length)}
+                    </span>
+                  )}
                 </div>
 
-                {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).length > 0 ? (
+                {featuredAds.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).map((ad) => (
+                    {featuredAds.slice(0, 3).map((ad) => (
                       <TradeCard
                         key={ad.id}
                         id={ad.id}
@@ -241,8 +243,23 @@ const Index = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-xs text-muted-foreground/60">Nenhum item em destaque ainda</p>
+                  <div className="relative overflow-hidden rounded-xl border border-warning/30 bg-gradient-to-br from-warning/[0.08] via-card to-primary/[0.05] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 text-center sm:text-left">
+                    <div className="shrink-0 w-16 h-16 rounded-2xl bg-warning/15 border border-warning/30 flex items-center justify-center">
+                      <Flame className="h-8 w-8 text-warning" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-foreground mb-1">Seu anúncio em destaque aqui</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Apareça no topo da home, ganhe visibilidade e venda mais rápido. Destaque seus anúncios agora.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => navigate(user ? "/perfil" : "/login")}
+                      className="shrink-0 bg-warning text-warning-foreground hover:bg-warning/90 rounded-xl font-semibold shadow-[0_0_20px_hsl(var(--warning)/0.25)]"
+                    >
+                      <Megaphone className="h-4 w-4 mr-1.5" />
+                      Destacar anúncio
+                    </Button>
                   </div>
                 )}
               </div>
