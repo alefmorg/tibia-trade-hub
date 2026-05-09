@@ -21,6 +21,8 @@ import { useAllFilterOptionItems } from "@/hooks/useFilterOptionItems";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { useRaffles } from "@/hooks/useRaffles";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
+import FlipFeaturedCard from "@/components/FlipFeaturedCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const adTypes = ["Vendendo", "Comprando"];
 
@@ -102,6 +104,31 @@ const Index = () => {
   const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
   const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
 
+  // Seleção diária de 3 destaques (rotaciona todo dia, baseada na data)
+  const dailyFeatured = useMemo(() => {
+    const pool = featuredAds.length > 0 ? featuredAds : regularAds;
+    if (pool.length === 0) return [];
+    const sorted = [...pool].sort((a, b) => a.id.localeCompare(b.id));
+    const today = new Date();
+    const dayKey = Math.floor(
+      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86400000
+    );
+    const start = dayKey % sorted.length;
+    return Array.from({ length: 3 }, (_, i) => sorted[(start + i) % sorted.length]);
+  }, [featuredAds, regularAds]);
+
+  // Paginação dos destaques (27 por página: 3 colunas × 9 linhas)
+  const FEATURED_PER_PAGE = 27;
+  const [featuredPage, setFeaturedPage] = useState(0);
+  const featuredTotalPages = Math.max(1, Math.ceil(featuredAds.length / FEATURED_PER_PAGE));
+  const pagedFeatured = useMemo(
+    () => featuredAds.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE),
+    [featuredAds, featuredPage]
+  );
+  useEffect(() => {
+    if (featuredPage >= featuredTotalPages) setFeaturedPage(0);
+  }, [featuredTotalPages, featuredPage]);
+
   // Sentinel para scroll infinito.
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -178,36 +205,19 @@ const Index = () => {
                       <Flame className="h-3.5 w-3.5 text-warning" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
-                      <p className="text-[10px] text-muted-foreground/80">Selecionados pela comunidade</p>
+                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque do Dia</h3>
+                      <p className="text-[10px] text-muted-foreground/80">Vire o card para revelar — troca todo dia</p>
                     </div>
                   </div>
                   <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                    Top {Math.min(3, (featuredAds.length || regularAds?.length || 0))}
+                    Top 3
                   </span>
                 </div>
 
-                {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).length > 0 ? (
+                {dailyFeatured.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).map((ad) => (
-                      <TradeCard
-                        key={ad.id}
-                        id={ad.id}
-                        title={ad.title}
-                        type={ad.type as "selling" | "buying"}
-                        price={ad.price}
-                        currency={ad.currency}
-                        world={ad.world}
-                        pvpType={ad.pvp_type}
-                        date={ad.created_at}
-                        imageUrl={ad.image_url}
-                        likes={ad.likes_count}
-                        featured={ad.featured}
-                        tier={(ad as any).tier}
-                        profiles={ad.profiles}
-                        userId={ad.user_id}
-                        category={ad.category}
-                      />
+                    {[0, 1, 2].map((i) => (
+                      <FlipFeaturedCard key={dailyFeatured[i]?.id ?? `slot-${i}`} ad={dailyFeatured[i]} index={i} />
                     ))}
                   </div>
                 ) : (
@@ -433,20 +443,52 @@ const Index = () => {
               <>
                 {featuredAds.length > 0 && (
                   <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-sm font-semibold text-foreground font-body flex items-center gap-2">
+                    {/* Separador visual antes dos destaques */}
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-warning/40 to-warning/40" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 border border-warning/30 text-warning text-[11px] px-3 py-1 font-bold uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" />
                         Anúncios destacados
-                      </h2>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 border border-warning/20 text-warning text-xs px-3 py-1 font-semibold">
-                        ✨ Destaque seu anúncio!
                       </span>
+                      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-warning/40 to-warning/40" />
                     </div>
-                    <div className="trade-card-list-featured">
-                      {featuredAds.map((ad) => (
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {pagedFeatured.map((ad) => (
                         <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
                       ))}
                     </div>
+
+                    {featuredTotalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-6">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFeaturedPage((p) => Math.max(0, p - 1))}
+                          disabled={featuredPage === 0}
+                          className="rounded-xl"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Anterior
+                        </Button>
+                        <span className="text-xs text-muted-foreground px-3">
+                          Página <span className="text-foreground font-semibold">{featuredPage + 1}</span> de {featuredTotalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFeaturedPage((p) => Math.min(featuredTotalPages - 1, p + 1))}
+                          disabled={featuredPage >= featuredTotalPages - 1}
+                          className="rounded-xl"
+                        >
+                          Próxima
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Separador depois dos destaques */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mt-8" />
                   </div>
                 )}
                 {regularAds.length > 0 ? (
