@@ -205,36 +205,19 @@ const Index = () => {
                       <Flame className="h-3.5 w-3.5 text-warning" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
-                      <p className="text-[10px] text-muted-foreground/80">Selecionados pela comunidade</p>
+                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque do Dia</h3>
+                      <p className="text-[10px] text-muted-foreground/80">Vire o card para revelar — troca todo dia</p>
                     </div>
                   </div>
                   <span className="text-[9px] font-bold text-warning uppercase tracking-widest bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                    Top {Math.min(3, (featuredAds.length || regularAds?.length || 0))}
+                    Top 3
                   </span>
                 </div>
 
-                {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).length > 0 ? (
+                {dailyFeatured.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {(featuredAds.length > 0 ? featuredAds.slice(0, 3) : regularAds?.slice(0, 3) || []).map((ad) => (
-                      <TradeCard
-                        key={ad.id}
-                        id={ad.id}
-                        title={ad.title}
-                        type={ad.type as "selling" | "buying"}
-                        price={ad.price}
-                        currency={ad.currency}
-                        world={ad.world}
-                        pvpType={ad.pvp_type}
-                        date={ad.created_at}
-                        imageUrl={ad.image_url}
-                        likes={ad.likes_count}
-                        featured={ad.featured}
-                        tier={(ad as any).tier}
-                        profiles={ad.profiles}
-                        userId={ad.user_id}
-                        category={ad.category}
-                      />
+                    {[0, 1, 2].map((i) => (
+                      <FlipFeaturedCard key={dailyFeatured[i]?.id ?? `slot-${i}`} ad={dailyFeatured[i]} index={i} />
                     ))}
                   </div>
                 ) : (
