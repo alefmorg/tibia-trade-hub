@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
+import WelcomeOverlay from "@/components/WelcomeOverlay";
 
 // Code splitting: páginas secundárias só carregam quando acessadas.
 const Login = lazy(() => import("./pages/Login"));
@@ -21,6 +22,7 @@ const Anuncio = lazy(() => import("./pages/Anuncio"));
 const RifaPage = lazy(() => import("./pages/Rifa"));
 const Suporte = lazy(() => import("./pages/Suporte"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
+const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +48,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <WelcomeOverlay />
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -63,6 +66,7 @@ const App = () => (
               <Route path="/rifa/:id" element={<RifaPage />} />
               <Route path="/suporte" element={<Suporte />} />
               <Route path="/privacidade" element={<Privacidade />} />
+              <Route path="/go/:slug" element={<AffiliateRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
