@@ -10,7 +10,16 @@ import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LiveStreamersWidget from "@/components/LiveStreamersWidget";
-import { useInfiniteAds } from "@/hooks/useAds";
+import { usePagedAds } from "@/hooks/useAds";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useAuth } from "@/hooks/useAuth";
 import { pvpTypes } from "@/lib/tibia-worlds";
 import { useWorlds } from "@/hooks/useWorlds";
