@@ -104,6 +104,31 @@ const Index = () => {
   const featuredAds = useMemo(() => ads.filter((ad) => ad.featured), [ads]);
   const regularAds = useMemo(() => ads.filter((ad) => !ad.featured), [ads]);
 
+  // Seleção diária de 3 destaques (rotaciona todo dia, baseada na data)
+  const dailyFeatured = useMemo(() => {
+    const pool = featuredAds.length > 0 ? featuredAds : regularAds;
+    if (pool.length === 0) return [];
+    const sorted = [...pool].sort((a, b) => a.id.localeCompare(b.id));
+    const today = new Date();
+    const dayKey = Math.floor(
+      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86400000
+    );
+    const start = dayKey % sorted.length;
+    return Array.from({ length: 3 }, (_, i) => sorted[(start + i) % sorted.length]);
+  }, [featuredAds, regularAds]);
+
+  // Paginação dos destaques (27 por página: 3 colunas × 9 linhas)
+  const FEATURED_PER_PAGE = 27;
+  const [featuredPage, setFeaturedPage] = useState(0);
+  const featuredTotalPages = Math.max(1, Math.ceil(featuredAds.length / FEATURED_PER_PAGE));
+  const pagedFeatured = useMemo(
+    () => featuredAds.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE),
+    [featuredAds, featuredPage]
+  );
+  useEffect(() => {
+    if (featuredPage >= featuredTotalPages) setFeaturedPage(0);
+  }, [featuredTotalPages, featuredPage]);
+
   // Sentinel para scroll infinito.
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
