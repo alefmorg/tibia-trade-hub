@@ -139,8 +139,24 @@ const Login = () => {
               </div>
             </div>
 
-            <Button
-              type="submit"
+            {needsConfirm && (
+              <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-foreground font-medium">Confirme seu email para entrar</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Enviamos um link para {email}. Verifique sua caixa de entrada e o spam.</p>
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resending}
+                    className="text-xs text-primary hover:underline mt-1.5 disabled:opacity-60"
+                  >
+                    {resending ? "Reenviando..." : "Reenviar email de confirmação"}
+                  </button>
+                </div>
+              </div>
+            )}
+
               disabled={loading}
               className="w-full h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
             >
