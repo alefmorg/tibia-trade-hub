@@ -92,6 +92,68 @@ export const useAds = (filters?: {
 
 const PAGE_SIZE = 20;
 
+export const usePagedAds = (
+  filters?: {
+    search?: string;
+    type?: string;
+    world?: string;
+    pvpType?: string;
+    category?: string;
+    itemIds?: string[];
+    onlyWithPrice?: boolean;
+    sortBy?: string;
+  },
+  page: number = 1,
+  pageSize: number = 24,
+) => {
+  return useQuery({
+    queryKey: ["ads", "paged", filters, page, pageSize],
+    queryFn: async () => {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      let query = supabase
+        .from("ads")
+        .select(
+          "id,user_id,item_id,title,type,price,currency,world,pvp_type,category,image_url,featured,featured_until,status,likes_count,expires_at,tier,created_at,profiles!ads_user_id_fkey(username, avatar_url),items!ads_item_id_fkey(tier)",
+          { count: "exact" }
+        )
+        .eq("status", "active");
+
+      if (filters?.search) query = query.ilike("title", `%${filters.search}%`);
+      if (filters?.type && filters.type !== "all") query = query.eq("type", filters.type);
+      if (filters?.world) query = query.eq("world", filters.world);
+      if (filters?.pvpType) query = query.eq("pvp_type", filters.pvpType);
+      if (filters?.category) query = query.eq("category", filters.category);
+      if (filters?.itemIds && filters.itemIds.length > 0) query = query.in("item_id", filters.itemIds);
+      if (filters?.onlyWithPrice) query = query.not("price", "is", null).neq("price", "Aceita ofertas");
+
+      switch (filters?.sortBy) {
+        case "recent":
+          query = query.order("created_at", { ascending: false });
+          break;
+        default:
+          query = query.order("likes_count", { ascending: false });
+      }
+
+      query = query.range(from, to);
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      const now = Date.now();
+      const filtered = ((data as unknown as Ad[]) || []).filter((ad) => {
+        const expValid = !ad.expires_at || new Date(ad.expires_at).getTime() > now;
+        const featValid = ad.featured && ad.featured_until && new Date(ad.featured_until).getTime() > now;
+        return expValid || featValid;
+      });
+      const total = count ?? filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      return { items: filtered, total, totalPages, page };
+    },
+    placeholderData: (prev) => prev,
+  });
+};
+
 export const useInfiniteAds = (filters?: {
   search?: string;
   type?: string;
