@@ -66,7 +66,8 @@ Deno.serve(async (req) => {
       case "updateAdStatus": {
         const { id, status } = payload ?? {};
         if (!id || !status) throw new Error("Dados inválidos");
-        const { error } = await adminClient.from("ads").update({ status }).eq("id", id);
+        // Use authClient: trigger guard_ads_privileged_columns checks auth.uid() for admin bypass
+        const { error } = await authClient.from("ads").update({ status }).eq("id", id);
         ensureNoError(error);
         return jsonResponse({ success: true });
       }
@@ -74,7 +75,8 @@ Deno.serve(async (req) => {
       case "toggleAdFeatured": {
         const { id, featured } = payload ?? {};
         if (!id || typeof featured !== "boolean") throw new Error("Dados inválidos");
-        const { error } = await adminClient.from("ads").update({ featured }).eq("id", id);
+        // Use authClient: trigger guard_ads_privileged_columns checks auth.uid() for admin bypass
+        const { error } = await authClient.from("ads").update({ featured, featured_until: featured ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null }).eq("id", id);
         ensureNoError(error);
         return jsonResponse({ success: true });
       }
