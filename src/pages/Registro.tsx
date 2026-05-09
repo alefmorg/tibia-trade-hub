@@ -13,7 +13,8 @@ const Registro = () => {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn } = useAuth();
+  const [signedUp, setSignedUp] = useState(false);
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const rules = {
