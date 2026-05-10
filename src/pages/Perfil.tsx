@@ -27,6 +27,7 @@ import { DepositScreenshot } from "@/components/DepositScreenshot";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import PixelAvatarPicker from "@/components/PixelAvatarPicker";
 
 /* ---------- subcomponents ---------- */
 
@@ -106,6 +107,7 @@ const Perfil = () => {
   const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
+  const [editAvatar, setEditAvatar] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit" | "reputation">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
@@ -194,11 +196,12 @@ const Perfil = () => {
     if (profile) {
       setEditUsername(profile.username);
       setEditBio(profile.bio || "");
+      setEditAvatar(profile.avatar_url || null);
     }
   }, [profile]);
 
   const updateProfile = useMutation({
-    mutationFn: async (updates: { username?: string; bio?: string }) => {
+    mutationFn: async (updates: { username?: string; bio?: string; avatar_url?: string | null }) => {
       const { error } = await supabase.from("profiles").update(updates).eq("user_id", user!.id);
       if (error) throw error;
     },
@@ -211,7 +214,11 @@ const Perfil = () => {
   });
 
   const handleSaveProfile = () => {
-    updateProfile.mutate({ username: editUsername.trim(), bio: editBio.trim() });
+    updateProfile.mutate({
+      username: editUsername.trim(),
+      bio: editBio.trim(),
+      avatar_url: editAvatar,
+    });
   };
 
   const handleHighlight = (planId: string) => {
@@ -278,7 +285,7 @@ const Perfil = () => {
                       borderRadius: "9999px",
                     }}
                   >
-                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
+                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} style={{ imageRendering: "pixelated" }} /> : null}
                     <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -302,7 +309,7 @@ const Perfil = () => {
                 {/* Nome + ações */}
                 <div className="flex-1 min-w-0 sm:pb-1">
                   {editing ? (
-                    <div className="space-y-3 max-w-md">
+                    <div className="space-y-3 max-w-xl">
                       <div>
                         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>
                         <Input
@@ -318,6 +325,13 @@ const Perfil = () => {
                           onChange={e => setEditBio(e.target.value)}
                           placeholder="Fale sobre você..."
                           className="bg-secondary/50 border-border min-h-[72px] mt-1 resize-none"
+                        />
+                      </div>
+                      <div className="rounded-xl border border-border bg-secondary/30 p-3">
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 block">Avatar pixel art</Label>
+                        <PixelAvatarPicker
+                          value={editAvatar}
+                          onChange={(url) => setEditAvatar(url)}
                         />
                       </div>
                       <div className="flex gap-2">

@@ -219,59 +219,63 @@ const Index = () => {
                   )}
                 </div>
 
-                {featuredAds.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {featuredAds.slice(0, 3).map((ad) => (
-                      <TradeCard
-                        key={ad.id}
-                        id={ad.id}
-                        title={ad.title}
-                        type={ad.type as "selling" | "buying"}
-                        price={ad.price}
-                        currency={ad.currency}
-                        world={ad.world}
-                        pvpType={ad.pvp_type}
-                        date={ad.created_at}
-                        imageUrl={ad.image_url}
-                        likes={ad.likes_count}
-                        featured={ad.featured}
-                        tier={(ad as any).tier}
-                        profiles={ad.profiles}
-                        userId={ad.user_id}
-                        category={ad.category}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => navigate(user ? "/perfil" : "/login")}
-                    className="group relative w-full overflow-hidden rounded-xl border border-warning/30 bg-secondary/40 hover:border-warning/55 hover:bg-secondary/60 transition-all duration-200 p-5 sm:p-6 text-left flex flex-col sm:flex-row items-center gap-5"
-                  >
-                    <div className="relative shrink-0">
-                      <div className="trade-card-item-orb trade-card-item-orb-featured">
-                        <Flame className="h-9 w-9 text-warning" strokeWidth={2.2} />
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {Array.from({ length: 3 }).map((_, idx) => {
+                    const ad = featuredAds[idx];
+                    if (ad) {
+                      return (
+                        <TradeCard
+                          key={ad.id}
+                          id={ad.id}
+                          title={ad.title}
+                          type={ad.type as "selling" | "buying"}
+                          price={ad.price}
+                          currency={ad.currency}
+                          world={ad.world}
+                          pvpType={ad.pvp_type}
+                          date={ad.created_at}
+                          imageUrl={ad.image_url}
+                          likes={ad.likes_count}
+                          featured={ad.featured}
+                          tier={(ad as any).tier}
+                          profiles={ad.profiles}
+                          userId={ad.user_id}
+                          category={ad.category}
+                        />
+                      );
+                    }
+                    return (
+                      <button
+                        key={`slot-${idx}`}
+                        onClick={() => navigate(user ? "/perfil" : "/login")}
+                        className="group relative overflow-hidden rounded-xl border-2 border-dashed border-warning/35 bg-secondary/30 hover:border-warning/70 hover:bg-secondary/50 transition-all duration-200 p-4 flex flex-col items-center justify-center text-center min-h-[260px]"
+                      >
+                        <div aria-hidden className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{
+                          backgroundImage: "linear-gradient(hsl(var(--warning)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--warning)) 1px, transparent 1px)",
+                          backgroundSize: "12px 12px",
+                        }} />
+                        <div aria-hidden className="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-warning/15 blur-2xl group-hover:bg-warning/25 transition-colors" />
 
-                    <div className="flex-1 min-w-0 text-center sm:text-left space-y-2.5">
-                      <div className="flex items-center gap-2 justify-center sm:justify-start">
-                        <span className="text-[9px] font-pixel uppercase tracking-widest text-warning bg-warning/10 border border-warning/25 px-2 py-1 rounded-full">
-                          Espaço Disponível
+                        <div className="relative trade-card-item-orb trade-card-item-orb-featured mb-3">
+                          <Flame className="h-9 w-9 text-warning group-hover:scale-110 transition-transform" strokeWidth={2.2} />
+                        </div>
+                        <span className="relative text-[8px] font-pixel uppercase tracking-widest text-warning bg-warning/10 border border-warning/30 px-2 py-0.5 rounded-full mb-2">
+                          Vaga {idx + 1}
                         </span>
-                      </div>
-                      <h4 className="font-pixel text-sm sm:text-base text-foreground leading-snug">
-                        Seu anúncio <span className="text-warning">aqui no topo</span>
-                      </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-                        Destaque seu item e apareça antes de todos os outros anúncios.
-                      </p>
-                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-warning/15 border border-warning/35 text-warning font-semibold text-xs group-hover:bg-warning/25 transition-colors">
-                        <Megaphone className="h-3.5 w-3.5" />
-                        Destacar meu anúncio
-                      </span>
-                    </div>
-                  </button>
-                )}
+                        <h4 className="relative font-pixel text-[11px] text-foreground leading-snug mb-1">
+                          Seu anúncio aqui
+                        </h4>
+                        <p className="relative text-[10px] text-muted-foreground leading-relaxed mb-3 max-w-[180px]">
+                          Apareça no topo e venda mais rápido
+                        </p>
+                        <span className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning/15 border border-warning/40 text-warning font-bold text-[10px] uppercase tracking-wider group-hover:bg-warning group-hover:text-warning-foreground transition-colors">
+                          <Megaphone className="h-3 w-3" />
+                          Destacar
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
