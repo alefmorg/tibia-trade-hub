@@ -149,6 +149,7 @@ const Perfil = () => {
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editAvatar, setEditAvatar] = useState<string | null>(null);
+  const [editSessionKey, setEditSessionKey] = useState(0);
   const [activeTab, setActiveTab] = useState<"ads" | "favorites" | "transactions" | "deposit" | "reputation">("ads");
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedAdId, setSelectedAdId] = useState<string | null>(null);
@@ -267,25 +268,24 @@ const Perfil = () => {
     },
 
     onSuccess: async (_, variables) => {
-      // Atualiza cache do perfil corretamente
-      await queryClient.invalidateQueries({
-        queryKey: ["profile", profileUserId],
-      });
-
-      // Refetch forçado
-      await queryClient.refetchQueries({
-        queryKey: ["profile", profileUserId],
-      });
-
-      // Atualiza estados locais
+      // Atualiza estados locais imediatamente para não travar a UI
       setEditUsername(variables.username || "");
       setEditBio(variables.bio || "");
       setEditAvatar(variables.avatar_url || null);
 
-      toast.success("Perfil atualizado!");
-
-      // Fecha edição
+      // Fecha edição mesmo se ocorrer problema no refresh de cache
       setEditing(false);
+
+      try {
+        // Atualiza o perfil desta tela e também o cache global usado no header
+        await queryClient.invalidateQueries({ queryKey: ["profile", profileUserId] });
+        await queryClient.invalidateQueries({ queryKey: ["profile"] });
+        await queryClient.refetchQueries({ queryKey: ["profile", profileUserId], type: "active" });
+      } catch (cacheError) {
+        console.error("Erro ao atualizar cache do perfil:", cacheError);
+      }
+
+      toast.success("Perfil atualizado!");
     },
 
     onError: (err: any) => {
@@ -428,7 +428,11 @@ const Perfil = () => {
                         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 block">
                           Avatar pixel art
                         </Label>
-                        <PixelAvatarPicker value={editAvatar} onChange={(url) => setEditAvatar(url)} />
+                        <PixelAvatarPicker
+                          key={editSessionKey}
+                          value={editAvatar}
+                          onChange={(url) => setEditAvatar(url)}
+                        />
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -440,7 +444,13 @@ const Perfil = () => {
                           <Check className="h-3.5 w-3.5 mr-1" />
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="h-8">
+                        <Button size="sm" variant="ghost" onClick={() => {
+                            updateProfile.reset();
+                            setEditUsername(profile.username || "");
+                            setEditBio(profile.bio || "");
+                            setEditAvatar(profile.avatar_url || null);
+                            setEditing(false);
+                          }} className="h-8">
                           <X className="h-3.5 w-3.5 mr-1" /> Cancelar
                         </Button>
                       </div>
@@ -464,9 +474,9 @@ const Perfil = () => {
                         <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
                           <Calendar className="h-3 w-3" /> membro desde {memberSince}
                         </p>
-                        {(badges.length > 0 || userRole === "admin" || userRole === "moderator") && (
+                        {badges.length > 0 && (
                           <div className="mt-3">
-                            <UserBadges badges={badges} role={userRole} size="sm" />
+                            <UserBadges badges={badges} role={userRole} size="sm" showRole={false} />
                           </div>
                         )}
                       </div>
@@ -475,7 +485,14 @@ const Perfil = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setEditing(true)}
+                            onClick={() => {
+                              updateProfile.reset();
+                              setEditUsername(profile.username || "");
+                              setEditBio(profile.bio || "");
+                              setEditAvatar(profile.avatar_url || null);
+                              setEditSessionKey((k) => k + 1);
+                              setEditing(true);
+                            }}
                             className="h-8 text-xs border-border"
                           >
                             <Pencil className="h-3.5 w-3.5 mr-1" /> Editar perfil
