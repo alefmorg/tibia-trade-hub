@@ -10,8 +10,22 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
-  Save, Package, Heart, Calendar, Star, Coins, Sparkles,
-  ArrowUpRight, ArrowDownLeft, History, Upload, Wallet, Pencil, Check, X, MessageSquare
+  Save,
+  Package,
+  Heart,
+  Calendar,
+  Star,
+  Coins,
+  Sparkles,
+  ArrowUpRight,
+  ArrowDownLeft,
+  History,
+  Upload,
+  Wallet,
+  Pencil,
+  Check,
+  X,
+  MessageSquare,
 } from "lucide-react";
 import ReputationPanel from "@/components/ReputationPanel";
 import { useUserReputation } from "@/hooks/useReputation";
@@ -32,43 +46,70 @@ import PixelAvatarPicker from "@/components/PixelAvatarPicker";
 /* ---------- subcomponents ---------- */
 
 const StatChip = ({
-  icon, label, value, accent,
-}: { icon: React.ReactNode; label: string; value: React.ReactNode; accent?: "warning" | "primary" }) => (
-  <div className={cn(
-    "group/chip relative flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[104px] overflow-hidden",
-    "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
-    accent === "warning"
-      ? "border-warning/30 hover:border-warning/60 hover:shadow-warning/10"
-      : accent === "primary"
-        ? "border-primary/30 hover:border-primary/60 hover:shadow-primary/10"
-        : "border-border/60 hover:border-border",
-  )}>
-    <div className={cn(
-      "absolute inset-0 opacity-0 group-hover/chip:opacity-100 transition-opacity duration-300 pointer-events-none",
-      accent === "warning" ? "bg-gradient-to-br from-warning/10 to-transparent"
-        : accent === "primary" ? "bg-gradient-to-br from-primary/10 to-transparent"
-          : "bg-gradient-to-br from-foreground/5 to-transparent",
-    )} />
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  accent?: "warning" | "primary";
+}) => (
+  <div
+    className={cn(
+      "group/chip relative flex flex-col gap-0.5 rounded-xl border bg-card/60 backdrop-blur-sm px-3.5 py-2.5 min-w-[104px] overflow-hidden",
+      "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg",
+      accent === "warning"
+        ? "border-warning/30 hover:border-warning/60 hover:shadow-warning/10"
+        : accent === "primary"
+          ? "border-primary/30 hover:border-primary/60 hover:shadow-primary/10"
+          : "border-border/60 hover:border-border",
+    )}
+  >
+    <div
+      className={cn(
+        "absolute inset-0 opacity-0 group-hover/chip:opacity-100 transition-opacity duration-300 pointer-events-none",
+        accent === "warning"
+          ? "bg-gradient-to-br from-warning/10 to-transparent"
+          : accent === "primary"
+            ? "bg-gradient-to-br from-primary/10 to-transparent"
+            : "bg-gradient-to-br from-foreground/5 to-transparent",
+      )}
+    />
     <span className="relative flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
-      <span className={cn(
-        "transition-transform duration-300 group-hover/chip:scale-110",
-        accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground"
-      )}>{icon}</span>
+      <span
+        className={cn(
+          "transition-transform duration-300 group-hover/chip:scale-110",
+          accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        {icon}
+      </span>
       {label}
     </span>
-    <span className={cn(
-      "relative text-base font-bold tabular-nums leading-tight",
-      accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-foreground"
-    )}>
+    <span
+      className={cn(
+        "relative text-base font-bold tabular-nums leading-tight",
+        accent === "warning" ? "text-warning" : accent === "primary" ? "text-primary" : "text-foreground",
+      )}
+    >
       {value}
     </span>
   </div>
 );
 
 const TabButton = ({
-  active, onClick, icon, children, tone = "default",
+  active,
+  onClick,
+  icon,
+  children,
+  tone = "default",
 }: {
-  active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
   tone?: "default" | "warning";
 }) => (
   <button
@@ -80,7 +121,7 @@ const TabButton = ({
         ? tone === "warning"
           ? "text-warning border-warning"
           : "text-foreground border-primary"
-        : "text-muted-foreground border-transparent hover:text-foreground"
+        : "text-muted-foreground border-transparent hover:text-foreground",
     )}
   >
     {icon}
@@ -118,7 +159,7 @@ const Perfil = () => {
   const { data: plans } = useHighlightPlans();
   const highlightAd = useHighlightAd();
   const { data: transactions } = useWalletTransactions();
-  const activePlans = (plans || []).filter(p => p.active);
+  const activePlans = (plans || []).filter((p) => p.active);
 
   const { data: depositConfig } = useDepositConfig();
   const { data: myDeposits } = useMyDeposits();
@@ -173,7 +214,10 @@ const Perfil = () => {
     queryKey: ["favorite-ads", profileUserId],
     enabled: !!profileUserId && isOwnProfile,
     queryFn: async () => {
-      const { data: favs, error: favError } = await supabase.from("favorites").select("ad_id").eq("user_id", profileUserId!);
+      const { data: favs, error: favError } = await supabase
+        .from("favorites")
+        .select("ad_id")
+        .eq("user_id", profileUserId!);
       if (favError) throw favError;
       if (!favs || favs.length === 0) return [];
       const adIds = favs.map((f: any) => f.ad_id);
@@ -202,18 +246,61 @@ const Perfil = () => {
 
   const updateProfile = useMutation({
     mutationFn: async (updates: { username?: string; bio?: string; avatar_url?: string | null }) => {
-      const { error } = await supabase.from("profiles").update(updates).eq("user_id", user!.id);
-      if (error) throw error;
+      if (!user?.id) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          username: updates.username,
+          bio: updates.bio,
+          avatar_url: updates.avatar_url,
+        })
+        .eq("user_id", user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      return updates;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+
+    onSuccess: async (_, variables) => {
+      // Atualiza cache do perfil corretamente
+      await queryClient.invalidateQueries({
+        queryKey: ["profile", profileUserId],
+      });
+
+      // Refetch forçado
+      await queryClient.refetchQueries({
+        queryKey: ["profile", profileUserId],
+      });
+
+      // Atualiza estados locais
+      setEditUsername(variables.username || "");
+      setEditBio(variables.bio || "");
+      setEditAvatar(variables.avatar_url || null);
+
       toast.success("Perfil atualizado!");
+
+      // Fecha edição
       setEditing(false);
     },
-    onError: (err: any) => toast.error(err.message),
+
+    onError: (err: any) => {
+      console.error("Erro ao atualizar perfil:", err);
+
+      toast.error(err?.message || "Erro ao atualizar perfil");
+    },
   });
 
   const handleSaveProfile = () => {
+    if (!editUsername.trim()) {
+      toast.error("Digite um nome de usuário");
+      return;
+    }
+
     updateProfile.mutate({
       username: editUsername.trim(),
       bio: editBio.trim(),
@@ -231,11 +318,13 @@ const Perfil = () => {
           setSelectedAdId(null);
           queryClient.invalidateQueries({ queryKey: ["user-ads"] });
         },
-      }
+      },
     );
   };
 
-  const memberSince = profile ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" }) : "";
+  const memberSince = profile
+    ? new Date(profile.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })
+    : "";
   const totalAds = userAds?.length || 0;
   const isPremium = badges.some((b) => b.badge_type === "premium_verified");
 
@@ -245,7 +334,9 @@ const Perfil = () => {
         <Header />
         <div className="container py-16 text-center">
           <p className="text-muted-foreground">Faça login para ver seu perfil.</p>
-          <Link to="/login" className="text-primary hover:underline text-sm mt-2 inline-block">Entrar</Link>
+          <Link to="/login" className="text-primary hover:underline text-sm mt-2 inline-block">
+            Entrar
+          </Link>
         </div>
       </div>
     );
@@ -285,7 +376,13 @@ const Perfil = () => {
                       borderRadius: "9999px",
                     }}
                   >
-                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} style={{ imageRendering: "pixelated" }} /> : null}
+                    {profile.avatar_url ? (
+                      <AvatarImage
+                        src={profile.avatar_url}
+                        alt={profile.username}
+                        style={{ imageRendering: "pixelated" }}
+                      />
+                    ) : null}
                     <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -314,7 +411,7 @@ const Perfil = () => {
                         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>
                         <Input
                           value={editUsername}
-                          onChange={e => setEditUsername(e.target.value)}
+                          onChange={(e) => setEditUsername(e.target.value)}
                           className="bg-secondary/50 border-border h-9 mt-1"
                         />
                       </div>
@@ -322,20 +419,24 @@ const Perfil = () => {
                         <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Bio</Label>
                         <Textarea
                           value={editBio}
-                          onChange={e => setEditBio(e.target.value)}
+                          onChange={(e) => setEditBio(e.target.value)}
                           placeholder="Fale sobre você..."
                           className="bg-secondary/50 border-border min-h-[72px] mt-1 resize-none"
                         />
                       </div>
                       <div className="rounded-xl border border-border bg-secondary/30 p-3">
-                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 block">Avatar pixel art</Label>
-                        <PixelAvatarPicker
-                          value={editAvatar}
-                          onChange={(url) => setEditAvatar(url)}
-                        />
+                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 block">
+                          Avatar pixel art
+                        </Label>
+                        <PixelAvatarPicker value={editAvatar} onChange={(url) => setEditAvatar(url)} />
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveProfile} disabled={updateProfile.isPending} className="h-8 bg-primary text-primary-foreground">
+                        <Button
+                          size="sm"
+                          onClick={handleSaveProfile}
+                          disabled={updateProfile.isPending}
+                          className="h-8 bg-primary text-primary-foreground"
+                        >
                           <Check className="h-3.5 w-3.5 mr-1" />
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
@@ -372,7 +473,8 @@ const Perfil = () => {
                       {isOwnProfile && (
                         <div className="flex gap-2">
                           <Button
-                            size="sm" variant="outline"
+                            size="sm"
+                            variant="outline"
                             onClick={() => setEditing(true)}
                             className="h-8 text-xs border-border"
                           >
@@ -384,9 +486,7 @@ const Perfil = () => {
                   )}
 
                   {!editing && profile.bio && (
-                    <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">
-                      {profile.bio}
-                    </p>
+                    <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">{profile.bio}</p>
                   )}
                 </div>
               </div>
@@ -399,9 +499,14 @@ const Perfil = () => {
                   label="Reputação"
                   accent="warning"
                   value={
-                    reputation && Number(reputation.count) > 0
-                      ? <>{Number(reputation.avg).toFixed(1)} <span className="text-[10px] text-muted-foreground font-normal">({reputation.count})</span></>
-                      : "—"
+                    reputation && Number(reputation.count) > 0 ? (
+                      <>
+                        {Number(reputation.avg).toFixed(1)}{" "}
+                        <span className="text-[10px] text-muted-foreground font-normal">({reputation.count})</span>
+                      </>
+                    ) : (
+                      "—"
+                    )
                   }
                 />
                 <StatChip icon={<Sparkles className="h-3 w-3" />} label="Selos" value={badges.length} />
@@ -416,7 +521,8 @@ const Perfil = () => {
                 {isOwnProfile && (
                   <div className="ml-auto flex gap-2">
                     <Button
-                      size="sm" variant="outline"
+                      size="sm"
+                      variant="outline"
                       className="h-9 text-xs border-warning/40 text-warning hover:bg-warning/10 hover:text-warning"
                       onClick={() => setActiveTab("deposit")}
                     >
@@ -441,21 +547,43 @@ const Perfil = () => {
         {/* ===== Tabs ===== */}
         <div className="mt-10">
           <div className="border-b border-border/70 flex flex-wrap items-center gap-1">
-            <TabButton active={activeTab === "ads"} onClick={() => setActiveTab("ads")} icon={<Package className="h-3.5 w-3.5" />}>
+            <TabButton
+              active={activeTab === "ads"}
+              onClick={() => setActiveTab("ads")}
+              icon={<Package className="h-3.5 w-3.5" />}
+            >
               Anúncios {!isOwnProfile && profile?.username ? `de ${profile.username}` : ""}
             </TabButton>
-            <TabButton active={activeTab === "reputation"} onClick={() => setActiveTab("reputation")} icon={<MessageSquare className="h-3.5 w-3.5" />} tone="warning">
+            <TabButton
+              active={activeTab === "reputation"}
+              onClick={() => setActiveTab("reputation")}
+              icon={<MessageSquare className="h-3.5 w-3.5" />}
+              tone="warning"
+            >
               Reputação
             </TabButton>
             {isOwnProfile && (
               <>
-                <TabButton active={activeTab === "favorites"} onClick={() => setActiveTab("favorites")} icon={<Heart className="h-3.5 w-3.5" />}>
+                <TabButton
+                  active={activeTab === "favorites"}
+                  onClick={() => setActiveTab("favorites")}
+                  icon={<Heart className="h-3.5 w-3.5" />}
+                >
                   Favoritos
                 </TabButton>
-                <TabButton active={activeTab === "transactions"} onClick={() => setActiveTab("transactions")} icon={<History className="h-3.5 w-3.5" />}>
+                <TabButton
+                  active={activeTab === "transactions"}
+                  onClick={() => setActiveTab("transactions")}
+                  icon={<History className="h-3.5 w-3.5" />}
+                >
                   Histórico
                 </TabButton>
-                <TabButton active={activeTab === "deposit"} onClick={() => setActiveTab("deposit")} icon={<Wallet className="h-3.5 w-3.5" />} tone="warning">
+                <TabButton
+                  active={activeTab === "deposit"}
+                  onClick={() => setActiveTab("deposit")}
+                  icon={<Wallet className="h-3.5 w-3.5" />}
+                  tone="warning"
+                >
                   Depositar
                 </TabButton>
               </>
@@ -470,7 +598,9 @@ const Perfil = () => {
               <>
                 {adsLoading ? (
                   <div className="trade-card-list">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-52 rounded-lg" />
+                    ))}
                   </div>
                 ) : userAds && userAds.length > 0 ? (
                   <div className="space-y-4">
@@ -478,7 +608,8 @@ const Perfil = () => {
                       <div className="rounded-xl border border-warning/25 bg-warning/[0.04] px-4 py-2.5 flex items-center gap-2.5">
                         <Sparkles className="h-3.5 w-3.5 text-warning shrink-0" />
                         <p className="text-xs text-muted-foreground">
-                          Passe o mouse em um anúncio e clique em <Star className="inline h-3 w-3 text-warning" /> para destacá-lo.
+                          Passe o mouse em um anúncio e clique em <Star className="inline h-3 w-3 text-warning" /> para
+                          destacá-lo.
                         </p>
                       </div>
                     )}
@@ -486,14 +617,27 @@ const Perfil = () => {
                       {userAds.map((ad: any) => (
                         <div key={ad.id} className="relative group">
                           <TradeCard
-                            id={ad.id} title={ad.title} type={ad.type} price={ad.price}
-                            world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
-                            imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
-                            tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={(ad as any).category}
+                            id={ad.id}
+                            title={ad.title}
+                            type={ad.type}
+                            price={ad.price}
+                            world={ad.world}
+                            pvpType={ad.pvp_type}
+                            date={ad.created_at}
+                            imageUrl={ad.image_url}
+                            likes={ad.likes_count}
+                            featured={ad.featured}
+                            tier={(ad as any).tier}
+                            profiles={ad.profiles}
+                            userId={ad.user_id}
+                            category={(ad as any).category}
                           />
                           {isOwnProfile && !ad.featured && activePlans.length > 0 && (
                             <button
-                              onClick={() => { setSelectedAdId(ad.id); setHighlightDialogOpen(true); }}
+                              onClick={() => {
+                                setSelectedAdId(ad.id);
+                                setHighlightDialogOpen(true);
+                              }}
                               className="absolute top-2 right-2 z-10 bg-warning/90 hover:bg-warning text-warning-foreground p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
                               title="Destacar anúncio"
                             >
@@ -515,7 +659,9 @@ const Perfil = () => {
                     <p className="text-sm text-muted-foreground">Nenhum anúncio ativo.</p>
                     {isOwnProfile && (
                       <Link to="/criar-anuncio">
-                        <Button size="sm" className="mt-4 bg-primary text-primary-foreground">Criar anúncio</Button>
+                        <Button size="sm" className="mt-4 bg-primary text-primary-foreground">
+                          Criar anúncio
+                        </Button>
                       </Link>
                     )}
                   </div>
@@ -527,16 +673,29 @@ const Perfil = () => {
               <>
                 {favsLoading ? (
                   <div className="trade-card-list">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-52 rounded-lg" />
+                    ))}
                   </div>
                 ) : favoriteAds && favoriteAds.length > 0 ? (
                   <div className="trade-card-list">
                     {favoriteAds.map((ad: any) => (
                       <TradeCard
-                        key={ad.id} id={ad.id} title={ad.title} type={ad.type} price={ad.price}
-                        world={ad.world} pvpType={ad.pvp_type} date={ad.created_at}
-                        imageUrl={ad.image_url} likes={ad.likes_count} featured={ad.featured}
-                        tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={(ad as any).category}
+                        key={ad.id}
+                        id={ad.id}
+                        title={ad.title}
+                        type={ad.type}
+                        price={ad.price}
+                        world={ad.world}
+                        pvpType={ad.pvp_type}
+                        date={ad.created_at}
+                        imageUrl={ad.image_url}
+                        likes={ad.likes_count}
+                        featured={ad.featured}
+                        tier={(ad as any).tier}
+                        profiles={ad.profiles}
+                        userId={ad.user_id}
+                        category={(ad as any).category}
                       />
                     ))}
                   </div>
@@ -561,18 +720,39 @@ const Perfil = () => {
                 {transactions && transactions.length > 0 ? (
                   <div className="rounded-2xl border border-border/70 bg-card/60 overflow-hidden divide-y divide-border/50">
                     {transactions.map((tx) => (
-                      <div key={tx.id} className="flex items-center gap-3 px-5 py-3 hover:bg-secondary/20 transition-colors">
+                      <div
+                        key={tx.id}
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-secondary/20 transition-colors"
+                      >
                         <div className={cn("p-1.5 rounded-md", tx.amount >= 0 ? "bg-primary/10" : "bg-destructive/10")}>
-                          {tx.amount >= 0 ? <ArrowDownLeft className="h-4 w-4 text-primary" /> : <ArrowUpRight className="h-4 w-4 text-destructive" />}
+                          {tx.amount >= 0 ? (
+                            <ArrowDownLeft className="h-4 w-4 text-primary" />
+                          ) : (
+                            <ArrowUpRight className="h-4 w-4 text-destructive" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}</p>
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {tx.reason || (tx.amount >= 0 ? "Crédito" : "Débito")}
+                          </p>
                           <p className="text-[10px] text-muted-foreground">
-                            {new Date(tx.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            {new Date(tx.created_at).toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </p>
                         </div>
-                        <span className={cn("text-sm font-bold tabular-nums", tx.amount >= 0 ? "text-primary" : "text-destructive")}>
-                          {tx.amount >= 0 ? "+" : ""}{tx.amount}
+                        <span
+                          className={cn(
+                            "text-sm font-bold tabular-nums",
+                            tx.amount >= 0 ? "text-primary" : "text-destructive",
+                          )}
+                        >
+                          {tx.amount >= 0 ? "+" : ""}
+                          {tx.amount}
                         </span>
                       </div>
                     ))}
@@ -598,7 +778,10 @@ const Perfil = () => {
 
                   {depositConfig?.deposit_char_name ? (
                     <ol className="rounded-xl border border-warning/25 bg-warning/[0.04] p-4 text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
-                      <li>Envie gold para: <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span></li>
+                      <li>
+                        Envie gold para:{" "}
+                        <span className="text-warning font-bold">{depositConfig.deposit_char_name}</span>
+                      </li>
                       <li>Tire um print da transferência</li>
                       <li>Anexe abaixo e aguarde aprovação</li>
                     </ol>
@@ -609,15 +792,26 @@ const Perfil = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Gold enviado</Label>
-                      <Input type="number" value={depositGold} onChange={(e) => setDepositGold(e.target.value)} placeholder="10000" className="bg-secondary/50 border-border h-9" />
+                      <Input
+                        type="number"
+                        value={depositGold}
+                        onChange={(e) => setDepositGold(e.target.value)}
+                        placeholder="10000"
+                        className="bg-secondary/50 border-border h-9"
+                      />
                       {depositGold && rate > 0 && (
-                        <p className="text-[10px] text-warning font-semibold">= {Math.floor(Number(depositGold) / rate)} RC</p>
+                        <p className="text-[10px] text-warning font-semibold">
+                          = {Math.floor(Number(depositGold) / rate)} RC
+                        </p>
                       )}
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Print do envio</Label>
+                      <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Print do envio
+                      </Label>
                       <input
-                        type="file" accept="image/*"
+                        type="file"
+                        accept="image/*"
                         onChange={(e) => setDepositScreenshot(e.target.files?.[0] || null)}
                         className="text-xs text-muted-foreground file:mr-2 file:px-3 file:py-1.5 file:rounded-md file:border-0 file:bg-secondary file:text-foreground file:text-xs file:cursor-pointer"
                       />
@@ -627,10 +821,19 @@ const Perfil = () => {
                     onClick={() => {
                       if (!depositGold || !depositScreenshot || rate <= 0) return;
                       const coins = Math.floor(Number(depositGold) / rate);
-                      if (coins < 1) { toast.error("Quantidade muito baixa"); return; }
-                      createDeposit.mutate({ amountGold: Number(depositGold), amountCoins: coins, screenshotFile: depositScreenshot }, {
-                        onSuccess: () => { setDepositGold(""); setDepositScreenshot(null); }
-                      });
+                      if (coins < 1) {
+                        toast.error("Quantidade muito baixa");
+                        return;
+                      }
+                      createDeposit.mutate(
+                        { amountGold: Number(depositGold), amountCoins: coins, screenshotFile: depositScreenshot },
+                        {
+                          onSuccess: () => {
+                            setDepositGold("");
+                            setDepositScreenshot(null);
+                          },
+                        },
+                      );
                     }}
                     disabled={createDeposit.isPending || !depositGold || !depositScreenshot}
                     className="bg-warning text-warning-foreground hover:bg-warning/90"
@@ -642,24 +845,42 @@ const Perfil = () => {
 
                 <div className="rounded-2xl border border-border/70 bg-card/60 overflow-hidden">
                   <div className="px-5 py-3 border-b border-border/50">
-                    <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Seus depósitos</h4>
+                    <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      Seus depósitos
+                    </h4>
                   </div>
                   {myDeposits && myDeposits.length > 0 ? (
                     <div className="divide-y divide-border/50">
                       {myDeposits.map((dep) => (
                         <div key={dep.id} className="flex items-center gap-3 px-5 py-3">
-                          <DepositScreenshot value={dep.screenshot_url} alt="" className="h-10 w-10 object-cover rounded border border-border" />
+                          <DepositScreenshot
+                            value={dep.screenshot_url}
+                            alt=""
+                            className="h-10 w-10 object-cover rounded border border-border"
+                          />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-foreground truncate">{dep.amount_gold.toLocaleString("pt-BR")}g → {dep.amount_coins} RC</p>
-                            <p className="text-[10px] text-muted-foreground">{new Date(dep.created_at).toLocaleDateString("pt-BR")}</p>
+                            <p className="text-xs font-medium text-foreground truncate">
+                              {dep.amount_gold.toLocaleString("pt-BR")}g → {dep.amount_coins} RC
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(dep.created_at).toLocaleDateString("pt-BR")}
+                            </p>
                           </div>
-                          <span className={cn(
-                            "text-[10px] px-2 py-0.5 rounded-full font-semibold",
-                            dep.status === "pending" ? "bg-warning/15 text-warning" :
-                            dep.status === "approved" ? "bg-primary/15 text-primary" :
-                            "bg-destructive/15 text-destructive"
-                          )}>
-                            {dep.status === "pending" ? "Pendente" : dep.status === "approved" ? "Aprovado" : "Rejeitado"}
+                          <span
+                            className={cn(
+                              "text-[10px] px-2 py-0.5 rounded-full font-semibold",
+                              dep.status === "pending"
+                                ? "bg-warning/15 text-warning"
+                                : dep.status === "approved"
+                                  ? "bg-primary/15 text-primary"
+                                  : "bg-destructive/15 text-destructive",
+                            )}
+                          >
+                            {dep.status === "pending"
+                              ? "Pendente"
+                              : dep.status === "approved"
+                                ? "Aprovado"
+                                : "Rejeitado"}
                           </span>
                         </div>
                       ))}
@@ -683,7 +904,8 @@ const Perfil = () => {
               Destacar Anúncio
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Escolha um plano para destacar seu anúncio. Seu saldo: <span className="text-warning font-semibold">{wallet?.balance || 0} coins</span>
+              Escolha um plano para destacar seu anúncio. Seu saldo:{" "}
+              <span className="text-warning font-semibold">{wallet?.balance || 0} coins</span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 mt-2">
@@ -698,7 +920,7 @@ const Perfil = () => {
                     "w-full p-4 rounded-xl border text-left transition-all",
                     canAfford
                       ? "border-warning/30 bg-warning/5 hover:border-warning/60 hover:bg-warning/10 cursor-pointer"
-                      : "border-border bg-secondary/30 opacity-50 cursor-not-allowed"
+                      : "border-border bg-secondary/30 opacity-50 cursor-not-allowed",
                   )}
                 >
                   <div className="flex items-center justify-between">
@@ -711,9 +933,7 @@ const Perfil = () => {
                       <span className="text-sm font-bold text-warning">{plan.price_coins}</span>
                     </div>
                   </div>
-                  {!canAfford && (
-                    <p className="text-[10px] text-destructive mt-1">Saldo insuficiente</p>
-                  )}
+                  {!canAfford && <p className="text-[10px] text-destructive mt-1">Saldo insuficiente</p>}
                 </button>
               );
             })}
