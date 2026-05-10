@@ -439,7 +439,13 @@ const Perfil = () => {
                           <Check className="h-3.5 w-3.5 mr-1" />
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="h-8">
+                        <Button size="sm" variant="ghost" onClick={() => {
+                            updateProfile.reset();
+                            setEditUsername(profile.username || "");
+                            setEditBio(profile.bio || "");
+                            setEditAvatar(profile.avatar_url || null);
+                            setEditing(false);
+                          }} className="h-8">
                           <X className="h-3.5 w-3.5 mr-1" /> Cancelar
                         </Button>
                       </div>
@@ -463,9 +469,9 @@ const Perfil = () => {
                         <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
                           <Calendar className="h-3 w-3" /> membro desde {memberSince}
                         </p>
-                        {(badges.length > 0 || userRole === "admin" || userRole === "moderator") && (
+                        {badges.length > 0 && (
                           <div className="mt-3">
-                            <UserBadges badges={badges} role={userRole} size="sm" />
+                            <UserBadges badges={badges} role={userRole} size="sm" showRole={false} />
                           </div>
                         )}
                       </div>
@@ -474,7 +480,13 @@ const Perfil = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setEditing(true)}
+                            onClick={() => {
+                              updateProfile.reset();
+                              setEditUsername(profile.username || "");
+                              setEditBio(profile.bio || "");
+                              setEditAvatar(profile.avatar_url || null);
+                              setEditing(true);
+                            }}
                             className="h-8 text-xs border-border"
                           >
                             <Pencil className="h-3.5 w-3.5 mr-1" /> Editar perfil
