@@ -267,25 +267,24 @@ const Perfil = () => {
     },
 
     onSuccess: async (_, variables) => {
-      // Atualiza cache do perfil corretamente
-      await queryClient.invalidateQueries({
-        queryKey: ["profile", profileUserId],
-      });
-
-      // Refetch forçado
-      await queryClient.refetchQueries({
-        queryKey: ["profile", profileUserId],
-      });
-
-      // Atualiza estados locais
+      // Atualiza estados locais imediatamente para não travar a UI
       setEditUsername(variables.username || "");
       setEditBio(variables.bio || "");
       setEditAvatar(variables.avatar_url || null);
 
-      toast.success("Perfil atualizado!");
-
-      // Fecha edição
+      // Fecha edição mesmo se ocorrer problema no refresh de cache
       setEditing(false);
+
+      try {
+        // Atualiza o perfil desta tela e também o cache global usado no header
+        await queryClient.invalidateQueries({ queryKey: ["profile", profileUserId] });
+        await queryClient.invalidateQueries({ queryKey: ["profile"] });
+        await queryClient.refetchQueries({ queryKey: ["profile", profileUserId], type: "active" });
+      } catch (cacheError) {
+        console.error("Erro ao atualizar cache do perfil:", cacheError);
+      }
+
+      toast.success("Perfil atualizado!");
     },
 
     onError: (err: any) => {
