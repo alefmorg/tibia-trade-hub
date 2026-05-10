@@ -285,7 +285,7 @@ const Perfil = () => {
                       borderRadius: "9999px",
                     }}
                   >
-                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} /> : null}
+                    {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.username} style={{ imageRendering: "pixelated" }} /> : null}
                     <AvatarFallback className="bg-secondary text-foreground text-3xl font-pixel">
                       {profile.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
