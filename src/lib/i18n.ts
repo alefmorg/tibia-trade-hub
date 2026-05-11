@@ -9,10 +9,9 @@ export const LOCALE_META: Record<AppLocale, { label: string; flag: string; short
   es: { label: "Español", flag: "🇪🇸", short: "ES" },
 };
 
-type TranslationValue = string | ((params?: Record<string, any>) => string) | TranslationTree;
-type TranslationTree = Record<string, TranslationValue>;
+type TranslationNode = string | ((params?: Record<string, any>) => string) | Record<string, unknown>;
 
-export const translations: Record<AppLocale, TranslationTree> = {
+export const translations: Record<AppLocale, Record<string, unknown>> = {
   "pt-BR": {
     common: {
       login: "Entrar",
@@ -497,7 +496,7 @@ export const translations: Record<AppLocale, TranslationTree> = {
 
 export const resolveTranslation = (locale: AppLocale, key: string, params?: Record<string, any>) => {
   const segments = key.split(".");
-  let current: TranslationValue = translations[locale];
+  let current: TranslationNode = translations[locale];
 
   for (const segment of segments) {
     if (!current || typeof current === "string" || typeof current === "function") break;
