@@ -15,12 +15,7 @@ const useVipUsers = () =>
   useQuery({
     queryKey: ["admin-vip-users"],
     queryFn: async () => {
-      const { data, error } = await db
-        .from("profiles")
-        .select("user_id, username, vip_until")
-        .not("vip_until", "is", null)
-        .order("vip_until", { ascending: false })
-        .limit(200);
+      const { data, error } = await db.rpc("admin_list_vip_users");
       if (error) throw error;
       return (data || []) as { user_id: string; username: string; vip_until: string }[];
     },
