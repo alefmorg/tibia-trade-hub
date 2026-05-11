@@ -1551,6 +1551,34 @@ export type Database = {
         }
         Returns: number[]
       }
+      admin_list_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          banned: boolean
+          bio: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+          vip_until: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_list_vip_users: {
+        Args: never
+        Returns: {
+          user_id: string
+          username: string
+          vip_until: string
+        }[]
+      }
       admin_log: {
         Args: {
           p_action: string
@@ -1611,6 +1639,13 @@ export type Database = {
       get_ad_duration_days: { Args: never; Returns: number }
       get_ad_duration_for_user: { Args: { _user_id: string }; Returns: number }
       get_admin_stats: { Args: never; Returns: Json }
+      get_my_account_flags: {
+        Args: never
+        Returns: {
+          banned: boolean
+          vip_until: string
+        }[]
+      }
       get_raffle_history: {
         Args: { p_limit?: number; p_raffle_id: string }
         Returns: {

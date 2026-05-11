@@ -11,9 +11,9 @@ export const useMyVipStatus = () => {
     queryKey: ["my-vip", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await db.from("profiles").select("vip_until").eq("user_id", user!.id).maybeSingle();
+      const { data, error } = await db.rpc("get_my_account_flags").maybeSingle();
       if (error) throw error;
-      const vipUntil = data?.vip_until ? new Date(data.vip_until) : null;
+      const vipUntil = (data as any)?.vip_until ? new Date((data as any).vip_until) : null;
       return { vipUntil, isVip: !!vipUntil && vipUntil.getTime() > Date.now() };
     },
   });
@@ -24,10 +24,9 @@ export const useUserVipStatus = (userId?: string) => {
     queryKey: ["vip", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await db.from("profiles").select("vip_until").eq("user_id", userId!).maybeSingle();
+      const { data, error } = await db.rpc("is_vip", { _user_id: userId });
       if (error) throw error;
-      const vipUntil = data?.vip_until ? new Date(data.vip_until) : null;
-      return { vipUntil, isVip: !!vipUntil && vipUntil.getTime() > Date.now() };
+      return { vipUntil: null as Date | null, isVip: !!data };
     },
   });
 };

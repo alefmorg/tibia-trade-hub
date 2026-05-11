@@ -183,7 +183,7 @@ const Perfil = () => {
     queryKey: ["profile", profileUserId],
     enabled: !!profileUserId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", profileUserId!).single();
+      const { data, error } = await supabase.from("profiles").select("id, user_id, username, avatar_url, bio, created_at, updated_at").eq("user_id", profileUserId!).single();
       if (error) throw error;
       return data;
     },
