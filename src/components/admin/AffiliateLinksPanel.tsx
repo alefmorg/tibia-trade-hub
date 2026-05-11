@@ -7,10 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Link2, Copy, Trash2, Check, X, Edit, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
+import { env } from "@/lib/env";
 
 const buildShortUrl = (slug: string) => {
-  if (typeof window === "undefined") return `/go/${slug}`;
-  return `${window.location.origin}/go/${slug}`;
+  const base = env.SITE_URL.replace(/\/$/, "");
+  return `${base}/go/${slug}`;
 };
 
 const slugify = (s: string) =>
