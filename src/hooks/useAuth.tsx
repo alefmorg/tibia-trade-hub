@@ -26,12 +26,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);
 
   const fetchUserData = async (userId: string) => {
-    const [{ data: profileData }, { data: roleData }] = await Promise.all([
-      supabase.from("profiles").select("username, avatar_url, banned").eq("user_id", userId).single(),
+    const [{ data: profileData }, { data: roleData }, { data: flagsData }] = await Promise.all([
+      supabase.from("profiles").select("username, avatar_url").eq("user_id", userId).single(),
       supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
+      (supabase as any).rpc("get_my_account_flags").maybeSingle(),
     ]);
 
-    const banned = (profileData as any)?.banned === true;
+    const banned = (flagsData as any)?.banned === true;
     setIsBanned(banned);
     setProfile(profileData ? { username: profileData.username, avatar_url: profileData.avatar_url } : null);
     setIsAdmin(!!roleData);
