@@ -31,6 +31,63 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [locale]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const root = document.body;
+    if (!root) return;
+
+    const nodes = Array.from(root.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,p,span,button,a,label,small,li,th,td,option,legend"));
+
+    nodes.forEach((el) => {
+      if (el.closest("[data-no-auto-translate='true']")) return;
+      const text = (el.textContent || "").trim();
+      if (!text) return;
+      if (!(el.dataset.originalText)) el.dataset.originalText = text;
+    });
+
+    if (locale === "pt-BR") {
+      nodes.forEach((el) => {
+        if (el.dataset.originalText) el.textContent = el.dataset.originalText;
+      });
+      return;
+    }
+
+    const target = locale === "en" ? "en" : "es";
+    const texts = nodes
+      .map((el) => (el.dataset.originalText || "").trim())
+      .filter(Boolean)
+      .filter((v, i, arr) => arr.indexOf(v) === i)
+      .slice(0, 300);
+
+    if (texts.length === 0) return;
+
+    const translateAll = async () => {
+      const translatedMap = new Map<string, string>();
+
+      for (const text of texts) {
+        try {
+          const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+          const response = await fetch(url);
+          const payload = await response.json();
+          const translated = payload?.[0]?.map((part: any) => part?.[0]).join("") || text;
+          translatedMap.set(text, translated);
+        } catch {
+          translatedMap.set(text, text);
+        }
+      }
+
+      nodes.forEach((el) => {
+        const original = (el.dataset.originalText || "").trim();
+        if (!original) return;
+        const translated = translatedMap.get(original);
+        if (translated) el.textContent = translated;
+      });
+    };
+
+    translateAll();
+  }, [locale]);
+
   const value = useMemo<LocaleContextValue>(() => ({
     locale,
     setLocale: (nextLocale) => setLocaleState(nextLocale),
