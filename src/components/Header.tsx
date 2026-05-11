@@ -7,11 +7,11 @@ import WalletActionsMenu from "@/components/WalletActionsMenu";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/useNotifications";
 import { useState, useRef, useEffect } from "react";
 import { useLocale } from "@/hooks/useLocale";
-import { LOCALE_META, AppLocale } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Header = () => {
   const { user, signOut, isAdmin, profile } = useAuth();
-  const { locale, setLocale, t, formatDate } = useLocale();
+  const { t, formatDate } = useLocale();
   const navigate = useNavigate();
   const { data: unreadCount } = useUnreadCount();
   const { data: unreadNotifs } = useUnreadNotificationCount();
@@ -19,14 +19,11 @@ const Header = () => {
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
   const [showNotifs, setShowNotifs] = useState(false);
-  const [showLocales, setShowLocales] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
-  const localeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false);
-      if (localeRef.current && !localeRef.current.contains(e.target as Node)) setShowLocales(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -45,36 +42,7 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-          <div className="relative" ref={localeRef}>
-            <button
-              type="button"
-              onClick={() => setShowLocales((v) => !v)}
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-card/70 px-2 py-1.5 text-sm hover:bg-secondary transition-colors"
-              title={t("common.language")}
-              aria-label={t("common.language")}
-            >
-              <span>{LOCALE_META[locale].flag}</span>
-            </button>
-
-            {showLocales && (
-              <div className="absolute right-0 top-full mt-2 z-50 rounded-xl border border-border bg-card shadow-xl p-1 flex flex-col">
-                {(Object.keys(LOCALE_META) as AppLocale[]).map((code) => (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => {
-                      setLocale(code);
-                      setShowLocales(false);
-                    }}
-                    className={`inline-flex items-center justify-center rounded-lg px-2 py-1.5 text-sm transition-colors ${locale === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
-                    aria-label={LOCALE_META[code].label}
-                  >
-                    <span>{LOCALE_META[code].flag}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <LanguageSwitcher />
 
           {user ? (
             <>
