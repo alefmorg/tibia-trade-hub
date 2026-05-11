@@ -6,12 +6,14 @@ import { useUnreadCount } from "@/hooks/useMessages";
 import WalletActionsMenu from "@/components/WalletActionsMenu";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/useNotifications";
 import { useState, useRef, useEffect } from "react";
+import { useLocale } from "@/hooks/useLocale";
+import { LOCALE_META, AppLocale } from "@/lib/i18n";
 
 const Header = () => {
   const { user, signOut, isAdmin, profile } = useAuth();
+  const { locale, setLocale, t, formatDate } = useLocale();
   const navigate = useNavigate();
   const { data: unreadCount } = useUnreadCount();
-  
   const { data: unreadNotifs } = useUnreadNotificationCount();
   const { data: notifications } = useNotifications();
   const markRead = useMarkNotificationRead();
@@ -40,37 +42,39 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <div className="hidden sm:flex items-center gap-1 rounded-xl border border-border bg-card/70 px-1 py-1" title={t("common.language")}>
+            {(Object.keys(LOCALE_META) as AppLocale[]).map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => setLocale(code)}
+                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] transition-colors ${locale === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                aria-label={LOCALE_META[code].label}
+              >
+                <span>{LOCALE_META[code].flag}</span>
+                <span>{LOCALE_META[code].short}</span>
+              </button>
+            ))}
+          </div>
+
           {user ? (
             <>
               {isAdmin && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-warning hover:bg-warning/10 rounded-xl px-2 sm:px-3"
-                  onClick={() => navigate("/admin")}
-                  title="Admin"
-                >
+                <Button variant="ghost" size="sm" className="text-warning hover:bg-warning/10 rounded-xl px-2 sm:px-3" onClick={() => navigate("/admin")} title={t("common.admin")}>
                   <Shield className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">{t("common.admin")}</span>
                 </Button>
               )}
               <div className="hidden sm:block">
                 <WalletActionsMenu />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-primary hover:bg-primary/10 rounded-xl px-2 sm:px-3"
-                onClick={() => navigate("/criar-anuncio")}
-                title="Criar anúncio"
-              >
+              <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 rounded-xl px-2 sm:px-3" onClick={() => navigate("/criar-anuncio")} title={t("common.createAd")}>
                 <Plus className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">Anúncio</span>
+                <span className="hidden sm:inline">{t("header.createAd")}</span>
               </Button>
 
-              {/* Notifications bell */}
               <div className="relative" ref={notifRef}>
-                <button onClick={() => setShowNotifs(!showNotifs)} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+                <button onClick={() => setShowNotifs(!showNotifs)} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.notifications")}>
                   <Bell className="h-5 w-5" />
                   {(unreadNotifs ?? 0) > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
@@ -82,10 +86,10 @@ const Header = () => {
                 {showNotifs && (
                   <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-border/60 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-foreground">Notificações</span>
+                      <span className="text-sm font-semibold text-foreground">{t("common.notifications")}</span>
                       {(unreadNotifs ?? 0) > 0 && (
                         <button onClick={() => markAllRead.mutate()} className="text-[10px] text-primary hover:underline">
-                          Marcar todas como lidas
+                          {t("header.markAllRead")}
                         </button>
                       )}
                     </div>
@@ -101,7 +105,7 @@ const Header = () => {
                               <div className="min-w-0">
                                 <p className="text-xs font-semibold text-foreground">{n.title}</p>
                                 <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
-                                <p className="text-[9px] text-muted-foreground/60 mt-1">{new Date(n.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
+                                <p className="text-[9px] text-muted-foreground/60 mt-1">{formatDate(n.created_at, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
                               </div>
                               {!n.read && <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1" />}
                             </div>
@@ -109,7 +113,7 @@ const Header = () => {
                         ))
                       ) : (
                         <div className="py-8 text-center">
-                          <p className="text-xs text-muted-foreground">Nenhuma notificação</p>
+                          <p className="text-xs text-muted-foreground">{t("header.noNotifications")}</p>
                         </div>
                       )}
                     </div>
@@ -117,10 +121,10 @@ const Header = () => {
                 )}
               </div>
 
-              <button onClick={() => navigate("/suporte")} title="Suporte" className="hidden sm:inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+              <button onClick={() => navigate("/suporte")} title={t("common.support")} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
                 <LifeBuoy className="h-5 w-5" />
               </button>
-              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title="Mensagens">
+              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.messages")}>
                 <MessageCircle className="h-5 w-5" />
                 {(unreadCount ?? 0) > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
@@ -128,22 +132,18 @@ const Header = () => {
                   </span>
                 )}
               </button>
-              <button
-                onClick={() => navigate("/perfil")}
-                className="flex items-center gap-2 border border-border rounded-xl px-2 sm:px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all max-w-[140px]"
-                title="Meu perfil"
-              >
+              <button onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-xl px-2 sm:px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all max-w-[140px]" title={t("common.profile")}>
                 <User className="h-4 w-4 text-primary shrink-0" />
                 <span className="hidden sm:inline text-xs font-medium text-foreground truncate">{profile?.username || user.email?.split("@")[0]}</span>
               </button>
-              <button onClick={signOut} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all" title="Sair">
+              <button onClick={signOut} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all" title={t("common.logout")}>
                 <LogOut className="h-4 w-4" />
               </button>
             </>
           ) : (
             <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium rounded-xl" onClick={() => navigate("/login")}>
               <User className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Entrar</span>
+              <span className="hidden sm:inline">{t("common.login")}</span>
             </Button>
           )}
         </div>
