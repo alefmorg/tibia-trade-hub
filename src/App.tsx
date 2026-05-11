@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
+import { LocaleProvider } from "@/hooks/useLocale";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
@@ -47,30 +48,32 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <WelcomeOverlay />
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Registro />} />
-              <Route path="/esqueci-senha" element={<EsqueciSenha />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/criar-anuncio" element={<CriarAnuncio />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/perfil/:userId" element={<Perfil />} />
-              <Route path="/mensagens" element={<Mensagens />} />
-              <Route path="/anuncio/:id" element={<Anuncio />} />
-              <Route path="/rifa" element={<RifaPage />} />
-              <Route path="/rifa/:id" element={<RifaPage />} />
-              <Route path="/suporte" element={<Suporte />} />
-              <Route path="/privacidade" element={<Privacidade />} />
-              <Route path="/go/:slug" element={<AffiliateRedirect />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AuthProvider>
+        <LocaleProvider>
+          <AuthProvider>
+            <WelcomeOverlay />
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/registro" element={<Registro />} />
+                <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/criar-anuncio" element={<CriarAnuncio />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/perfil" element={<Perfil />} />
+                <Route path="/perfil/:userId" element={<Perfil />} />
+                <Route path="/mensagens" element={<Mensagens />} />
+                <Route path="/anuncio/:id" element={<Anuncio />} />
+                <Route path="/rifa" element={<RifaPage />} />
+                <Route path="/rifa/:id" element={<RifaPage />} />
+                <Route path="/suporte" element={<Suporte />} />
+                <Route path="/privacidade" element={<Privacidade />} />
+                <Route path="/go/:slug" element={<AffiliateRedirect />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </AuthProvider>
+        </LocaleProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
