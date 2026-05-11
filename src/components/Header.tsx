@@ -42,17 +42,16 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-          <div className="hidden sm:flex items-center gap-1 rounded-xl border border-border bg-card/70 px-1 py-1" title={t("common.language")}>
+          <div className="flex flex-col items-center rounded-xl border border-border bg-card/70 px-1 py-1" title={t("common.language")}>
             {(Object.keys(LOCALE_META) as AppLocale[]).map((code) => (
               <button
                 key={code}
                 type="button"
                 onClick={() => setLocale(code)}
-                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] transition-colors ${locale === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                className={`inline-flex items-center justify-center rounded-lg px-1.5 py-1 text-[10px] transition-colors ${locale === code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                 aria-label={LOCALE_META[code].label}
               >
                 <span>{LOCALE_META[code].flag}</span>
-                <span>{LOCALE_META[code].short}</span>
               </button>
             ))}
           </div>
