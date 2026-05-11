@@ -245,51 +245,42 @@ const Perfil = () => {
   }, [profile]);
 
   const updateProfile = useMutation({
-    mutationFn: async (updates: { username?: string; bio?: string; avatar_url?: string | null }) => {
+    mutationFn: async (updates: { username: string; bio: string; avatar_url: string | null }) => {
       if (!user?.id) {
         throw new Error("Usuário não autenticado");
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .update({
           username: updates.username,
           bio: updates.bio,
           avatar_url: updates.avatar_url,
         })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id, user_id, username, avatar_url, bio, created_at, updated_at")
+        .single();
 
-      if (error) {
-        throw error;
-      }
-
-      return updates;
+      if (error) throw error;
+      return data;
     },
 
-    onSuccess: async (_, variables) => {
-      // Atualiza estados locais imediatamente para não travar a UI
-      setEditUsername(variables.username || "");
-      setEditBio(variables.bio || "");
-      setEditAvatar(variables.avatar_url || null);
-
-      // Fecha edição mesmo se ocorrer problema no refresh de cache
+    onSuccess: (data) => {
+      // Atualiza estados locais e cache imediatamente
+      setEditUsername(data.username || "");
+      setEditBio(data.bio || "");
+      setEditAvatar(data.avatar_url || null);
       setEditing(false);
 
-      try {
-        // Atualiza o perfil desta tela e também o cache global usado no header
-        await queryClient.invalidateQueries({ queryKey: ["profile", profileUserId] });
-        await queryClient.invalidateQueries({ queryKey: ["profile"] });
-        await queryClient.refetchQueries({ queryKey: ["profile", profileUserId], type: "active" });
-      } catch (cacheError) {
-        console.error("Erro ao atualizar cache do perfil:", cacheError);
-      }
+      queryClient.setQueryData(["profile", profileUserId], data);
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
 
       toast.success("Perfil atualizado!");
     },
 
     onError: (err: any) => {
       console.error("Erro ao atualizar perfil:", err);
-
       toast.error(err?.message || "Erro ao atualizar perfil");
     },
   });
