@@ -500,7 +500,7 @@ export const resolveTranslation = (locale: AppLocale, key: string, params?: Reco
 
   for (const segment of segments) {
     if (!current || typeof current === "string" || typeof current === "function") break;
-    current = current[segment];
+    current = (current as Record<string, unknown>)[segment] as TranslationNode;
   }
 
   if (typeof current === "function") return current(params);
