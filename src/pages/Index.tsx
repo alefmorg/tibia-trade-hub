@@ -248,7 +248,7 @@ const Index = () => {
                       <button
                         key={`slot-${idx}`}
                         onClick={() => navigate(user ? "/perfil" : "/login")}
-                        className="group relative overflow-hidden rounded-xl border-2 border-dashed border-warning/35 bg-secondary/30 hover:border-warning/70 hover:bg-secondary/50 transition-all duration-200 p-4 flex flex-col items-center justify-center text-center min-h-[260px]"
+                        className="trade-card trade-card-grid group relative overflow-hidden border-2 border-dashed border-warning/35 bg-secondary/30 hover:border-warning/70 hover:bg-secondary/50 transition-all duration-200 p-4 flex flex-col items-center justify-center text-center"
                       >
                         <div aria-hidden className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{
                           backgroundImage: "linear-gradient(hsl(var(--warning)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--warning)) 1px, transparent 1px)",
