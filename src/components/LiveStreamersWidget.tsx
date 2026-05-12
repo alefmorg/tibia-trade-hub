@@ -29,7 +29,9 @@ const LiveStreamersWidget = () => {
     let cancelled = false;
 
     const checkLiveStatus = async () => {
-      const checks = await Promise.all(streamers.map(async (s) => [s.twitch_login, await isStreamerLive(s.twitch_login)] as const));
+      const checks = await Promise.all(
+        streamers.map(async (s) => [s.twitch_login, await isStreamerLive(s.twitch_login)] as const)
+      );
       if (cancelled) return;
       setLiveLogins(Object.fromEntries(checks));
     };
@@ -43,7 +45,9 @@ const LiveStreamersWidget = () => {
     };
   }, [data]);
 
-  const live = useMemo(() => (data || []).filter((s) => liveLogins[s.twitch_login]).slice(0, 5), [data, liveLogins]);
+  const live = useMemo(() => {
+    return (data || []).filter((s) => liveLogins[s.twitch_login]).slice(0, 5);
+  }, [data, liveLogins]);
 
   if (live.length === 0) return null;
 
@@ -61,6 +65,7 @@ const LiveStreamersWidget = () => {
             href={`https://twitch.tv/${s.twitch_login}`}
             target="_blank"
             rel="noopener noreferrer"
+            title={`${s.display_name} ao vivo`}
             className="group rounded-lg overflow-hidden border border-destructive/50 bg-black/30 hover:border-destructive transition-colors"
           >
             <div className="flex items-center gap-2 p-1.5">
