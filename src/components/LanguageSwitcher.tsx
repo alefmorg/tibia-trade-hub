@@ -17,8 +17,8 @@ const GT_CODE: Record<AppLocale, string> = {
 };
 
 const setGoogTransCookie = (target: string) => {
-  const value = target === "pt" ? "" : `/pt/${target}`;
-  // Domínios necessários para o widget pegar
+  // Para PT (idioma original) usamos /pt/pt para forçar o widget a restaurar o texto.
+  const value = `/pt/${target}`;
   const host = window.location.hostname;
   const rootHost = host.split(".").slice(-2).join(".");
   const expire = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
@@ -61,8 +61,20 @@ const LanguageSwitcher = () => {
       if (attempt < 30) setTimeout(() => triggerGoogleTranslate(target, attempt + 1), 200);
       return;
     }
-    select.value = target === "pt" ? "" : target;
+    select.value = target;
     select.dispatchEvent(new Event("change"));
+    // Para voltar ao PT, o widget às vezes precisa de um "restore" extra
+    if (target === "pt") {
+      setTimeout(() => {
+        const restore = document.querySelector<HTMLAnchorElement>("a.goog-te-menu-value span");
+        if (restore && (window as any).google?.translate) {
+          try { (window as any).google.translate.TranslateElement.getInstance()?.restore?.(); } catch {}
+        }
+        // fallback: recarrega só se o restore não funcionar
+        const stillTranslated = document.documentElement.className.includes("translated");
+        if (stillTranslated) window.location.reload();
+      }, 400);
+    }
   };
 
   const changeLocale = (code: AppLocale) => {

@@ -30,7 +30,7 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
       document.documentElement.lang = locale;
       // Sincroniza cookie do Google Translate (widget escondido em index.html)
       const target = locale === "pt-BR" ? "pt" : locale;
-      const value = target === "pt" ? "" : `/pt/${target}`;
+      const value = `/pt/${target}`;
       const host = window.location.hostname;
       const expire = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
       document.cookie = `googtrans=${value}; path=/; ${expire}`;
