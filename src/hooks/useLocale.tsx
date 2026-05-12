@@ -28,12 +28,19 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
       document.documentElement.lang = locale;
+      // Sincroniza cookie do Google Translate (widget escondido em index.html)
+      const target = locale === "pt-BR" ? "pt" : locale;
+      const value = target === "pt" ? "" : `/pt/${target}`;
+      const host = window.location.hostname;
+      const expire = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+      document.cookie = `googtrans=${value}; path=/; ${expire}`;
+      document.cookie = `googtrans=${value}; domain=${host}; path=/; ${expire}`;
+      const root = host.split(".").slice(-2).join(".");
+      if (root && root !== host) {
+        document.cookie = `googtrans=${value}; domain=.${root}; path=/; ${expire}`;
+      }
     }
   }, [locale]);
-
-  // NOTE: Auto-translation via direct DOM mutation was removed because it
-  // conflicts with React's reconciler (causes "removeChild" NotFoundError).
-  // Use the t() function below for translations instead.
 
   const value = useMemo<LocaleContextValue>(() => ({
     locale,
