@@ -433,7 +433,8 @@ const Perfil = () => {
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
                         <Button type="button" size="sm" variant="ghost" onClick={() => {
-                            updateProfile.reset();
+                            updateProfile.reset?.();
+                            updateProfile.reset(); main
                             setEditUsername(profile.username || "");
                             setEditBio(profile.bio || "");
                             setEditAvatar(profile.avatar_url || null);
@@ -475,7 +476,7 @@ const Perfil = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              updateProfile.reset();
+                              updateProfile.reset?.();
                               setEditUsername(profile.username || "");
                               setEditBio(profile.bio || "");
                               setEditAvatar(profile.avatar_url || null);
