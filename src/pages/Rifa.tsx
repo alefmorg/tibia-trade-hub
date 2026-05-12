@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import { useRaffle, useRaffleNumbers, useBuyRaffleNumbers, useRaffles } from "@/hooks/useRaffles";
 import { useRafflePageSettings } from "@/hooks/useRafflePageSettings";
@@ -25,6 +25,9 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+
+
+const RAFFLE_AGE_GATE_KEY = "raffles-age-confirmed";
 
 // ----- Estilos pixel reutilizáveis -----
 const pixelBox = {
@@ -265,10 +268,13 @@ const RaffleCard = ({ r }: { r: any }) => {
 
 const RifaPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: wallet } = useWallet();
   const [quantity, setQuantity] = useState(1);
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
+  const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
+  const [ageGateChecked, setAgeGateChecked] = useState(false);
 
   const { data: raffle, isLoading } = useRaffle(id || "");
   const { data: numbers } = useRaffleNumbers(id || "");
@@ -276,6 +282,48 @@ const RifaPage = () => {
 
   const { data: raffles } = useRaffles(true);
   const { data: pageSettings } = useRafflePageSettings();
+
+  useEffect(() => {
+    const ageConfirmed = window.localStorage.getItem(RAFFLE_AGE_GATE_KEY) === "true";
+    setIsAgeConfirmed(ageConfirmed);
+    setAgeGateChecked(true);
+  }, []);
+
+  const handleAgeConfirm = () => {
+    window.localStorage.setItem(RAFFLE_AGE_GATE_KEY, "true");
+    setIsAgeConfirmed(true);
+  };
+
+  const handleAgeDecline = () => {
+    window.localStorage.removeItem(RAFFLE_AGE_GATE_KEY);
+    navigate("/");
+  };
+
+  if (!ageGateChecked) return null;
+
+  if (!isAgeConfirmed) {
+    return (
+      <Dialog open>
+        <DialogContent
+          className="max-w-md"
+          onEscapeKeyDown={(event) => event.preventDefault()}
+          onInteractOutside={(event) => event.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="font-pixel text-sm">Confirmação de maioridade</DialogTitle>
+            <DialogDescription className="font-body text-xs">
+              Esta área de rifas é destinada apenas para maiores de 18 anos.
+              Você confirma que tem 18 anos ou mais?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={handleAgeDecline}>Não</Button>
+            <Button onClick={handleAgeConfirm}>Sim, sou maior de idade</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   // ===== LISTA =====
   if (!id) {
