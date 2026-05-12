@@ -113,6 +113,7 @@ const TabButton = ({
   tone?: "default" | "warning";
 }) => (
   <button
+    type="button"
     onClick={onClick}
     className={cn(
       "relative inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-medium transition-colors",
@@ -422,6 +423,7 @@ const Perfil = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button
+                          type="button"
                           size="sm"
                           onClick={handleSaveProfile}
                           disabled={updateProfile.isPending}
@@ -430,8 +432,8 @@ const Perfil = () => {
                           <Check className="h-3.5 w-3.5 mr-1" />
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => {
-                            updateProfile.reset();
+                        <Button type="button" size="sm" variant="ghost" onClick={() => {
+                            updateProfile.reset?.();
                             setEditUsername(profile.username || "");
                             setEditBio(profile.bio || "");
                             setEditAvatar(profile.avatar_url || null);
@@ -469,10 +471,11 @@ const Perfil = () => {
                       {isOwnProfile && (
                         <div className="flex gap-2">
                           <Button
+                            type="button"
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              updateProfile.reset();
+                              updateProfile.reset?.();
                               setEditUsername(profile.username || "");
                               setEditBio(profile.bio || "");
                               setEditAvatar(profile.avatar_url || null);
