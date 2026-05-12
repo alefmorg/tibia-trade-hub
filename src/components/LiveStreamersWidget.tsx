@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { usePartnerStreamers } from "@/hooks/usePartnerStreamers";
 import { Twitch, Radio, ExternalLink } from "lucide-react";
 
-const getLivePreviewUrl = (login: string) =>
-  `https://static-cdn.jtvnw.net/previews-ttv/live_user_${login}-320x180.jpg?t=${Date.now()}`;
+const getLivePreviewUrl = (login: string, withCacheBuster = false) => {
+  const base = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${login}-320x180.jpg`;
+  return withCacheBuster ? `${base}?t=${Date.now()}` : base;
+};
 
 const LiveStreamersWidget = () => {
   const { data } = usePartnerStreamers(true);
@@ -25,18 +27,18 @@ const LiveStreamersWidget = () => {
             const img = new Image();
             img.onload = () => resolve([s.twitch_login, true]);
             img.onerror = () => resolve([s.twitch_login, false]);
-            img.src = getLivePreviewUrl(s.twitch_login);
+            img.src = getLivePreviewUrl(s.twitch_login, true);
           })
       );
 
       const result = await Promise.all(checks);
-      if (cancelled) return;
-
-      setLiveLogins(Object.fromEntries(result));
+      if (!cancelled) {
+        setLiveLogins(Object.fromEntries(result));
+      }
     };
 
     void checkLiveStatus();
-    const interval = setInterval(checkLiveStatus, 60_000);
+    const interval = setInterval(() => void checkLiveStatus(), 60_000);
 
     return () => {
       cancelled = true;
@@ -44,11 +46,12 @@ const LiveStreamersWidget = () => {
     };
   }, [data]);
 
-  const live = useMemo(() => {
-    return (data || []).filter((s) => liveLogins[s.twitch_login]).slice(0, 5);
-  }, [data, liveLogins]);
+  const liveStreamers = useMemo(
+    () => (data || []).filter((s) => liveLogins[s.twitch_login]).slice(0, 5),
+    [data, liveLogins]
+  );
 
-  if (live.length === 0) return null;
+  if (liveStreamers.length === 0) return null;
 
   return (
     <div className="shrink-0 flex flex-col gap-2 px-2 py-2 rounded-2xl border border-border/60 bg-card/60 backdrop-blur w-full max-w-[300px]">
@@ -58,7 +61,7 @@ const LiveStreamersWidget = () => {
       </div>
 
       <div className="space-y-2">
-        {live.map((s) => (
+        {liveStreamers.map((s) => (
           <a
             key={s.id}
             href={`https://twitch.tv/${s.twitch_login}`}
