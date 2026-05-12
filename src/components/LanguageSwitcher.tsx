@@ -54,12 +54,22 @@ const LanguageSwitcher = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const triggerGoogleTranslate = (target: string, attempt = 0) => {
+    const select = document.querySelector<HTMLSelectElement>("select.goog-te-combo");
+    if (!select) {
+      // Widget ainda carregando — tenta novamente
+      if (attempt < 30) setTimeout(() => triggerGoogleTranslate(target, attempt + 1), 200);
+      return;
+    }
+    select.value = target === "pt" ? "" : target;
+    select.dispatchEvent(new Event("change"));
+  };
+
   const changeLocale = (code: AppLocale) => {
     setLocale(code);
     setGoogTransCookie(GT_CODE[code]);
+    triggerGoogleTranslate(GT_CODE[code]);
     setOpen(false);
-    // Recarregar para o widget aplicar a tradução em todas as páginas com segurança
-    window.location.reload();
   };
 
   return (
