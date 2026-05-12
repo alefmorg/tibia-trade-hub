@@ -434,6 +434,7 @@ const Perfil = () => {
                         </Button>
                         <Button type="button" size="sm" variant="ghost" onClick={() => {
                             updateProfile.reset?.();
+                            updateProfile.reset(); main
                             setEditUsername(profile.username || "");
                             setEditBio(profile.bio || "");
                             setEditAvatar(profile.avatar_url || null);
