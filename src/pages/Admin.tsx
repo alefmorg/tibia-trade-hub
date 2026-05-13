@@ -526,8 +526,8 @@ const Admin = () => {
                   <TableHeader>
                     <TableRow className="border-border/60 bg-secondary/30">
                       <TableHead className="text-muted-foreground text-xs">Avatar</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Username</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Anúncios</TableHead>
+                      <TableHead className="text-muted-foreground text-xs min-w-[260px]">Usuário</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Resumo</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Cargo</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Selos</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Status</TableHead>
@@ -537,9 +537,16 @@ const Admin = () => {
                   <TableBody>
                     {filteredProfiles.map((profile) => {
                       const currentRole = getUserRole(profile.user_id);
-                      const adsCount = adsCountByUser[profile.user_id] || 0;
+                      const adsCount = Number((profile as any).ads_count ?? adsCountByUser[profile.user_id] ?? 0);
                       const isCurrentUser = profile.user_id === user.id;
                       const banned = isUserBanned(profile.user_id);
+                      const email = (profile as any).email as string | undefined;
+                      const walletBalance = Number((profile as any).wallet_balance ?? 0);
+                      const conversationsCount = Number((profile as any).conversations_count ?? 0);
+                      const offersSentCount = Number((profile as any).offers_sent_count ?? 0);
+                      const favoritesCount = Number((profile as any).favorites_count ?? 0);
+                      const vipUntil = (profile as any).vip_until as string | null | undefined;
+                      const lastSignInAt = (profile as any).last_sign_in_at as string | null | undefined;
                       return (
                         <TableRow key={profile.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${banned ? "opacity-60 bg-destructive/5" : ""}`}>
                           <TableCell>
@@ -549,17 +556,45 @@ const Admin = () => {
                             </div>
                           </TableCell>
                           <TableCell className="text-foreground font-medium font-body">
-                            <div className="flex items-center gap-2">
-                              {profile.username}
-                              {currentRole === "admin" && <ShieldCheck className="h-3.5 w-3.5 text-primary" />}
-                              {currentRole === "moderator" && <ShieldAlert className="h-3.5 w-3.5 text-warning" />}
-                              {banned && <Ban className="h-3.5 w-3.5 text-destructive" />}
+                            <div className="space-y-1.5 min-w-0">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="truncate">{profile.username}</span>
+                                {currentRole === "admin" && <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
+                                {currentRole === "moderator" && <ShieldAlert className="h-3.5 w-3.5 text-warning shrink-0" />}
+                                {banned && <Ban className="h-3.5 w-3.5 text-destructive shrink-0" />}
+                              </div>
+                              <div className="space-y-0.5 text-[11px] text-muted-foreground font-normal">
+                                <p className="truncate">{email || "Sem email visível"}</p>
+                                <div className="flex flex-wrap gap-x-3 gap-y-1">
+                                  <span>Criado em {new Date(profile.created_at).toLocaleDateString("pt-BR")}</span>
+                                  <span>Último login {lastSignInAt ? new Date(lastSignInAt).toLocaleDateString("pt-BR") : "—"}</span>
+                                </div>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${adsCount > 0 ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
-                              {adsCount}
-                            </span>
+                            <div className="flex flex-wrap gap-1.5 max-w-[250px]">
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${adsCount > 0 ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+                                {adsCount} anúncios
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
+                                {conversationsCount} conversas
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
+                                {offersSentCount} ofertas
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
+                                {favoritesCount} favoritos
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-warning/15 text-warning">
+                                {walletBalance} coins
+                              </span>
+                              {vipUntil && new Date(vipUntil).getTime() > Date.now() && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                                  VIP até {new Date(vipUntil).toLocaleDateString("pt-BR")}
+                                </span>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Select value={currentRole} onValueChange={(v) => updateUserRole.mutate({ userId: profile.user_id, role: v as AppRole })} disabled={isCurrentUser}>
