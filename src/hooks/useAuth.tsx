@@ -15,6 +15,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+type ProfileUpdatedDetail = {
+  username?: string;
+  avatar_url?: string | null;
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -68,9 +73,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       void applySession(nextSession);
     });
 
+    const handleProfileUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<ProfileUpdatedDetail>;
+      setProfile((current) => ({
+        username: customEvent.detail?.username ?? current?.username ?? "",
+        avatar_url: customEvent.detail?.avatar_url ?? current?.avatar_url ?? null,
+      }));
+    };
+
+    window.addEventListener("profile-updated", handleProfileUpdated as EventListener);
+
     void supabase.auth.getSession().then(({ data: { session } }) => applySession(session));
 
-    return () => { mounted = false; subscription.unsubscribe(); };
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+      window.removeEventListener("profile-updated", handleProfileUpdated as EventListener);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
