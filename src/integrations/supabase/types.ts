@@ -1571,6 +1571,27 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      admin_list_profiles_enriched: {
+        Args: never
+        Returns: {
+          ads_count: number
+          avatar_url: string
+          banned: boolean
+          bio: string
+          conversations_count: number
+          created_at: string
+          email: string
+          favorites_count: number
+          id: string
+          last_sign_in_at: string
+          offers_sent_count: number
+          updated_at: string
+          user_id: string
+          username: string
+          vip_until: string
+          wallet_balance: number
+        }[]
+      }
       admin_list_vip_users: {
         Args: never
         Returns: {
