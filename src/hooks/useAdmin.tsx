@@ -49,7 +49,7 @@ export const useAdminData = (enabled: boolean) => {
     queryKey: ["admin-profiles"],
     enabled,
     queryFn: async () => {
-      const { data, error } = await (supabase as any).rpc("admin_list_profiles");
+      const { data, error } = await (supabase as any).rpc("admin_list_profiles_enriched");
       if (error) throw error;
       return data || [];
     },
