@@ -273,6 +273,13 @@ const Perfil = () => {
       setEditAvatar(data.avatar_url || null);
       setEditing(false);
 
+      window.dispatchEvent(new CustomEvent("profile-updated", {
+        detail: {
+          username: data.username || "",
+          avatar_url: data.avatar_url || null,
+        },
+      }));
+
       queryClient.setQueryData(["profile", profileUserId], data);
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
@@ -434,7 +441,7 @@ const Perfil = () => {
                         </Button>
                         <Button type="button" size="sm" variant="ghost" onClick={() => {
                             updateProfile.reset?.();
-                            updateProfile.reset(); main
+                            updateProfile.reset();
                             setEditUsername(profile.username || "");
                             setEditBio(profile.bio || "");
                             setEditAvatar(profile.avatar_url || null);
