@@ -49,9 +49,13 @@ export const useAdminData = (enabled: boolean) => {
     queryKey: ["admin-profiles"],
     enabled,
     queryFn: async () => {
-      const { data, error } = await (supabase as any).rpc("admin_list_profiles_enriched");
-      if (error) throw error;
-      return data || [];
+      const db = supabase as any;
+      const { data, error } = await db.rpc("admin_list_profiles_enriched");
+      if (!error) return data || [];
+
+      const fallback = await db.rpc("admin_list_profiles");
+      if (fallback.error) throw fallback.error;
+      return fallback.data || [];
     },
   });
 

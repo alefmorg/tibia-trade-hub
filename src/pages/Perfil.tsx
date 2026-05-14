@@ -184,8 +184,13 @@ const Perfil = () => {
     queryKey: ["profile", profileUserId],
     enabled: !!profileUserId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, user_id, username, avatar_url, bio, created_at, updated_at").eq("user_id", profileUserId!).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, user_id, username, avatar_url, bio, created_at, updated_at")
+        .eq("user_id", profileUserId!)
+        .maybeSingle();
       if (error) throw error;
+      if (!data) return null;
       return data;
     },
   });
@@ -260,9 +265,12 @@ const Perfil = () => {
         })
         .eq("user_id", user.id)
         .select("id, user_id, username, avatar_url, bio, created_at, updated_at")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) {
+        throw new Error("Perfil não encontrado para atualizar");
+      }
       return data;
     },
 
@@ -440,7 +448,6 @@ const Perfil = () => {
                           {updateProfile.isPending ? "Salvando..." : "Salvar"}
                         </Button>
                         <Button type="button" size="sm" variant="ghost" onClick={() => {
-                            updateProfile.reset?.();
                             updateProfile.reset();
                             setEditUsername(profile.username || "");
                             setEditBio(profile.bio || "");
@@ -483,7 +490,7 @@ const Perfil = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              updateProfile.reset?.();
+                              updateProfile.reset();
                               setEditUsername(profile.username || "");
                               setEditBio(profile.bio || "");
                               setEditAvatar(profile.avatar_url || null);
