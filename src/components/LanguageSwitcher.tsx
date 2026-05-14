@@ -9,6 +9,26 @@ const FLAG_SRC: Record<AppLocale, string> = {
   es: "https://flagcdn.com/es.svg",
 };
 
+// Mapeia AppLocale -> código usado pelo Google Translate
+const GT_CODE: Record<AppLocale, string> = {
+  "pt-BR": "pt",
+  en: "en",
+  es: "es",
+};
+
+const setGoogTransCookie = (target: string) => {
+  // Para PT (idioma original) usamos /pt/pt para forçar o widget a restaurar o texto.
+  const value = `/pt/${target}`;
+  const host = window.location.hostname;
+  const rootHost = host.split(".").slice(-2).join(".");
+  const expire = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+  document.cookie = `googtrans=${value}; path=/; ${expire}`;
+  document.cookie = `googtrans=${value}; domain=${host}; path=/; ${expire}`;
+  if (rootHost && rootHost !== host) {
+    document.cookie = `googtrans=${value}; domain=.${rootHost}; path=/; ${expire}`;
+  }
+};
+
 const FlagImg = ({ code, className = "" }: { code: AppLocale; className?: string }) => (
   <img
     src={FLAG_SRC[code]}
@@ -34,8 +54,33 @@ const LanguageSwitcher = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const triggerGoogleTranslate = (target: string, attempt = 0) => {
+    const select = document.querySelector<HTMLSelectElement>("select.goog-te-combo");
+    if (!select) {
+      // Widget ainda carregando — tenta novamente
+      if (attempt < 30) setTimeout(() => triggerGoogleTranslate(target, attempt + 1), 200);
+      return;
+    }
+    select.value = target;
+    select.dispatchEvent(new Event("change"));
+    // Para voltar ao PT, o widget às vezes precisa de um "restore" extra
+    if (target === "pt") {
+      setTimeout(() => {
+        const restore = document.querySelector<HTMLAnchorElement>("a.goog-te-menu-value span");
+        if (restore && (window as any).google?.translate) {
+          try { (window as any).google.translate.TranslateElement.getInstance()?.restore?.(); } catch {}
+        }
+        // fallback: recarrega só se o restore não funcionar
+        const stillTranslated = document.documentElement.className.includes("translated");
+        if (stillTranslated) window.location.reload();
+      }, 400);
+    }
+  };
+
   const changeLocale = (code: AppLocale) => {
     setLocale(code);
+    setGoogTransCookie(GT_CODE[code]);
+    triggerGoogleTranslate(GT_CODE[code]);
     setOpen(false);
   };
 

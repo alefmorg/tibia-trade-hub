@@ -1,24 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, AppLocale, resolveTranslation } from "@/lib/i18n";
 
-const clearGoogleTranslateState = () => {
-  if (typeof window === "undefined") return;
-
-  const host = window.location.hostname;
-  const root = host.split(".").slice(-2).join(".");
-  const expire = "expires=Thu, 01 Jan 1970 00:00:00 GMT";
-
-  document.cookie = `googtrans=; path=/; ${expire}`;
-  document.cookie = `googtrans=; domain=${host}; path=/; ${expire}`;
-  if (root && root !== host) {
-    document.cookie = `googtrans=; domain=.${root}; path=/; ${expire}`;
-  }
-
-  document.documentElement.classList.remove("translated-ltr", "translated-rtl");
-  document.body.classList.remove("translated-ltr", "translated-rtl");
-  document.body.style.top = "0px";
-};
-
 interface LocaleContextValue {
   locale: AppLocale;
   setLocale: (locale: AppLocale) => void;
@@ -46,7 +28,17 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
       document.documentElement.lang = locale;
-      clearGoogleTranslateState();
+      // Sincroniza cookie do Google Translate (widget escondido em index.html)
+      const target = locale === "pt-BR" ? "pt" : locale;
+      const value = `/pt/${target}`;
+      const host = window.location.hostname;
+      const expire = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+      document.cookie = `googtrans=${value}; path=/; ${expire}`;
+      document.cookie = `googtrans=${value}; domain=${host}; path=/; ${expire}`;
+      const root = host.split(".").slice(-2).join(".");
+      if (root && root !== host) {
+        document.cookie = `googtrans=${value}; domain=.${root}; path=/; ${expire}`;
+      }
     }
   }, [locale]);
 
