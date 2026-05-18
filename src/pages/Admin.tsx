@@ -536,7 +536,88 @@ const Admin = () => {
 
             {/* USERS TAB */}
             {tab === "users" && (
-              <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-3">
+                  <div className="rounded-xl border border-border/60 bg-card/80 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Usuários visíveis</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">{filteredProfiles.length}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">resultado após busca e filtros</p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-card/80 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Admins + mods</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                      {profiles.filter((p) => {
+                        const role = getUserRole(p.user_id);
+                        return role === "admin" || role === "moderator";
+                      }).length}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">contas com permissão elevada</p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-card/80 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">VIP ativos</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                      {profiles.filter((p) => {
+                        const vipUntil = (p as any).vip_until as string | null | undefined;
+                        return !!vipUntil && new Date(vipUntil).getTime() > Date.now();
+                      }).length}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">usuários com benefício ativo</p>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-card/80 p-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Banidos</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">{profiles.filter((p) => Boolean((p as any).banned)).length}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">contas bloqueadas</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-border/60 bg-card/80 p-4 flex flex-col lg:flex-row gap-3 lg:items-end lg:justify-between">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:max-w-xl">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Filtrar por cargo</Label>
+                      <Select value={userRoleFilter} onValueChange={(value) => setUserRoleFilter(value as "all" | AppRole)}>
+                        <SelectTrigger className="bg-secondary/80 border-border">
+                          <SelectValue placeholder="Todos os cargos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="user">Usuário</SelectItem>
+                          <SelectItem value="moderator">Moderador</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground font-body">Filtrar por status</Label>
+                      <Select value={userStatusFilter} onValueChange={(value) => setUserStatusFilter(value as "all" | "active" | "banned" | "vip")}>
+                        <SelectTrigger className="bg-secondary/80 border-border">
+                          <SelectValue placeholder="Todos os status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="active">Ativos</SelectItem>
+                          <SelectItem value="vip">VIP</SelectItem>
+                          <SelectItem value="banned">Banidos</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-border"
+                      onClick={() => {
+                        setUserRoleFilter("all");
+                        setUserStatusFilter("all");
+                        setSearch("");
+                      }}
+                    >
+                      Limpar filtros
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border/60 bg-secondary/30">
@@ -588,7 +669,8 @@ const Admin = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-wrap gap-1.5 max-w-[250px]">
+                            <div className="space-y-2 max-w-[290px]">
+                              <div className="flex flex-wrap gap-1.5">
                               <span className={`text-xs px-2 py-0.5 rounded-full ${adsCount > 0 ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                                 {adsCount} anúncios
                               </span>
@@ -609,6 +691,17 @@ const Admin = () => {
                                   VIP até {new Date(vipUntil).toLocaleDateString("pt-BR")}
                                 </span>
                               )}
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+                                <div className="rounded-lg border border-border/50 bg-secondary/30 px-2 py-1.5">
+                                  <span className="block uppercase tracking-wide text-[10px]">ID</span>
+                                  <span className="block truncate text-foreground/80">{profile.user_id.slice(0, 8)}...</span>
+                                </div>
+                                <div className="rounded-lg border border-border/50 bg-secondary/30 px-2 py-1.5">
+                                  <span className="block uppercase tracking-wide text-[10px]">Perfil</span>
+                                  <span className="block truncate text-foreground/80">{profile.bio?.trim() ? "Com bio" : "Sem bio"}</span>
+                                </div>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -632,10 +725,20 @@ const Admin = () => {
                             )}
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-0.5">
+                              <div className="flex items-center gap-0.5 flex-wrap">
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/perfil/${profile.user_id}`)}>
                                 <Eye className="h-3.5 w-3.5" />
                               </Button>
+                                {email && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                                    onClick={() => window.open(`mailto:${email}`, "_blank")}
+                                  >
+                                    <MessageCircle className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
                               {!isCurrentUser && (
                                 <>
                                   <Button size="sm" variant="ghost" className={`h-7 w-7 p-0 ${banned ? "text-primary hover:bg-primary/10" : "text-warning hover:bg-warning/10"}`}
@@ -656,6 +759,7 @@ const Admin = () => {
                   </TableBody>
                 </Table>
                 {filteredProfiles.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum usuário encontrado</p>}
+                </div>
               </div>
             )}
 
