@@ -141,7 +141,7 @@ const SectionTitle = ({ children, hint }: { children: React.ReactNode; hint?: Re
 
 const Perfil = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const isOwnProfile = !userId || userId === user?.id;
   const profileUserId = isOwnProfile ? user?.id : userId;
@@ -182,11 +182,31 @@ const Perfil = () => {
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileUserId],
-    enabled: !!profileUserId,
+    enabled: !authLoading && !!profileUserId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("id, user_id, username, avatar_url, bio, created_at, updated_at").eq("user_id", profileUserId!).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, user_id, username, avatar_url, bio, created_at, updated_at")
+        .eq("user_id", profileUserId!)
+        .maybeSingle();
+
       if (error) throw error;
-      return data;
+
+      if (data) return data;
+
+      if (isOwnProfile && user?.id) {
+        return {
+          id: `draft-${user.id}`,
+          user_id: user.id,
+          username: user.user_metadata?.username || user.email?.split("@")[0] || "",
+          avatar_url: null,
+          bio: "",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+      }
+
+      return null;
     },
   });
 
@@ -251,14 +271,26 @@ const Perfil = () => {
         throw new Error("Usuário não autenticado");
       }
 
-      const { data, error } = await supabase
+      const payload = {
+        user_id: user.id,
+        username: updates.username,
+        bio: updates.bio,
+        avatar_url: updates.avatar_url,
+      };
+
+      const { data: existingProfile, error: existingError } = await supabase
         .from("profiles")
-        .update({
-          username: updates.username,
-          bio: updates.bio,
-          avatar_url: updates.avatar_url,
-        })
+        .select("id")
         .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingError) throw existingError;
+
+      const profileQuery = existingProfile
+        ? supabase.from("profiles").update(payload).eq("user_id", user.id)
+        : supabase.from("profiles").insert(payload);
+
+      const { data, error } = await profileQuery
         .select("id, user_id, username, avatar_url, bio, created_at, updated_at")
         .single();
 
@@ -325,6 +357,17 @@ const Perfil = () => {
     : "";
   const totalAds = userAds?.length || 0;
   const isPremium = badges.some((b) => b.badge_type === "premium_verified");
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="container py-10 max-w-6xl">
+          <Skeleton className="h-64 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
 
   if (!profileUserId) {
     return (
