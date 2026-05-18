@@ -100,6 +100,8 @@ const Admin = () => {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [winnerNumberInput, setWinnerNumberInput] = useState<Record<string, string>>({});
+  const [userRoleFilter, setUserRoleFilter] = useState<"all" | AppRole>("all");
+  const [userStatusFilter, setUserStatusFilter] = useState<"all" | "active" | "banned" | "vip">("all");
 
   const [adForm, setAdForm] = useState({
     itemId: "", type: "selling", price: "", currency: "kk",
@@ -163,7 +165,20 @@ const Admin = () => {
 
   const searchTerm = search.toLowerCase();
   const filteredAds = (ads || []).filter((ad) => `${ad.title} ${ad.profiles?.username || ""} ${ad.world}`.toLowerCase().includes(searchTerm));
-  const filteredProfiles = profiles.filter((p) => p.username.toLowerCase().includes(searchTerm));
+  const filteredProfiles = profiles.filter((p) => {
+    const currentRole = getUserRole(p.user_id);
+    const banned = Boolean((p as any).banned);
+    const vipUntil = (p as any).vip_until as string | null | undefined;
+    const isVip = !!vipUntil && new Date(vipUntil).getTime() > Date.now();
+    const searchable = `${p.username} ${(p as any).email || ""} ${p.user_id}`.toLowerCase().includes(searchTerm);
+    const matchesRole = userRoleFilter === "all" || currentRole === userRoleFilter;
+    const matchesStatus = userStatusFilter === "all"
+      || (userStatusFilter === "banned" && banned)
+      || (userStatusFilter === "active" && !banned)
+      || (userStatusFilter === "vip" && isVip);
+
+    return searchable && matchesRole && matchesStatus;
+  });
   const filteredConversations = allConversations.filter((c) => `${getAdTitle(c.ad_id)} ${getProfileName(c.buyer_id)} ${getProfileName(c.seller_id)}`.toLowerCase().includes(searchTerm));
 
   const stats = {
