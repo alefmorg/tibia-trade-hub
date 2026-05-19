@@ -13,6 +13,7 @@ import { useAllDeposits, useApproveDeposit, useRejectDeposit, useDepositConfig }
 import { DepositScreenshot } from "@/components/DepositScreenshot";
 import { useRaffles, useRaffleNumbers, useRaffleMutations } from "@/hooks/useRaffles";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,7 +98,6 @@ const Admin = () => {
   const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [winnerNumberInput, setWinnerNumberInput] = useState<Record<string, string>>({});
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | AppRole>("all");
@@ -536,7 +536,7 @@ const Admin = () => {
 
             {/* USERS TAB */}
             {tab === "users" && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-3">
                   <div className="rounded-xl border border-border/60 bg-card/80 p-4">
                     <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Usuários visíveis</p>
@@ -570,42 +570,52 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-border/60 bg-card/80 p-4 flex flex-col lg:flex-row gap-3 lg:items-end lg:justify-between">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:max-w-xl">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Filtrar por cargo</Label>
-                      <Select value={userRoleFilter} onValueChange={(value) => setUserRoleFilter(value as "all" | AppRole)}>
-                        <SelectTrigger className="bg-secondary/80 border-border">
-                          <SelectValue placeholder="Todos os cargos" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="user">Usuário</SelectItem>
-                          <SelectItem value="moderator">Moderador</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <div className="rounded-xl border border-border/60 bg-card/80 p-4">
+                  <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                    <div className="space-y-1">
+                      <h2 className="text-sm font-semibold text-foreground">Central de usuários</h2>
+                      <p className="text-xs text-muted-foreground">Busca global, filtros rápidos e ações principais em um bloco mais legível.</p>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground font-body">Filtrar por status</Label>
-                      <Select value={userStatusFilter} onValueChange={(value) => setUserStatusFilter(value as "all" | "active" | "banned" | "vip")}>
-                        <SelectTrigger className="bg-secondary/80 border-border">
-                          <SelectValue placeholder="Todos os status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos</SelectItem>
-                          <SelectItem value="active">Ativos</SelectItem>
-                          <SelectItem value="vip">VIP</SelectItem>
-                          <SelectItem value="banned">Banidos</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid w-full gap-3 sm:grid-cols-2 xl:max-w-xl">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Filtrar por cargo</Label>
+                        <Select value={userRoleFilter} onValueChange={(value) => setUserRoleFilter(value as "all" | AppRole)}>
+                          <SelectTrigger className="bg-secondary/80 border-border">
+                            <SelectValue placeholder="Todos os cargos" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            <SelectItem value="user">Usuário</SelectItem>
+                            <SelectItem value="moderator">Moderador</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground font-body">Filtrar por status</Label>
+                        <Select value={userStatusFilter} onValueChange={(value) => setUserStatusFilter(value as "all" | "active" | "banned" | "vip")}>
+                          <SelectTrigger className="bg-secondary/80 border-border">
+                            <SelectValue placeholder="Todos os status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            <SelectItem value="active">Ativos</SelectItem>
+                            <SelectItem value="vip">VIP</SelectItem>
+                            <SelectItem value="banned">Banidos</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary" className="px-2.5 py-1">Busca: {search.trim() ? search : "todas as contas"}</Badge>
+                    <Badge variant="outline" className="px-2.5 py-1">Cargo: {userRoleFilter === "all" ? "todos" : userRoleFilter}</Badge>
+                    <Badge variant="outline" className="px-2.5 py-1">Status: {userStatusFilter === "all" ? "todos" : userStatusFilter}</Badge>
                     <Button
                       type="button"
                       variant="outline"
-                      className="border-border"
+                      className="ml-auto border-border"
                       onClick={() => {
                         setUserRoleFilter("all");
                         setUserStatusFilter("all");
@@ -617,20 +627,13 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="bg-card/80 border border-border/60 rounded-xl overflow-hidden overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border/60 bg-secondary/30">
-                      <TableHead className="text-muted-foreground text-xs">Avatar</TableHead>
-                      <TableHead className="text-muted-foreground text-xs min-w-[260px]">Usuário</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Resumo</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Cargo</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Selos</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Status</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                {filteredProfiles.length === 0 ? (
+                  <div className="rounded-xl border border-border/60 bg-card/80 px-4 py-10 text-center">
+                    <p className="text-sm font-medium text-foreground">Nenhum usuário encontrado</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Tente mudar a busca ou os filtros ativos.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
                     {filteredProfiles.map((profile) => {
                       const currentRole = getUserRole(profile.user_id);
                       const adsCount = Number((profile as any).ads_count ?? adsCountByUser[profile.user_id] ?? 0);
@@ -643,123 +646,141 @@ const Admin = () => {
                       const favoritesCount = Number((profile as any).favorites_count ?? 0);
                       const vipUntil = (profile as any).vip_until as string | null | undefined;
                       const lastSignInAt = (profile as any).last_sign_in_at as string | null | undefined;
+                      const vipActive = !!vipUntil && new Date(vipUntil).getTime() > Date.now();
+
                       return (
-                        <TableRow key={profile.id} className={`border-border/40 hover:bg-secondary/20 transition-colors ${banned ? "opacity-60 bg-destructive/5" : ""}`}>
-                          <TableCell>
-                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                              {profile.avatar_url ? <img src={profile.avatar_url} alt={profile.username} className="h-8 w-8 object-cover rounded-full" /> :
-                                <span className="text-primary text-xs font-bold">{profile.username?.charAt(0).toUpperCase()}</span>}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-foreground font-medium font-body">
-                            <div className="space-y-1.5 min-w-0">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="truncate">{profile.username}</span>
-                                {currentRole === "admin" && <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
-                                {currentRole === "moderator" && <ShieldAlert className="h-3.5 w-3.5 text-warning shrink-0" />}
-                                {banned && <Ban className="h-3.5 w-3.5 text-destructive shrink-0" />}
-                              </div>
-                              <div className="space-y-0.5 text-[11px] text-muted-foreground font-normal">
-                                <p className="truncate">{email || "Sem email visível"}</p>
-                                <div className="flex flex-wrap gap-x-3 gap-y-1">
-                                  <span>Criado em {new Date(profile.created_at).toLocaleDateString("pt-BR")}</span>
-                                  <span>Último login {lastSignInAt ? new Date(lastSignInAt).toLocaleDateString("pt-BR") : "—"}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-2 max-w-[290px]">
-                              <div className="flex flex-wrap gap-1.5">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${adsCount > 0 ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
-                                {adsCount} anúncios
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
-                                {conversationsCount} conversas
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
-                                {offersSentCount} ofertas
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-foreground">
-                                {favoritesCount} favoritos
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-warning/15 text-warning">
-                                {walletBalance} coins
-                              </span>
-                              {vipUntil && new Date(vipUntil).getTime() > Date.now() && (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-                                  VIP até {new Date(vipUntil).toLocaleDateString("pt-BR")}
-                                </span>
-                              )}
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
-                                <div className="rounded-lg border border-border/50 bg-secondary/30 px-2 py-1.5">
-                                  <span className="block uppercase tracking-wide text-[10px]">ID</span>
-                                  <span className="block truncate text-foreground/80">{profile.user_id.slice(0, 8)}...</span>
-                                </div>
-                                <div className="rounded-lg border border-border/50 bg-secondary/30 px-2 py-1.5">
-                                  <span className="block uppercase tracking-wide text-[10px]">Perfil</span>
-                                  <span className="block truncate text-foreground/80">{profile.bio?.trim() ? "Com bio" : "Sem bio"}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Select value={currentRole} onValueChange={(v) => updateUserRole.mutate({ userId: profile.user_id, role: v as AppRole })} disabled={isCurrentUser}>
-                              <SelectTrigger className="w-28 h-7 text-xs bg-secondary border-border"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user"><span className="flex items-center gap-1"><UserCog className="h-3 w-3" /> Usuário</span></SelectItem>
-                                <SelectItem value="moderator"><span className="flex items-center gap-1"><ShieldAlert className="h-3 w-3 text-warning" /> Moderador</span></SelectItem>
-                                <SelectItem value="admin"><span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-primary" /> Admin</span></SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <UserBadgeControls userId={profile.user_id} />
-                          </TableCell>
-                          <TableCell>
-                            {banned ? (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/15 text-destructive font-semibold">Banido</span>
-                            ) : (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">Ativo</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                              <div className="flex items-center gap-0.5 flex-wrap">
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/perfil/${profile.user_id}`)}>
-                                <Eye className="h-3.5 w-3.5" />
-                              </Button>
-                                {email && (
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                                    onClick={() => window.open(`mailto:${email}`, "_blank")}
-                                  >
-                                    <MessageCircle className="h-3.5 w-3.5" />
-                                  </Button>
+                        <div
+                          key={profile.id}
+                          className={`rounded-xl border p-4 transition-colors ${banned ? "border-destructive/30 bg-destructive/5" : "border-border/60 bg-card/80 hover:bg-card"}`}
+                        >
+                          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                            <div className="flex min-w-0 gap-3">
+                              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden shrink-0 border border-border/60">
+                                {profile.avatar_url ? (
+                                  <img src={profile.avatar_url} alt={profile.username} className="h-full w-full object-cover" />
+                                ) : (
+                                  <span className="text-primary text-base font-bold">{profile.username?.charAt(0).toUpperCase()}</span>
                                 )}
+                              </div>
+
+                              <div className="min-w-0 space-y-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="truncate text-base font-semibold text-foreground">{profile.username}</h3>
+                                  {currentRole === "admin" && <Badge className="gap-1 bg-primary text-primary-foreground"><ShieldCheck className="h-3 w-3" />Admin</Badge>}
+                                  {currentRole === "moderator" && <Badge variant="secondary" className="gap-1"><ShieldAlert className="h-3 w-3" />Moderador</Badge>}
+                                  {vipActive && <Badge variant="secondary" className="gap-1"><Crown className="h-3 w-3" />VIP</Badge>}
+                                  {banned && <Badge variant="destructive" className="gap-1"><Ban className="h-3 w-3" />Banido</Badge>}
+                                  {isCurrentUser && <Badge variant="outline">Sua conta</Badge>}
+                                </div>
+
+                                <div className="space-y-1 text-xs text-muted-foreground">
+                                  <p className="truncate">{email || "Sem email visível"}</p>
+                                  <div className="flex flex-wrap gap-x-3 gap-y-1">
+                                    <span>Criado em {new Date(profile.created_at).toLocaleDateString("pt-BR")}</span>
+                                    <span>Último login {lastSignInAt ? new Date(lastSignInAt).toLocaleDateString("pt-BR") : "—"}</span>
+                                    <span>ID {profile.user_id.slice(0, 8)}...</span>
+                                  </div>
+                                </div>
+
+                                <p className="text-sm text-foreground/80 line-clamp-2">
+                                  {profile.bio?.trim() || "Sem bio preenchida."}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="grid gap-2 sm:grid-cols-2 xl:w-[240px]">
+                              <div className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Saldo</p>
+                                <p className="mt-1 text-sm font-semibold text-foreground">{walletBalance} coins</p>
+                              </div>
+                              <div className="rounded-lg border border-border/60 bg-secondary/30 px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">VIP</p>
+                                <p className="mt-1 text-sm font-semibold text-foreground">{vipActive ? new Date(vipUntil!).toLocaleDateString("pt-BR") : "Inativo"}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                            <div className="rounded-lg border border-border/60 bg-secondary/20 px-3 py-2">
+                              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Anúncios</p>
+                              <p className="mt-1 text-sm font-semibold text-foreground">{adsCount}</p>
+                            </div>
+                            <div className="rounded-lg border border-border/60 bg-secondary/20 px-3 py-2">
+                              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Conversas</p>
+                              <p className="mt-1 text-sm font-semibold text-foreground">{conversationsCount}</p>
+                            </div>
+                            <div className="rounded-lg border border-border/60 bg-secondary/20 px-3 py-2">
+                              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Ofertas</p>
+                              <p className="mt-1 text-sm font-semibold text-foreground">{offersSentCount}</p>
+                            </div>
+                            <div className="rounded-lg border border-border/60 bg-secondary/20 px-3 py-2">
+                              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Favoritos</p>
+                              <p className="mt-1 text-sm font-semibold text-foreground">{favoritesCount}</p>
+                            </div>
+                            <div className="rounded-lg border border-border/60 bg-secondary/20 px-3 py-2">
+                              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Status</p>
+                              <p className="mt-1 text-sm font-semibold text-foreground">{banned ? "Bloqueado" : "Ativo"}</p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-4 xl:grid-cols-[180px_minmax(0,1fr)_auto] xl:items-start">
+                            <div className="space-y-1.5">
+                              <Label className="text-xs text-muted-foreground font-body">Cargo</Label>
+                              <Select value={currentRole} onValueChange={(v) => updateUserRole.mutate({ userId: profile.user_id, role: v as AppRole })} disabled={isCurrentUser}>
+                                <SelectTrigger className="bg-secondary border-border">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="user"><span className="flex items-center gap-1"><UserCog className="h-3 w-3" />Usuário</span></SelectItem>
+                                  <SelectItem value="moderator"><span className="flex items-center gap-1"><ShieldAlert className="h-3 w-3 text-warning" />Moderador</span></SelectItem>
+                                  <SelectItem value="admin"><span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-primary" />Admin</span></SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="min-w-0 space-y-1.5">
+                              <Label className="text-xs text-muted-foreground font-body">Selos e benefícios</Label>
+                              <div className="rounded-xl border border-border/60 bg-secondary/20 p-3">
+                                <UserBadgeControls userId={profile.user_id} />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+                              <Button size="sm" variant="outline" className="border-border" onClick={() => navigate(`/perfil/${profile.user_id}`)}>
+                                <Eye className="h-3.5 w-3.5 mr-1" /> Ver perfil
+                              </Button>
+                              {email && (
+                                <Button size="sm" variant="outline" className="border-border" onClick={() => window.open(`mailto:${email}`, "_blank")}>
+                                  <MessageCircle className="h-3.5 w-3.5 mr-1" /> Email
+                                </Button>
+                              )}
                               {!isCurrentUser && (
                                 <>
-                                  <Button size="sm" variant="ghost" className={`h-7 w-7 p-0 ${banned ? "text-primary hover:bg-primary/10" : "text-warning hover:bg-warning/10"}`}
-                                    onClick={() => banUser.mutate({ userId: profile.user_id, banned: !banned })}>
-                                    <Ban className="h-3.5 w-3.5" />
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className={banned ? "border-primary/40 text-primary hover:bg-primary/10" : "border-warning/40 text-warning hover:bg-warning/10"}
+                                    onClick={() => banUser.mutate({ userId: profile.user_id, banned: !banned })}
+                                  >
+                                    <Ban className="h-3.5 w-3.5 mr-1" /> {banned ? "Desbanir" : "Banir"}
                                   </Button>
-                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
-                                    onClick={() => { if (confirm(`Remover "${profile.username}"?`)) deleteUser.mutate(profile.user_id); }}>
-                                    <Trash2 className="h-3.5 w-3.5" />
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-destructive/40 text-destructive hover:bg-destructive/10"
+                                    onClick={() => { if (confirm(`Remover "${profile.username}"?`)) deleteUser.mutate(profile.user_id); }}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Excluir
                                   </Button>
                                 </>
                               )}
                             </div>
-                          </TableCell>
-                        </TableRow>
+                          </div>
+                        </div>
                       );
                     })}
-                  </TableBody>
-                </Table>
-                {filteredProfiles.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm font-body">Nenhum usuário encontrado</p>}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 

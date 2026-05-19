@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
-  Save,
   Package,
   Heart,
   Calendar,
@@ -22,9 +21,6 @@ import {
   History,
   Upload,
   Wallet,
-  Pencil,
-  Check,
-  X,
   MessageSquare,
 } from "lucide-react";
 import ReputationPanel from "@/components/ReputationPanel";
@@ -146,7 +142,6 @@ const Perfil = () => {
   const isOwnProfile = !userId || userId === user?.id;
   const profileUserId = isOwnProfile ? user?.id : userId;
 
-  const [editing, setEditing] = useState(false);
   const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editAvatar, setEditAvatar] = useState<string | null>(null);
@@ -303,7 +298,6 @@ const Perfil = () => {
       setEditUsername(data.username || "");
       setEditBio(data.bio || "");
       setEditAvatar(data.avatar_url || null);
-      setEditing(false);
 
       window.dispatchEvent(new CustomEvent("profile-updated", {
         detail: {
@@ -446,103 +440,128 @@ const Perfil = () => {
 
                 {/* Nome + ações */}
                 <div className="flex-1 min-w-0 sm:pb-1">
-                  {editing ? (
-                    <div className="space-y-3 max-w-xl">
-                      <div>
-                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome</Label>
-                        <Input
-                          value={editUsername}
-                          onChange={(e) => setEditUsername(e.target.value)}
-                          className="bg-secondary/50 border-border h-9 mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Bio</Label>
-                        <Textarea
-                          value={editBio}
-                          onChange={(e) => setEditBio(e.target.value)}
-                          placeholder="Fale sobre você..."
-                          className="bg-secondary/50 border-border min-h-[72px] mt-1 resize-none"
-                        />
-                      </div>
-                      <div className="rounded-xl border border-border bg-secondary/30 p-3">
-                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 block">
-                          Avatar pixel art
-                        </Label>
-                        <PixelAvatarPicker value={editAvatar} onChange={(url) => setEditAvatar(url)} />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={handleSaveProfile}
-                          disabled={updateProfile.isPending}
-                          className="h-8 bg-primary text-primary-foreground"
-                        >
-                          <Check className="h-3.5 w-3.5 mr-1" />
-                          {updateProfile.isPending ? "Salvando..." : "Salvar"}
-                        </Button>
-                        <Button type="button" size="sm" variant="ghost" onClick={() => {
-                            updateProfile.reset?.();
-                            updateProfile.reset();
-                            setEditUsername(profile.username || "");
-                            setEditBio(profile.bio || "");
-                            setEditAvatar(profile.avatar_url || null);
-                            setEditing(false);
-                          }} className="h-8">
-                          <X className="h-3.5 w-3.5 mr-1" /> Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start justify-between gap-3 flex-wrap">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
-                            {profile.username}
-                          </h1>
-                          {false && vipStatus?.isVip && (
-                            <span
-                              title={`VIP até ${vipStatus?.vipUntil?.toLocaleString("pt-BR")}`}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/15 border border-warning/40 text-warning text-[10px] font-pixel uppercase animate-pulse"
-                            >
-                              <Crown className="h-3 w-3" /> VIP
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
-                          <Calendar className="h-3 w-3" /> membro desde {memberSince}
-                        </p>
-                        {badges.length > 0 && (
-                          <div className="mt-3">
-                            <UserBadges badges={badges} role={userRole} size="sm" showRole={false} />
-                          </div>
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-2xl sm:text-3xl font-pixel text-foreground leading-tight truncate">
+                          {profile.username}
+                        </h1>
+                        {false && vipStatus?.isVip && (
+                          <span
+                            title={`VIP até ${vipStatus?.vipUntil?.toLocaleString("pt-BR")}`}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning/15 border border-warning/40 text-warning text-[10px] font-pixel uppercase animate-pulse"
+                          >
+                            <Crown className="h-3 w-3" /> VIP
+                          </span>
                         )}
                       </div>
-                      {isOwnProfile && (
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              updateProfile.reset?.();
-                              setEditUsername(profile.username || "");
-                              setEditBio(profile.bio || "");
-                              setEditAvatar(profile.avatar_url || null);
-                              setEditing(true);
-                            }}
-                            className="h-8 text-xs border-border"
-                          >
-                            <Pencil className="h-3.5 w-3.5 mr-1" /> Editar perfil
-                          </Button>
+                      <p className="text-[11px] text-muted-foreground mt-1 capitalize flex items-center gap-1.5">
+                        <Calendar className="h-3 w-3" /> membro desde {memberSince}
+                      </p>
+                      {badges.length > 0 && (
+                        <div className="mt-3">
+                          <UserBadges badges={badges} role={userRole} size="sm" showRole={false} />
                         </div>
                       )}
                     </div>
+                    {isOwnProfile && (
+                      <div className="rounded-xl border border-primary/25 bg-primary/10 px-3 py-2 text-right">
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-primary">Perfil editável</p>
+                        <p className="mt-1 text-xs text-muted-foreground">As alterações abaixo salvam no seu perfil real.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {!isOwnProfile && profile.bio && (
+                    <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">{profile.bio}</p>
                   )}
 
-                  {!editing && profile.bio && (
-                    <p className="mt-4 text-sm text-foreground/80 leading-relaxed max-w-prose">{profile.bio}</p>
+                  {isOwnProfile && (
+                    <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+                      <div className="space-y-4 rounded-2xl border border-border/60 bg-secondary/20 p-4 sm:p-5">
+                        <div className="space-y-1">
+                          <h2 className="text-sm font-semibold text-foreground">Dados do perfil</h2>
+                          <p className="text-xs text-muted-foreground">Edite seu nome e sua bio sem depender de modo alternado.</p>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-1.5 md:col-span-1">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome de usuário</Label>
+                            <Input
+                              value={editUsername}
+                              onChange={(e) => setEditUsername(e.target.value)}
+                              placeholder="Seu nome público"
+                              className="bg-background border-border h-10"
+                            />
+                          </div>
+                          <div className="space-y-1.5 md:col-span-1">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Prévia atual</Label>
+                            <div className="flex h-10 items-center rounded-md border border-border bg-background px-3 text-sm text-muted-foreground">
+                              {editUsername.trim() || "Sem nome definido"}
+                            </div>
+                          </div>
+                          <div className="space-y-1.5 md:col-span-2">
+                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Bio</Label>
+                            <Textarea
+                              value={editBio}
+                              onChange={(e) => setEditBio(e.target.value)}
+                              placeholder="Fale rapidamente sobre você, seus itens ou sua forma de negociação"
+                              className="min-h-[120px] resize-none bg-background border-border"
+                            />
+                            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                              <span>Essa descrição aparece no seu perfil público.</span>
+                              <span>{editBio.trim().length} caracteres</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            onClick={handleSaveProfile}
+                            disabled={updateProfile.isPending}
+                            className="min-w-[140px]"
+                          >
+                            {updateProfile.isPending ? "Salvando..." : "Salvar perfil"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              updateProfile.reset();
+                              setEditUsername(profile.username || "");
+                              setEditBio(profile.bio || "");
+                              setEditAvatar(profile.avatar_url || null);
+                            }}
+                            disabled={updateProfile.isPending}
+                          >
+                            Restaurar
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-border/60 bg-secondary/20 p-4 sm:p-5">
+                        <div className="space-y-1">
+                          <h2 className="text-sm font-semibold text-foreground">Avatar</h2>
+                          <p className="text-xs text-muted-foreground">Escolha o avatar e salve junto com o perfil.</p>
+                        </div>
+                        <div className="mt-4 rounded-xl border border-border bg-background/80 p-3">
+                          <div className="mb-3 flex items-center gap-3">
+                            <Avatar className="h-16 w-16">
+                              {editAvatar ? <AvatarImage src={editAvatar} alt={editUsername || profile.username} style={{ imageRendering: "pixelated" }} /> : null}
+                              <AvatarFallback className="bg-secondary text-foreground text-xl font-pixel">
+                                {(editUsername || profile.username).charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-foreground">{editUsername.trim() || profile.username}</p>
+                              <p className="text-xs text-muted-foreground">Pré-visualização do avatar público</p>
+                            </div>
+                          </div>
+                          <PixelAvatarPicker value={editAvatar} onChange={(url) => setEditAvatar(url)} />
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
