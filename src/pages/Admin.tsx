@@ -13,6 +13,7 @@ import { useAllDeposits, useApproveDeposit, useRejectDeposit, useDepositConfig }
 import { DepositScreenshot } from "@/components/DepositScreenshot";
 import { useRaffles, useRaffleNumbers, useRaffleMutations } from "@/hooks/useRaffles";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,7 +98,6 @@ const Admin = () => {
   const [bulkItemImages, setBulkItemImages] = useState<Record<number, File>>({});
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [winnerNumberInput, setWinnerNumberInput] = useState<Record<string, string>>({});
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | AppRole>("all");
