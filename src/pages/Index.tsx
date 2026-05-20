@@ -28,6 +28,7 @@ import { useNavLinks, useSiteBanners } from "@/hooks/useSiteConfig";
 import { useFilterOptions } from "@/hooks/useFilterOptions";
 import { useAllFilterOptionItems } from "@/hooks/useFilterOptionItems";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
+import { safeHref } from "@/lib/safe-url";
 import { useRaffles } from "@/hooks/useRaffles";
 import SponsorsCarousel from "@/components/SponsorsCarousel";
 
@@ -177,7 +178,7 @@ const Index = () => {
               {(navLinks && navLinks.length > 0 ? navLinks : []).map((link) => (
                 <a
                   key={link.id}
-                  href={link.url}
+                  href={safeHref(link.url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200 hover:scale-110 hover:shadow-lg"

@@ -3,6 +3,7 @@ import { useHouses, useImportHouses, useDeleteHouse } from "@/hooks/useHouses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, Trash2, Home, Search, Loader2, ExternalLink } from "lucide-react";
+import { safeHref } from "@/lib/safe-url";
 
 export default function HousesAdminPanel() {
   const { data: houses, isLoading } = useHouses();
@@ -86,7 +87,7 @@ export default function HousesAdminPanel() {
                       </p>
                     </div>
                     {h.wiki_url && (
-                      <a href={h.wiki_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+                      <a href={safeHref(h.wiki_url)} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
