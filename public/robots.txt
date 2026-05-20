@@ -1,14 +1,10 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /perfil
+Disallow: /mensagens
+Disallow: /criar-anuncio
+Disallow: /reset-password
+Disallow: /esqueci-senha
+
+Sitemap: https://rubintrade.com/sitemap.xml
