@@ -20,6 +20,7 @@ import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as Coin
 import { formatPriceWithDots } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { cn } from "@/lib/utils";
+import { safeHref } from "@/lib/safe-url";
 
 const REGION_LABEL: Record<string, string> = {
   BR: "Brasil", NA: "North America", SA: "South America",
@@ -255,7 +256,7 @@ const CriarAnuncio = () => {
                         <p className="text-sm font-bold truncate">{h.name}</p>
                         <p className="text-muted-foreground">{h.city || "Sem cidade"} · {h.beds ?? "?"} cama(s) · {h.size_sqm ?? "?"} sqm · aluguel {h.rent_gold?.toLocaleString() ?? "?"} gp</p>
                         {h.wiki_url && (
-                          <a href={h.wiki_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-[10px]">Ver na TibiaWiki ↗</a>
+                          <a href={safeHref(h.wiki_url)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-[10px]">Ver na TibiaWiki ↗</a>
                         )}
                       </div>
                     </div>
