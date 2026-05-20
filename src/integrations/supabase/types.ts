@@ -1691,6 +1691,7 @@ export type Database = {
         Args: { p_ad_id: string; p_plan_id: string }
         Returns: undefined
       }
+      is_banned: { Args: { _uid: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
