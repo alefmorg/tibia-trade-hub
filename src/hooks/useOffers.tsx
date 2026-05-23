@@ -85,9 +85,11 @@ export const useSendOffer = () => {
   return useMutation({
     mutationFn: async (offer: { ad_id: string; amount: string; currency: string; message?: string }) => {
       if (!user) throw new Error("Faça login para enviar oferta");
+      const msg = offer.message?.trim() || undefined;
+      if (msg && msg.length > 2000) throw new Error("Mensagem da oferta muito longa (máx 2000 caracteres)");
       const { data, error } = await supabase
         .from("offers")
-        .insert({ ...offer, sender_id: user.id })
+        .insert({ ...offer, message: msg, sender_id: user.id })
         .select()
         .single();
       if (error) throw error;
