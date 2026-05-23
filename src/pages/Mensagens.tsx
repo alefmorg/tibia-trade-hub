@@ -77,11 +77,11 @@ const Mensagens = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col">
       <Header />
-      <div className="flex-1 container py-4 flex gap-0 overflow-hidden" style={{ height: "calc(100vh - 57px)" }}>
+      <div className="flex-1 container px-0 sm:px-4 py-0 sm:py-4 flex gap-0 overflow-hidden" style={{ height: "calc(100dvh - 56px)" }}>
         {/* Conversations list */}
-        <aside className={`w-full md:w-80 shrink-0 border-r border-border flex flex-col ${selectedConvId ? "hidden md:flex" : "flex"}`}>
+        <aside className={`w-full md:w-80 shrink-0 md:border-r border-border flex flex-col ${selectedConvId ? "hidden md:flex" : "flex"}`}>
           <div className="p-3 border-b border-border">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-primary" />
