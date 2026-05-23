@@ -324,10 +324,15 @@ const Perfil = () => {
       toast.error("Digite um nome de usuário");
       return;
     }
+    const bio = editBio.trim();
+    if (bio.length > 500) {
+      toast.error("Bio muito longa (máx 500 caracteres)");
+      return;
+    }
 
     updateProfile.mutate({
       username: editUsername.trim(),
-      bio: editBio.trim(),
+      bio,
       avatar_url: editAvatar,
     });
   };
