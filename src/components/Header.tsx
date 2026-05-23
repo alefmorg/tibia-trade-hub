@@ -41,7 +41,7 @@ const Header = () => {
           </span>
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <LanguageSwitcher />
           {user ? (
             <>
