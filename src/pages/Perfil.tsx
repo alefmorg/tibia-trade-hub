@@ -324,10 +324,15 @@ const Perfil = () => {
       toast.error("Digite um nome de usuário");
       return;
     }
+    const bio = editBio.trim();
+    if (bio.length > 500) {
+      toast.error("Bio muito longa (máx 500 caracteres)");
+      return;
+    }
 
     updateProfile.mutate({
       username: editUsername.trim(),
-      bio: editBio.trim(),
+      bio,
       avatar_url: editAvatar,
     });
   };
@@ -504,9 +509,10 @@ const Perfil = () => {
                             <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Bio</Label>
                             <Textarea
                               value={editBio}
-                              onChange={(e) => setEditBio(e.target.value)}
+                              onChange={(e) => setEditBio(e.target.value.slice(0, 500))}
                               placeholder="Fale rapidamente sobre você, seus itens ou sua forma de negociação"
                               className="min-h-[120px] resize-none bg-background border-border"
+                              maxLength={500}
                             />
                             <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                               <span>Essa descrição aparece no seu perfil público.</span>

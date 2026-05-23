@@ -76,9 +76,10 @@ const OfferDialog = ({ adId, adTitle, children }: OfferDialogProps) => {
             <Label className="text-sm">Mensagem (opcional)</Label>
             <Textarea
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
               placeholder="Alguma observação..."
               className="bg-secondary border-border min-h-[60px]"
+              maxLength={2000}
             />
           </div>
           <Button

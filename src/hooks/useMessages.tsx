@@ -112,9 +112,12 @@ export const useSendMessage = () => {
   return useMutation({
     mutationFn: async ({ conversationId, content }: { conversationId: string; content: string }) => {
       if (!user) throw new Error("Não autenticado");
+      const trimmed = content.trim();
+      if (!trimmed) throw new Error("Mensagem vazia");
+      if (trimmed.length > 4000) throw new Error("Mensagem muito longa (máx 4000 caracteres)");
       const { data, error } = await supabase
         .from("messages")
-        .insert({ conversation_id: conversationId, sender_id: user.id, content })
+        .insert({ conversation_id: conversationId, sender_id: user.id, content: trimmed })
         .select()
         .single();
       if (error) throw error;

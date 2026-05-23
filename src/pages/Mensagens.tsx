@@ -265,9 +265,10 @@ const Mensagens = () => {
               <form onSubmit={handleSend} className="p-3 border-t border-border flex gap-2">
                 <Input
                   value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
+                  onChange={(e) => setMessageText(e.target.value.slice(0, 4000))}
                   placeholder="Digite sua mensagem..."
                   className="bg-secondary border-border flex-1"
+                  maxLength={4000}
                   autoFocus
                 />
                 <Button type="submit" disabled={sendMessage.isPending || !messageText.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90 px-4">
