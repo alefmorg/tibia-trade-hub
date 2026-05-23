@@ -85,11 +85,11 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="relative" ref={wrapperRef} translate="no">
+    <div className="relative shrink-0" ref={wrapperRef} translate="no">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center justify-center rounded-xl border border-border bg-card/70 p-1.5 hover:bg-secondary transition-colors"
+        className="inline-flex items-center justify-center rounded-xl border border-border bg-card/70 p-1.5 hover:bg-secondary transition-colors shrink-0"
         title={t("common.language")}
         aria-label={t("common.language")}
       >
@@ -97,7 +97,8 @@ const LanguageSwitcher = () => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-50 rounded-xl border border-border bg-card shadow-xl p-1 flex flex-col gap-0.5">
+        <div className="absolute right-0 top-full mt-2 z-50 rounded-xl border border-border bg-card shadow-xl p-1 flex flex-col gap-0.5 max-w-[calc(100vw-1rem)]">
+
           {(Object.keys(LOCALE_META) as AppLocale[]).map((code) => (
             <button
               key={code}
