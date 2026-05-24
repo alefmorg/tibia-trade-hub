@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSendOffer } from "@/hooks/useOffers";
 import { HandCoins } from "lucide-react";
+import { formatPriceInput } from "@/lib/price-utils";
 
 interface OfferDialogProps {
   adId: string;
