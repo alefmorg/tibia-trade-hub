@@ -147,7 +147,7 @@ const Anuncio = () => {
                     <div className="text-right shrink-0">
                       <div className="flex items-center gap-1.5">
                         <img src={getCurrencyIcon(ad.currency || "kk")} alt="" className="w-5 h-5 object-contain" />
-                        <span className="text-lg font-bold text-primary">{ad.price}</span>
+                        <span className="text-lg font-bold text-primary">{formatDisplayPrice(ad.price, ad.currency)}</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground">{ad.currency}</span>
                     </div>
