@@ -11,6 +11,7 @@ import { MessageCircle, Send, ArrowLeft, ExternalLink, Trash2, Info } from "luci
 import { Link } from "react-router-dom";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { safeHref } from "@/lib/safe-url";
+import { formatDisplayPrice } from "@/lib/price-utils";
 
 const Mensagens = () => {
   const { user } = useAuth();
@@ -187,7 +188,7 @@ const Mensagens = () => {
                         {selectedConv.ads.price && (
                           <span className="inline-flex items-center gap-1 bg-card px-2 py-0.5 rounded-md border border-border">
                             <img src={getCurrencyIcon(selectedConv.ads.currency || "kk")} alt="" className="h-3.5 w-3.5" />
-                            <span className="text-foreground font-semibold">{selectedConv.ads.price}</span>
+                            <span className="text-foreground font-semibold">{formatDisplayPrice(selectedConv.ads.price, selectedConv.ads.currency)}</span>
                           </span>
                         )}
                         {selectedConv.ads.world && (

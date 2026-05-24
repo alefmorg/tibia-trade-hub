@@ -1,6 +1,7 @@
 import { useReceivedOffers, useRespondOffer } from "@/hooks/useOffers";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
+import { formatDisplayPrice } from "@/lib/price-utils";
 
 const OffersPanel = () => {
   const { data: offers, isLoading } = useReceivedOffers();
@@ -20,7 +21,7 @@ const OffersPanel = () => {
           <div key={offer.id} className="flex items-center justify-between gap-3 bg-secondary/50 rounded-lg p-3 text-sm">
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-foreground">
-                {offer.amount} <span className="text-warning">{offer.currency}</span>
+                {formatDisplayPrice(offer.amount, offer.currency)} <span className="text-warning">{offer.currency}</span>
               </p>
               {offer.message && (
                 <p className="text-xs text-muted-foreground truncate">{offer.message}</p>

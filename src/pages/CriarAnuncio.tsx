@@ -17,7 +17,7 @@ import HouseCombobox from "@/components/HouseCombobox";
 import { useHouses } from "@/hooks/useHouses";
 import WorldFlag from "@/components/WorldFlag";
 import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2, Home } from "lucide-react";
-import { formatPriceWithDots } from "@/lib/price-utils";
+import { formatPriceWithDots, formatPriceInput } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { cn } from "@/lib/utils";
 import { safeHref } from "@/lib/safe-url";
@@ -317,13 +317,13 @@ const CriarAnuncio = () => {
                 </div>
               </div>
               {!form.acceptOffers && (
-                <div className="flex gap-2">
+              <div className="flex gap-2">
                   <div className="relative flex-1">
                     <CoinsIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       value={form.price}
-                      onChange={(e) => setForm({ ...form, price: formatPriceWithDots(e.target.value) })}
-                      placeholder="1.000.000"
+                      onChange={(e) => setForm({ ...form, price: formatPriceInput(e.target.value, form.currency) })}
+                      placeholder={form.currency === "brl" ? "1.000,00" : "1.000.000"}
                       className="bg-secondary/60 border-border rounded-xl h-12 pl-10 font-semibold"
                     />
                   </div>

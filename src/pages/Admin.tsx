@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
-import { formatPriceWithDots } from "@/lib/price-utils";
+import { formatPriceWithDots, formatDisplayPrice } from "@/lib/price-utils";
 import {
   Ban, BarChart3, Bell, Check, ChevronDown, ChevronUp, Coins, Eye, Filter, Image, Link2, MessageCircle,
   Megaphone, Package, Plus, Search, Shield, ShieldAlert, ShieldCheck, Star, Trash2, Upload, UserCog, Users, X,
@@ -497,7 +497,7 @@ const Admin = () => {
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm font-body">
                           {ad.price && ad.price !== "Aceita ofertas" ? (
-                            <span className="flex items-center gap-1"><img src={`/icons/${ad.currency || "kk"}.webp`} alt="" className="w-4 h-4 object-contain" loading="lazy" />{ad.price}</span>
+                            <span className="flex items-center gap-1"><img src={`/icons/${ad.currency || "kk"}.webp`} alt="" className="w-4 h-4 object-contain" loading="lazy" />{formatDisplayPrice(ad.price, ad.currency)}</span>
                           ) : <span className="text-warning text-xs">Ofertas</span>}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs font-body">{ad.world}</TableCell>

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSendOffer } from "@/hooks/useOffers";
 import { HandCoins } from "lucide-react";
+import { formatPriceInput } from "@/lib/price-utils";
 
 interface OfferDialogProps {
   adId: string;
@@ -56,8 +57,8 @@ const OfferDialog = ({ adId, adTitle, children }: OfferDialogProps) => {
             <div className="flex gap-2">
               <Input
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Ex: 15"
+                onChange={(e) => setAmount(formatPriceInput(e.target.value, currency))}
+                placeholder={currency === "brl" ? "Ex: 300,00" : "Ex: 15"}
                 className="bg-secondary border-border flex-1"
                 required
               />
