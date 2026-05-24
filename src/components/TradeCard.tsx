@@ -180,7 +180,7 @@ const TradeCard = ({
                   (e.currentTarget as HTMLImageElement).src = "/icons/default.webp";
                 }}
               />
-              <span className="leading-none">{price}</span>
+              <span className="leading-none">{formatDisplayPrice(price, currency)}</span>
             </span>
           )}
         </p>
