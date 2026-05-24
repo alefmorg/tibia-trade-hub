@@ -21,7 +21,7 @@ const OffersPanel = () => {
           <div key={offer.id} className="flex items-center justify-between gap-3 bg-secondary/50 rounded-lg p-3 text-sm">
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-foreground">
-                {offer.amount} <span className="text-warning">{offer.currency}</span>
+                {formatDisplayPrice(offer.amount, offer.currency)} <span className="text-warning">{offer.currency}</span>
               </p>
               {offer.message && (
                 <p className="text-xs text-muted-foreground truncate">{offer.message}</p>
