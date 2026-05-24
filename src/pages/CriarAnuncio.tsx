@@ -17,7 +17,7 @@ import HouseCombobox from "@/components/HouseCombobox";
 import { useHouses } from "@/hooks/useHouses";
 import WorldFlag from "@/components/WorldFlag";
 import { ArrowLeft, PackagePlus, Sparkles, Gem, Boxes, Globe, Tag, Coins as CoinsIcon, ShoppingBag, ShoppingCart, Search, CheckCircle2, Home } from "lucide-react";
-import { formatPriceWithDots } from "@/lib/price-utils";
+import { formatPriceWithDots, formatPriceInput } from "@/lib/price-utils";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { cn } from "@/lib/utils";
 import { safeHref } from "@/lib/safe-url";
