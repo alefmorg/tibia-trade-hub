@@ -42,8 +42,14 @@ export const useSiteAssets = () => {
 
   const get = (key: SiteAssetKey) => map[key];
 
-  const getCurrencyIcon = (currency: string) =>
-    currency === "coins" ? map.icon_coins : map.icon_kk;
+  const BRL_ICON =
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%2300A859'/><text x='12' y='17' text-anchor='middle' font-size='12' font-weight='800' font-family='Arial' fill='white'>R$</text></svg>";
+
+  const getCurrencyIcon = (currency: string) => {
+    if (currency === "brl" || currency === "pix") return BRL_ICON;
+    if (currency === "coins") return map.icon_coins;
+    return map.icon_kk;
+  };
 
   const getPvpIcon = (pvpType: string) => {
     if (pvpType === "Open PvP") return map.icon_pvp_open;
