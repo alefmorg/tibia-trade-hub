@@ -11,6 +11,7 @@ import { MessageCircle, Send, ArrowLeft, ExternalLink, Trash2, Info } from "luci
 import { Link } from "react-router-dom";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { safeHref } from "@/lib/safe-url";
+import { formatDisplayPrice } from "@/lib/price-utils";
 
 const Mensagens = () => {
   const { user } = useAuth();
