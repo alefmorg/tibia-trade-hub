@@ -5,6 +5,7 @@ import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds
 import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
+import { formatDisplayPrice } from "@/lib/price-utils";
 
 interface TradeCardProps {
   id?: string;
