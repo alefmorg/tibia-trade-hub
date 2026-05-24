@@ -342,6 +342,11 @@ const CriarAnuncio = () => {
                           <img src={getCurrencyIcon("coins")} alt="coins" className="w-4 h-4 object-contain" /> coins
                         </span>
                       </SelectItem>
+                      <SelectItem value="brl">
+                        <span className="flex items-center gap-2">
+                          <img src={getCurrencyIcon("brl")} alt="R$" className="w-4 h-4 object-contain" /> R$ (PIX)
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

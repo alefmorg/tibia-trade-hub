@@ -68,6 +68,7 @@ const OfferDialog = ({ adId, adTitle, children }: OfferDialogProps) => {
                 <SelectContent>
                   <SelectItem value="kk">kk</SelectItem>
                   <SelectItem value="coins">coins</SelectItem>
+                  <SelectItem value="brl">R$ (PIX)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
