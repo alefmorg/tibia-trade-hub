@@ -317,13 +317,13 @@ const CriarAnuncio = () => {
                 </div>
               </div>
               {!form.acceptOffers && (
-                <div className="flex gap-2">
+              <div className="flex gap-2">
                   <div className="relative flex-1">
                     <CoinsIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       value={form.price}
-                      onChange={(e) => setForm({ ...form, price: formatPriceWithDots(e.target.value) })}
-                      placeholder="1.000.000"
+                      onChange={(e) => setForm({ ...form, price: formatPriceInput(e.target.value, form.currency) })}
+                      placeholder={form.currency === "brl" ? "1.000,00" : "1.000.000"}
                       className="bg-secondary/60 border-border rounded-xl h-12 pl-10 font-semibold"
                     />
                   </div>
