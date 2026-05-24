@@ -1,6 +1,7 @@
 import { useReceivedOffers, useRespondOffer } from "@/hooks/useOffers";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
+import { formatDisplayPrice } from "@/lib/price-utils";
 
 const OffersPanel = () => {
   const { data: offers, isLoading } = useReceivedOffers();
