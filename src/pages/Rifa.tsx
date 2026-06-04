@@ -473,7 +473,8 @@ const RifaPage = () => {
   const myNumbers = numbers?.filter((n) => n.user_id === user?.id) || [];
   const totalCost = quantity * raffle.price_per_number;
   const availableCount = raffle.total_numbers - soldNumbers;
-  const progressPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
+  const autoPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
+  const progressPct = raffle.progress_percent != null ? raffle.progress_percent : autoPct;
   const drawDate = raffle.draw_date ? new Date(raffle.draw_date) : null;
 
   // Largura do bilhete varia conforme tamanho da rifa (ex: 100000 = 6 dígitos)
@@ -556,27 +557,47 @@ const RifaPage = () => {
           </div>
         </div>
 
-        {/* Stats Cards pixel */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          {[
-            { icon: Coins, label: "coins/bilhete", value: raffle.price_per_number, color: "warning" as const },
-            { icon: Ticket, label: "vendidos", value: soldNumbers, color: "destructive" as const },
-            { icon: Sparkles, label: "disponíveis", value: availableCount, color: "primary" as const },
-            { icon: Trophy, label: "total", value: raffle.total_numbers, color: "warning" as const },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="bg-card p-4 text-center"
-              style={{
-                borderRadius: 2,
-                boxShadow: `0 0 0 2px hsl(var(--${stat.color}) / 0.3), 0 0 0 3px hsl(var(--background)), inset 0 0 0 1px hsl(var(--card))`,
-              }}
-            >
-              <stat.icon className={`h-4 w-4 mx-auto mb-2 text-${stat.color}`} />
-              <p className={`font-pixel text-base text-${stat.color}`}>{stat.value.toLocaleString("pt-BR")}</p>
-              <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">{stat.label}</p>
-            </div>
-          ))}
+        {/* Stats Cards pixel — apenas info pública (sem expor quantidade de bilhetes) */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+          <div
+            className="bg-card p-4 text-center"
+            style={{
+              borderRadius: 2,
+              boxShadow: `0 0 0 2px hsl(var(--warning) / 0.3), 0 0 0 3px hsl(var(--background)), inset 0 0 0 1px hsl(var(--card))`,
+            }}
+          >
+            <Coins className="h-4 w-4 mx-auto mb-2 text-warning" />
+            <p className="font-pixel text-base text-warning">{raffle.price_per_number.toLocaleString("pt-BR")}</p>
+            <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">coins/bilhete</p>
+          </div>
+
+          <div
+            className="bg-card p-4 text-center"
+            style={{
+              borderRadius: 2,
+              boxShadow: `0 0 0 2px hsl(var(--primary) / 0.3), 0 0 0 3px hsl(var(--background)), inset 0 0 0 1px hsl(var(--card))`,
+            }}
+          >
+            <Flame className="h-4 w-4 mx-auto mb-2 text-primary" />
+            <p className="font-pixel text-base text-primary">{(raffle.progress_percent ?? progressPct)}%</p>
+            <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">vendidos</p>
+          </div>
+
+          <div
+            className="bg-card p-4 text-center col-span-2 md:col-span-1"
+            style={{
+              borderRadius: 2,
+              boxShadow: `0 0 0 2px hsl(var(--warning) / 0.3), 0 0 0 3px hsl(var(--background)), inset 0 0 0 1px hsl(var(--card))`,
+            }}
+          >
+            <Calendar className="h-4 w-4 mx-auto mb-2 text-warning" />
+            <p className="font-pixel text-[11px] text-warning">
+              {drawDate
+                ? drawDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "2-digit" })
+                : "a definir"}
+            </p>
+            <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">sorteio</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -721,9 +742,11 @@ const RifaPage = () => {
                   )}
                 </div>
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground font-body">
-                <span>{soldNumbers.toLocaleString("pt-BR")} vendidos</span>
-                <span>{availableCount.toLocaleString("pt-BR")} restantes</span>
+              <div className="flex justify-between items-center text-[10px] font-body">
+                <span className="text-muted-foreground uppercase tracking-wider font-pixel text-[9px]">Campanha</span>
+                <span className="text-warning font-pixel">
+                  {(raffle.progress_percent ?? progressPct)}% concluída
+                </span>
               </div>
               {drawDate && (
                 <div
@@ -911,9 +934,6 @@ const RifaPage = () => {
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] text-muted-foreground font-body">
-                {availableCount.toLocaleString("pt-BR")} bilhetes disponíveis
-              </p>
             </div>
 
             <div
