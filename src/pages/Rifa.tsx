@@ -933,9 +933,6 @@ const RifaPage = () => {
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] text-muted-foreground font-body">
-                {availableCount.toLocaleString("pt-BR")} bilhetes disponíveis
-              </p>
             </div>
 
             <div
