@@ -40,6 +40,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWallet, useHighlightPlans, useHighlightAd, useWalletTransactions } from "@/hooks/useWallet";
 import { useDepositConfig, useMyDeposits, useCreateDeposit } from "@/hooks/useDeposits";
 import { DepositScreenshot } from "@/components/DepositScreenshot";
+import { PixDepositPanel } from "@/components/PixDepositPanel";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
