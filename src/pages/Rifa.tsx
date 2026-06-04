@@ -473,7 +473,8 @@ const RifaPage = () => {
   const myNumbers = numbers?.filter((n) => n.user_id === user?.id) || [];
   const totalCost = quantity * raffle.price_per_number;
   const availableCount = raffle.total_numbers - soldNumbers;
-  const progressPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
+  const autoPct = Math.round((soldNumbers / raffle.total_numbers) * 100);
+  const progressPct = raffle.progress_percent != null ? raffle.progress_percent : autoPct;
   const drawDate = raffle.draw_date ? new Date(raffle.draw_date) : null;
 
   // Largura do bilhete varia conforme tamanho da rifa (ex: 100000 = 6 dígitos)
