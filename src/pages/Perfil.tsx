@@ -22,6 +22,12 @@ import {
   Upload,
   Wallet,
   MessageSquare,
+  Check,
+  Zap,
+  ShieldCheck,
+  QrCode,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
 import ReputationPanel from "@/components/ReputationPanel";
 import { useUserReputation } from "@/hooks/useReputation";
