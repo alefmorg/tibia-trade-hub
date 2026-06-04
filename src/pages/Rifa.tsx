@@ -741,9 +741,11 @@ const RifaPage = () => {
                   )}
                 </div>
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground font-body">
-                <span>{soldNumbers.toLocaleString("pt-BR")} vendidos</span>
-                <span>{availableCount.toLocaleString("pt-BR")} restantes</span>
+              <div className="flex justify-between items-center text-[10px] font-body">
+                <span className="text-muted-foreground uppercase tracking-wider font-pixel text-[9px]">Campanha</span>
+                <span className="text-warning font-pixel">
+                  {(raffle.progress_percent ?? progressPct)}% concluída
+                </span>
               </div>
               {drawDate && (
                 <div
