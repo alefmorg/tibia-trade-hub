@@ -157,6 +157,17 @@ const Admin = () => {
     if (!loading && (!user || !isAdmin)) navigate("/");
   }, [loading, user, isAdmin, navigate]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCmdOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   const getUserRole = (userId: string): AppRole => userRoles.find((r) => r.user_id === userId)?.role || "user";
   const getProfileName = (userId: string) => profiles.find((p) => p.user_id === userId)?.username || "Desconhecido";
   const getAdTitle = (adId: string) => ads?.find((ad) => ad.id === adId)?.title || adId.slice(0, 8);
