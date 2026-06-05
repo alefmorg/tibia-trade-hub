@@ -502,64 +502,322 @@ const RifaPage = () => {
           Voltar
         </Link>
 
-        {/* Hero Banner pixel */}
+        {/* ==================== HERO SPOTLIGHT ==================== */}
         <div className="relative overflow-hidden mb-6 bg-card" style={goldenBox}>
-          <div className="p-1.5">
-            <div
-              className="relative h-56 md:h-80 overflow-hidden bg-secondary"
-              style={{
-                borderRadius: 1,
-                boxShadow: "inset 0 0 0 1px hsl(var(--border))",
-              }}
-            >
-              {raffle.image_url ? (
-                <img
-                  src={raffle.image_url}
-                  alt={raffle.title}
-                  className="w-full h-full object-cover"
-                  style={{ imageRendering: "pixelated" as const }}
+          {/* glow blobs */}
+          <div aria-hidden className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-warning/20 blur-3xl pointer-events-none" />
+          <div aria-hidden className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.05] pointer-events-none"
+            style={{
+              backgroundImage:
+                "linear-gradient(hsl(var(--warning)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--warning)) 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+            }}
+          />
+
+          <div className="relative grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6 p-5 md:p-8">
+            {/* --- LEFT: Prize spotlight --- */}
+            <div className="relative flex flex-col items-center">
+              {/* 1º Prêmio ribbon */}
+              <div
+                className="relative z-10 -mb-3 px-4 py-1.5 bg-gradient-to-r from-warning via-warning to-warning/80 text-warning-foreground font-pixel text-[10px] uppercase tracking-[0.2em] flex items-center gap-1.5"
+                style={{
+                  borderRadius: 1,
+                  boxShadow:
+                    "0 0 0 2px hsl(var(--background)), 0 0 0 3px hsl(var(--warning) / 0.5), 0 4px 12px hsl(var(--warning) / 0.4)",
+                }}
+              >
+                <Crown className="h-3 w-3" />
+                1º Prêmio
+                <Crown className="h-3 w-3" />
+              </div>
+
+              {/* Spotlight frame */}
+              <div
+                className="relative w-full aspect-square max-w-[360px] bg-gradient-to-br from-warning/10 via-card to-primary/5 flex items-center justify-center overflow-hidden"
+                style={{
+                  borderRadius: 2,
+                  boxShadow:
+                    "0 0 0 3px hsl(var(--warning) / 0.6), 0 0 0 6px hsl(var(--background)), 0 0 0 7px hsl(var(--warning) / 0.3), 0 0 40px hsl(var(--warning) / 0.25), inset 0 0 0 1px hsl(var(--warning) / 0.2)",
+                }}
+              >
+                {/* radial glow */}
+                <div
+                  aria-hidden
+                  className="absolute inset-0 animate-pulse pointer-events-none"
+                  style={{
+                    background:
+                      "radial-gradient(circle at center, hsl(var(--warning) / 0.25), transparent 65%)",
+                  }}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-warning/15 via-primary/5 to-background">
-                  <Trophy className="h-20 w-20 text-warning/30" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
-                <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span
-                    className={cn(
-                      "font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1",
-                      raffle.status === "active"
-                        ? "bg-primary text-primary-foreground"
-                        : raffle.status === "completed"
-                        ? "bg-warning text-warning-foreground"
-                        : "bg-destructive text-destructive-foreground"
-                    )}
-                    style={{ borderRadius: 1 }}
-                  >
-                    {raffle.status === "active" ? "● Ativa" : raffle.status === "completed" ? "★ Finalizada" : "✕ Cancelada"}
-                  </span>
-                  <span
-                    className="font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1 bg-warning/20 text-warning flex items-center gap-1"
-                    style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
-                  >
-                    <Shield className="h-2.5 w-2.5" />
-                    Loteria Federal
-                  </span>
-                </div>
-                <h1 className="font-pixel text-base md:text-xl text-foreground leading-tight">{raffle.title}</h1>
-                {raffle.description && (
-                  <p className="text-xs text-muted-foreground mt-2 max-w-xl font-body leading-relaxed">
-                    {raffle.description}
+                {/* corner sparkles */}
+                <Sparkles className="absolute top-2 left-2 h-4 w-4 text-warning/70 animate-pulse" />
+                <Sparkles className="absolute top-2 right-2 h-4 w-4 text-warning/70 animate-pulse" style={{ animationDelay: "0.4s" }} />
+                <Sparkles className="absolute bottom-2 left-2 h-4 w-4 text-warning/70 animate-pulse" style={{ animationDelay: "0.8s" }} />
+                <Sparkles className="absolute bottom-2 right-2 h-4 w-4 text-warning/70 animate-pulse" style={{ animationDelay: "1.2s" }} />
+
+                {raffle.image_url ? (
+                  <img
+                    src={raffle.image_url}
+                    alt={raffle.title}
+                    className="relative w-3/4 h-3/4 object-contain drop-shadow-[0_0_30px_hsl(var(--warning)/0.6)]"
+                    style={{ imageRendering: "pixelated" as const, animation: "fade-in 0.6s ease-out" }}
+                  />
+                ) : (
+                  <Trophy className="relative h-32 w-32 text-warning/50" />
+                )}
+              </div>
+
+              {/* Prize name pedestal */}
+              <div
+                className="mt-4 w-full max-w-[360px] bg-background/60 px-4 py-3 text-center"
+                style={{
+                  borderRadius: 2,
+                  boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)",
+                }}
+              >
+                <p className="text-[9px] text-muted-foreground uppercase tracking-[0.2em] font-body mb-1">
+                  Item Sorteado
+                </p>
+                <p className="font-pixel text-sm md:text-base text-warning leading-tight">
+                  {prizes?.[0]?.prize_name || raffle.title}
+                </p>
+                {prizes?.[0]?.prize_description && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5 font-body leading-relaxed">
+                    {prizes[0].prize_description}
                   </p>
                 )}
+              </div>
+            </div>
+
+            {/* --- RIGHT: Title + meta --- */}
+            <div className="flex flex-col justify-center gap-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className={cn(
+                    "font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1",
+                    raffle.status === "active"
+                      ? "bg-primary text-primary-foreground"
+                      : raffle.status === "completed"
+                      ? "bg-warning text-warning-foreground"
+                      : "bg-destructive text-destructive-foreground"
+                  )}
+                  style={{ borderRadius: 1 }}
+                >
+                  {raffle.status === "active" ? "● Ativa" : raffle.status === "completed" ? "★ Finalizada" : "✕ Cancelada"}
+                </span>
+                <span
+                  className="font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1 bg-warning/15 text-warning flex items-center gap-1"
+                  style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.4)" }}
+                >
+                  <Shield className="h-2.5 w-2.5" />
+                  Loteria Federal
+                </span>
+                {prizes && prizes.length > 1 && (
+                  <span
+                    className="font-pixel text-[9px] uppercase tracking-wider px-2.5 py-1 bg-primary/15 text-primary flex items-center gap-1"
+                    style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--primary) / 0.4)" }}
+                  >
+                    <Gift className="h-2.5 w-2.5" />
+                    {prizes.length} prêmios
+                  </span>
+                )}
+              </div>
+
+              <h1 className="font-pixel text-lg md:text-2xl text-foreground leading-tight">
+                {raffle.title}
+              </h1>
+
+              {raffle.description && (
+                <p className="text-xs md:text-sm text-muted-foreground font-body leading-relaxed">
+                  {raffle.description}
+                </p>
+              )}
+
+              {/* Inline progress bar */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider font-body">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Flame className="h-3 w-3 text-primary" />
+                    Progresso da campanha
+                  </span>
+                  <span className="text-primary font-pixel">{progressPct}%</span>
+                </div>
+                <div
+                  className="relative h-2.5 bg-background/60 overflow-hidden"
+                  style={{ borderRadius: 1, boxShadow: "inset 0 0 0 1px hsl(var(--border))" }}
+                >
+                  <div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-warning to-warning transition-all duration-700"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Quick meta row */}
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                <div
+                  className="bg-background/40 px-2 py-2 text-center"
+                  style={{ borderRadius: 2, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.3)" }}
+                >
+                  <Coins className="h-3.5 w-3.5 mx-auto mb-1 text-warning" />
+                  <p className="font-pixel text-[11px] text-warning leading-none">
+                    {raffle.price_per_number.toLocaleString("pt-BR")}
+                  </p>
+                  <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-wider font-body">por bilhete</p>
+                </div>
+                <div
+                  className="bg-background/40 px-2 py-2 text-center"
+                  style={{ borderRadius: 2, boxShadow: "inset 0 0 0 1px hsl(var(--primary) / 0.3)" }}
+                >
+                  <Calendar className="h-3.5 w-3.5 mx-auto mb-1 text-primary" />
+                  <p className="font-pixel text-[11px] text-primary leading-none">
+                    {drawDate ? drawDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) : "—"}
+                  </p>
+                  <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-wider font-body">sorteio</p>
+                </div>
+                <div
+                  className="bg-background/40 px-2 py-2 text-center"
+                  style={{ borderRadius: 2, boxShadow: "inset 0 0 0 1px hsl(var(--warning) / 0.3)" }}
+                >
+                  <Trophy className="h-3.5 w-3.5 mx-auto mb-1 text-warning" />
+                  <p className="font-pixel text-[11px] text-warning leading-none">
+                    {prizes?.length || 1}
+                  </p>
+                  <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-wider font-body">prêmios</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats Cards pixel — apenas info pública (sem expor quantidade de bilhetes) */}
+        {/* ==================== PRIZE SHOWCASE ==================== */}
+        {prizes && prizes.length > 1 && (
+          <div className="mb-6 bg-card p-5 md:p-6 relative overflow-hidden" style={goldenBox}>
+            <div aria-hidden className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-warning/10 blur-3xl pointer-events-none" />
+            <div className="relative flex items-center gap-2 mb-5">
+              <Gift className="h-4 w-4 text-warning" />
+              <h2 className="font-pixel text-xs md:text-sm text-warning uppercase tracking-[0.2em]">
+                Todos os Prêmios
+              </h2>
+              <div className="flex-1 h-px bg-gradient-to-r from-warning/40 to-transparent" />
+              <span className="text-[10px] text-muted-foreground font-body">
+                {prizes.length} no total
+              </span>
+            </div>
+
+            <div className="relative grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {prizes.map((p, idx) => {
+                const isFirst = idx === 0;
+                const isSecond = idx === 1;
+                const isThird = idx === 2;
+                const accentColor = isFirst
+                  ? "warning"
+                  : isSecond
+                  ? "primary"
+                  : isThird
+                  ? "warning"
+                  : "muted-foreground";
+                const medalIcon = isFirst ? Crown : isSecond ? Trophy : isThird ? Trophy : Gift;
+                const MedalIcon = medalIcon;
+                return (
+                  <div
+                    key={p.id}
+                    className={cn(
+                      "relative group bg-background/40 p-3 text-center transition-all duration-300 hover:-translate-y-1",
+                      isFirst && "col-span-2 sm:col-span-1 row-span-1",
+                    )}
+                    style={{
+                      borderRadius: 2,
+                      boxShadow: isFirst
+                        ? "0 0 0 2px hsl(var(--warning)), 0 0 0 3px hsl(var(--background)), 0 0 0 4px hsl(var(--warning) / 0.4), 0 0 20px hsl(var(--warning) / 0.3)"
+                        : isSecond
+                        ? "0 0 0 2px hsl(var(--primary) / 0.7), 0 0 0 3px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.25)"
+                        : isThird
+                        ? "0 0 0 2px hsl(var(--warning) / 0.5), 0 0 0 3px hsl(var(--background)), 0 0 0 4px hsl(var(--warning) / 0.15)"
+                        : "0 0 0 1px hsl(var(--border)), inset 0 0 0 1px hsl(var(--card))",
+                    }}
+                  >
+                    {/* Medal badge */}
+                    <div
+                      className={cn(
+                        "absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0.5 font-pixel text-[9px] uppercase tracking-wider flex items-center gap-1",
+                        isFirst && "bg-warning text-warning-foreground",
+                        isSecond && "bg-primary text-primary-foreground",
+                        isThird && "bg-warning/70 text-warning-foreground",
+                        !isFirst && !isSecond && !isThird && "bg-secondary text-muted-foreground",
+                      )}
+                      style={{ borderRadius: 1 }}
+                    >
+                      <MedalIcon className="h-2.5 w-2.5" />
+                      {p.prize_number}º
+                    </div>
+
+                    {/* Item slot (uses raffle.image_url as fallback for visual continuity) */}
+                    <div
+                      className={cn(
+                        "relative mx-auto mt-2 mb-2 aspect-square w-full max-w-[110px] flex items-center justify-center bg-gradient-to-br overflow-hidden",
+                        isFirst && "from-warning/15 to-warning/5",
+                        isSecond && "from-primary/15 to-primary/5",
+                        isThird && "from-warning/10 to-warning/5",
+                        !isFirst && !isSecond && !isThird && "from-secondary to-background/40",
+                      )}
+                      style={{
+                        borderRadius: 1,
+                        boxShadow: `inset 0 0 0 1px hsl(var(--${accentColor}) / 0.3)`,
+                      }}
+                    >
+                      {raffle.image_url ? (
+                        <img
+                          src={raffle.image_url}
+                          alt={p.prize_name}
+                          className={cn(
+                            "w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-110",
+                            isFirst && "drop-shadow-[0_0_12px_hsl(var(--warning)/0.5)]",
+                          )}
+                          style={{ imageRendering: "pixelated" as const }}
+                        />
+                      ) : (
+                        <Trophy className={cn("h-10 w-10", `text-${accentColor}/50`)} />
+                      )}
+                    </div>
+
+                    <p
+                      className={cn(
+                        "font-pixel text-[10px] md:text-[11px] leading-tight line-clamp-2",
+                        isFirst && "text-warning",
+                        isSecond && "text-primary",
+                        isThird && "text-warning/90",
+                        !isFirst && !isSecond && !isThird && "text-foreground",
+                      )}
+                    >
+                      {p.prize_name}
+                    </p>
+                    {p.prize_description && (
+                      <p className="text-[9px] text-muted-foreground mt-1 font-body line-clamp-2 leading-snug">
+                        {p.prize_description}
+                      </p>
+                    )}
+
+                    {p.winner_user_id && (
+                      <div
+                        className="mt-2 px-1.5 py-0.5 bg-primary/10 text-primary text-[8px] uppercase tracking-wider font-pixel inline-flex items-center gap-1"
+                        style={{ borderRadius: 1 }}
+                      >
+                        <CheckCircle2 className="h-2 w-2" />
+                        Sorteado
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Stats Cards — apenas info pública */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
           <div
             className="bg-card p-4 text-center"
@@ -601,6 +859,7 @@ const RifaPage = () => {
             <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider font-body">sorteio</p>
           </div>
         </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main */}
