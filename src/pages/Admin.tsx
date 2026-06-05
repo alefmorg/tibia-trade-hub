@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { formatPriceWithDots, formatDisplayPrice } from "@/lib/price-utils";
@@ -67,6 +68,8 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<TabKey>("stats");
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window === "undefined" ? true : window.innerWidth >= 1024);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Geral");
   const [newCategoryInput, setNewCategoryInput] = useState("");
@@ -153,6 +156,17 @@ const Admin = () => {
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) navigate("/");
   }, [loading, user, isAdmin, navigate]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCmdOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const getUserRole = (userId: string): AppRole => userRoles.find((r) => r.user_id === userId)?.role || "user";
   const getProfileName = (userId: string) => profiles.find((p) => p.user_id === userId)?.username || "Desconhecido";
@@ -324,7 +338,7 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <div className="flex flex-1 overflow-hidden relative">
         {sidebarOpen && (
@@ -334,92 +348,178 @@ const Admin = () => {
           />
         )}
         {/* Sidebar */}
-        <aside className={`${sidebarOpen ? "w-[260px] translate-x-0" : "w-0 -translate-x-full lg:translate-x-0 lg:w-0 overflow-hidden"} fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto transition-all duration-300 border-r border-border/60 bg-card lg:bg-card/50 backdrop-blur-md shrink-0 flex flex-col`}>
-          <div className="px-4 py-4 border-b border-border/60 bg-gradient-to-br from-primary/10 via-card to-card relative overflow-hidden">
-            <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{backgroundImage:"radial-gradient(currentColor 1px, transparent 1px)", backgroundSize:"6px 6px"}} />
-            <div className="relative flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-md bg-primary/15 border-2 border-primary/40 flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--primary)/0.25)]">
-                <Shield className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-pixel text-[11px] text-foreground leading-none">Admin Panel</p>
-                <p className="text-[9px] text-muted-foreground mt-1 font-body uppercase tracking-wider">Rubin Trade</p>
-              </div>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-secondary text-muted-foreground">
-                <X className="h-4 w-4" />
-              </button>
+        <aside
+          className={`${
+            sidebarOpen
+              ? sidebarCollapsed
+                ? "w-[60px]"
+                : "w-[220px] translate-x-0"
+              : "w-0 -translate-x-full lg:translate-x-0 lg:w-0 overflow-hidden"
+          } fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto transition-[width,transform] duration-200 border-r border-border/60 bg-card/60 backdrop-blur-md shrink-0 flex flex-col`}
+        >
+          {/* Brand */}
+          <div className="h-12 px-3 border-b border-border/60 flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 rounded-md bg-primary/15 border border-primary/30 flex items-center justify-center shrink-0">
+              <Shield className="h-3.5 w-3.5 text-primary" />
             </div>
+            {!sidebarCollapsed && (
+              <>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-foreground leading-none truncate">Admin</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-wider truncate">Rubin Trade</p>
+                </div>
+                <button
+                  onClick={() => setSidebarCollapsed(true)}
+                  className="hidden lg:flex p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground"
+                  title="Recolher"
+                >
+                  <PanelLeft className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-secondary text-muted-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-5">
+          {/* Cmd+K trigger */}
+          {!sidebarCollapsed ? (
+            <div className="px-2 pt-2">
+              <button
+                onClick={() => setCmdOpen(true)}
+                className="w-full flex items-center gap-2 h-8 px-2 rounded-md bg-secondary/60 hover:bg-secondary border border-border/60 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="flex-1 text-left">Pesquisar…</span>
+                <kbd className="text-[9px] px-1.5 py-0.5 rounded bg-background/70 border border-border/60 font-mono">⌘K</kbd>
+              </button>
+            </div>
+          ) : (
+            <div className="px-2 pt-2 flex flex-col gap-1">
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                className="h-8 w-full flex items-center justify-center rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground"
+                title="Expandir"
+              >
+                <PanelLeft className="h-3.5 w-3.5 rotate-180" />
+              </button>
+              <button
+                onClick={() => setCmdOpen(true)}
+                className="h-8 w-full flex items-center justify-center rounded-md bg-secondary/60 hover:bg-secondary text-muted-foreground hover:text-foreground"
+                title="Pesquisar (⌘K)"
+              >
+                <Search className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-3 mt-1">
             {sidebarSections.map((section) => (
               <div key={section.title}>
-                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-3 mb-1.5">{section.title}</p>
-                <div className="space-y-0.5">
-                  {section.items.map(({ key, label, icon: Icon, badge }) => (
-                    <button
-                      key={key}
-                      onClick={() => { setTab(key); setSearch(""); if (typeof window !== "undefined" && window.innerWidth < 1024) setSidebarOpen(false); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                        tab === key
-                          ? "bg-primary/15 text-primary border border-primary/20"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 border border-transparent"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      <span className="truncate font-body">{label}</span>
-                      {badge !== undefined && (
-                        <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                          tab === key ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
-                        }`}>
-                          {badge}
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                {!sidebarCollapsed && (
+                  <p className="text-[9px] font-semibold text-muted-foreground/50 uppercase tracking-[0.15em] px-2 mb-1">{section.title}</p>
+                )}
+                {sidebarCollapsed && <div className="h-px bg-border/40 mx-2 mb-1" />}
+                <div className="space-y-px">
+                  {section.items.map(({ key, label, icon: Icon, badge }) => {
+                    const active = tab === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => { setTab(key); setSearch(""); if (typeof window !== "undefined" && window.innerWidth < 1024) setSidebarOpen(false); }}
+                        title={sidebarCollapsed ? label : undefined}
+                        className={`group relative w-full flex items-center ${sidebarCollapsed ? "justify-center px-0" : "px-2"} gap-2 h-7 rounded-md text-[12.5px] font-medium transition-colors ${
+                          active
+                            ? "bg-primary/15 text-primary"
+                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                        }`}
+                      >
+                        {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r bg-primary" />}
+                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                        {!sidebarCollapsed && (
+                          <>
+                            <span className="truncate">{label}</span>
+                            {badge !== undefined && (
+                              <span className={`ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                                active ? "bg-primary/25 text-primary" : "bg-secondary text-muted-foreground"
+                              }`}>
+                                {badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+                        {sidebarCollapsed && badge !== undefined && (
+                          <span className="absolute top-0.5 right-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </nav>
 
-          {/* Sidebar footer: live status */}
-          <div className="p-3 border-t border-border/60 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
-                <p className="font-pixel text-sm text-primary leading-none">{stats.totalAds}</p>
-                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Anúncios</p>
-              </div>
-              <div className="bg-secondary/50 border border-border/40 rounded-lg p-2 text-center">
-                <p className="font-pixel text-sm text-warning leading-none">{stats.pendingDeposits}</p>
-                <p className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">Depósitos</p>
+          {/* Footer mini-stats */}
+          {!sidebarCollapsed && (
+            <div className="p-2 border-t border-border/60">
+              <div className="grid grid-cols-2 gap-1.5">
+                <div className="bg-secondary/40 border border-border/40 rounded-md p-1.5 text-center">
+                  <p className="text-[13px] font-semibold text-primary leading-none">{stats.totalAds}</p>
+                  <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-wider">Anúncios</p>
+                </div>
+                <div className="bg-secondary/40 border border-border/40 rounded-md p-1.5 text-center">
+                  <p className="text-[13px] font-semibold text-warning leading-none">{stats.pendingDeposits}</p>
+                  <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-wider">Pend.</p>
+                </div>
               </div>
             </div>
-            <button
-              onClick={() => setTab("settings")}
-              className="w-full flex items-center justify-center gap-2 h-8 rounded-lg border-2 border-dashed border-border/60 hover:border-primary/40 hover:bg-primary/5 text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors font-body"
-            >
-              <Sparkles className="h-3 w-3" /> Configurações Rápidas
-            </button>
-          </div>
+          )}
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto w-full min-w-0">
           {/* Top bar */}
-          <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-sm border-b border-border/60 px-3 sm:px-6 py-3 flex items-center justify-between gap-2">
+          <div className="sticky top-0 z-20 bg-background/85 backdrop-blur-md border-b border-border/60 px-3 sm:px-5 h-12 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-secondary transition-colors shrink-0">
+              <button
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.innerWidth < 1024) setSidebarOpen(!sidebarOpen);
+                  else setSidebarCollapsed((c) => !c);
+                }}
+                className="text-muted-foreground hover:text-foreground p-1.5 rounded-md hover:bg-secondary transition-colors shrink-0"
+                title="Alternar sidebar"
+              >
                 <PanelLeft className="h-4 w-4" />
               </button>
-              <h1 className="text-sm font-semibold text-foreground font-body truncate">{getTabTitle()}</h1>
-            </div>
-            {["ads", "users", "conversations"].includes(tab) && (
-              <div className="relative w-36 sm:w-64 shrink-0">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-secondary/80 border-border h-9 rounded-xl text-sm" />
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[11px] text-muted-foreground/70 hidden sm:inline">Admin</span>
+                <span className="text-[11px] text-muted-foreground/40 hidden sm:inline">/</span>
+                <h1 className="text-[13px] font-semibold text-foreground truncate">{getTabTitle()}</h1>
               </div>
-            )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {["ads", "users", "conversations"].includes(tab) && (
+                <div className="relative w-36 sm:w-56">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar nesta aba…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-8 bg-secondary/60 border-border/60 h-8 rounded-md text-[12px]"
+                  />
+                </div>
+              )}
+              <button
+                onClick={() => setCmdOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-md bg-secondary/60 hover:bg-secondary border border-border/60 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Search className="h-3 w-3" />
+                <span>Comandos</span>
+                <kbd className="text-[9px] px-1 py-0.5 rounded bg-background/70 border border-border/60 font-mono">⌘K</kbd>
+              </button>
+            </div>
           </div>
+
 
           <div className="p-3 sm:p-6 space-y-6 max-w-full overflow-x-hidden">
             {/* STATS / DASHBOARD */}
@@ -1416,8 +1516,34 @@ const Admin = () => {
           </div>
         </main>
       </div>
+
+      {/* Command palette */}
+      <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
+        <CommandInput placeholder="Buscar abas, ações…" />
+        <CommandList>
+          <CommandEmpty>Nada encontrado.</CommandEmpty>
+          {sidebarSections.map((section) => (
+            <CommandGroup key={section.title} heading={section.title}>
+              {section.items.map(({ key, label, icon: Icon, badge }) => (
+                <CommandItem
+                  key={key}
+                  value={`${section.title} ${label}`}
+                  onSelect={() => { setTab(key); setSearch(""); setCmdOpen(false); }}
+                >
+                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{label}</span>
+                  {badge !== undefined && (
+                    <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground">{badge}</span>
+                  )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </CommandDialog>
     </div>
   );
+
 };
 
 export default Admin;
