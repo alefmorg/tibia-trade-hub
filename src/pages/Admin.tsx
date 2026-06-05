@@ -1516,8 +1516,34 @@ const Admin = () => {
           </div>
         </main>
       </div>
+
+      {/* Command palette */}
+      <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
+        <CommandInput placeholder="Buscar abas, ações…" />
+        <CommandList>
+          <CommandEmpty>Nada encontrado.</CommandEmpty>
+          {sidebarSections.map((section) => (
+            <CommandGroup key={section.title} heading={section.title}>
+              {section.items.map(({ key, label, icon: Icon, badge }) => (
+                <CommandItem
+                  key={key}
+                  value={`${section.title} ${label}`}
+                  onSelect={() => { setTab(key); setSearch(""); setCmdOpen(false); }}
+                >
+                  <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>{label}</span>
+                  {badge !== undefined && (
+                    <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground">{badge}</span>
+                  )}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
+        </CommandList>
+      </CommandDialog>
     </div>
   );
+
 };
 
 export default Admin;
