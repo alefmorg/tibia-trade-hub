@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import ItemCombobox from "@/components/ItemCombobox";
 import { rubinotWorlds } from "@/lib/tibia-worlds";
 import { formatPriceWithDots, formatDisplayPrice } from "@/lib/price-utils";
