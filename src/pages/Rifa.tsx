@@ -279,6 +279,7 @@ const RifaPage = () => {
 
   const { data: raffle, isLoading } = useRaffle(id || "");
   const { data: numbers } = useRaffleNumbers(id || "");
+  const { data: prizes } = useRafflePrizes(id || "");
   const buyNumbers = useBuyRaffleNumbers();
 
   const { data: raffles } = useRaffles(true);
