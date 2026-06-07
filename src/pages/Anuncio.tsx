@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
@@ -136,6 +137,26 @@ const Anuncio = () => {
 
               {/* Info */}
               <div className="p-5 space-y-4">
+                {ad && (
+                  <Helmet>
+                    <title>{`${ad.title} — RubinTrade`}</title>
+                    <meta name="description" content={(ad.description || `${ad.title} no marketplace RubinTrade.`).slice(0, 155)} />
+                    <link rel="canonical" href={`https://rubintrade.com/anuncio/${ad.id}`} />
+                    <meta property="og:title" content={`${ad.title} — RubinTrade`} />
+                    <meta property="og:description" content={(ad.description || ad.title).slice(0, 155)} />
+                    <meta property="og:url" content={`https://rubintrade.com/anuncio/${ad.id}`} />
+                    <meta property="og:type" content="product" />
+                    {ad.items?.image_url && <meta property="og:image" content={ad.items.image_url} />}
+                    <script type="application/ld+json">{JSON.stringify({
+                      "@context": "https://schema.org",
+                      "@type": "Product",
+                      name: ad.title,
+                      description: ad.description || ad.title,
+                      image: ad.items?.image_url || undefined,
+                      offers: ad.price ? { "@type": "Offer", price: ad.price, priceCurrency: "BRL" } : undefined,
+                    })}</script>
+                  </Helmet>
+                )}
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h1 className="text-xl font-bold text-foreground">{ad.title}</h1>
@@ -176,7 +197,7 @@ const Anuncio = () => {
           <div className="space-y-4">
             {/* Seller */}
             <div className="bg-card/80 border border-border/60 rounded-2xl p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anunciante</h3>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anunciante</h2>
               <Link to={`/perfil/${ad.user_id}`} className="flex items-center gap-3 hover:bg-secondary/40 p-2 rounded-xl transition-colors">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                   {(ad.profiles as any)?.avatar_url ? (

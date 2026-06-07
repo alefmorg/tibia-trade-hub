@@ -1,0 +1,18 @@
+# RubinTrade
+
+> Marketplace independente do servidor RubinOT. Compre, venda e troque itens, casas e serviços com segurança, carteira interna de coins, rifas e intermediação por admins.
+
+RubinTrade é um marketplace voltado para a comunidade do servidor RubinOT. Usuários cadastrados publicam anúncios de itens, casas e serviços, negociam por mensagens, participam de rifas e movimentam coins em uma carteira interna validada pelos administradores.
+
+## Pages
+
+- [Início](/): Lista de anúncios ativos com filtros por mundo, tipo PvP, categoria e preço.
+- [Rifas](/rifa): Rifas ativas e histórico de sorteios baseados na Loteria Federal.
+- [Suporte](/suporte): Abertura de tickets e canal de atendimento.
+- [Privacidade](/privacidade): Política de privacidade e tratamento de dados (LGPD).
+- [Login](/login): Acesso à conta.
+- [Cadastro](/registro): Criação de nova conta.
+
+## Optional
+
+- [Esqueci minha senha](/esqueci-senha): Recuperação de senha por e-mail.

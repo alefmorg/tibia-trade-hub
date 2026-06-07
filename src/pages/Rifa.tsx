@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import { useRaffle, useRaffleNumbers, useBuyRaffleNumbers, useRaffles } from "@/hooks/useRaffles";
 import { useRafflePrizes } from "@/hooks/useRafflesAdmin";
@@ -629,6 +630,17 @@ const RifaPage = () => {
               <h1 className="font-pixel text-lg md:text-2xl text-foreground leading-tight">
                 {raffle.title}
               </h1>
+              {raffle && (
+                <Helmet>
+                  <title>{`${raffle.title} — Rifa RubinTrade`}</title>
+                  <meta name="description" content={(raffle.description || `Participe da rifa ${raffle.title} no RubinTrade.`).slice(0, 155)} />
+                  <link rel="canonical" href={`https://rubintrade.com/rifa/${raffle.id}`} />
+                  <meta property="og:title" content={`${raffle.title} — Rifa RubinTrade`} />
+                  <meta property="og:description" content={(raffle.description || raffle.title).slice(0, 155)} />
+                  <meta property="og:url" content={`https://rubintrade.com/rifa/${raffle.id}`} />
+                  <meta property="og:type" content="product" />
+                </Helmet>
+              )}
 
               {raffle.description && (
                 <p className="text-xs md:text-sm text-muted-foreground font-body leading-relaxed">
@@ -884,10 +896,10 @@ const RifaPage = () => {
             {myNumbers.length > 0 && (
               <div className="bg-card p-5" style={primaryBox}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-pixel text-xs text-primary uppercase tracking-wider flex items-center gap-2">
+                  <h2 className="font-pixel text-xs text-primary uppercase tracking-wider flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5" />
                     Meus Bilhetes ({myNumbers.length})
-                  </h3>
+                  </h2>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {myNumbers.map((n) => (

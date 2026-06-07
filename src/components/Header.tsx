@@ -60,7 +60,7 @@ const Header = () => {
               </Button>
 
               <div className="relative" ref={notifRef}>
-                <button onClick={() => setShowNotifs(!showNotifs)} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.notifications")}>
+                <button aria-label={t("common.notifications")} onClick={() => setShowNotifs(!showNotifs)} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.notifications")}>
                   <Bell className="h-5 w-5" />
                   {(unreadNotifs ?? 0) > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
@@ -107,10 +107,10 @@ const Header = () => {
                 )}
               </div>
 
-              <button onClick={() => navigate("/suporte")} title={t("common.support")} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
+              <button aria-label={t("common.support")} onClick={() => navigate("/suporte")} title={t("common.support")} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary">
                 <LifeBuoy className="h-5 w-5" />
               </button>
-              <button onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.messages")}>
+              <button aria-label={t("common.messages")} onClick={() => navigate("/mensagens")} className="relative text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-secondary" title={t("common.messages")}>
                 <MessageCircle className="h-5 w-5" />
                 {(unreadCount ?? 0) > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
@@ -118,11 +118,11 @@ const Header = () => {
                   </span>
                 )}
               </button>
-              <button onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-xl px-2 sm:px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all max-w-[140px]" title={t("common.profile")}>
+              <button aria-label={t("common.profile")} onClick={() => navigate("/perfil")} className="flex items-center gap-2 border border-border rounded-xl px-2 sm:px-3 py-1.5 hover:border-primary/30 hover:bg-secondary/50 transition-all max-w-[140px]" title={t("common.profile")}>
                 <User className="h-4 w-4 text-primary shrink-0" />
                 <span className="hidden sm:inline text-xs font-medium text-foreground truncate">{profile?.username || user.email?.split("@")[0]}</span>
               </button>
-              <button onClick={signOut} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all" title={t("common.logout")}>
+              <button aria-label={t("common.logout")} onClick={signOut} className="hidden sm:inline-flex text-muted-foreground hover:text-foreground p-2 rounded-xl hover:bg-secondary transition-all" title={t("common.logout")}>
                 <LogOut className="h-4 w-4" />
               </button>
             </>
