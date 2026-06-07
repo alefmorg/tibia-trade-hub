@@ -176,7 +176,7 @@ const Anuncio = () => {
           <div className="space-y-4">
             {/* Seller */}
             <div className="bg-card/80 border border-border/60 rounded-2xl p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anunciante</h3>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anunciante</h2>
               <Link to={`/perfil/${ad.user_id}`} className="flex items-center gap-3 hover:bg-secondary/40 p-2 rounded-xl transition-colors">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                   {(ad.profiles as any)?.avatar_url ? (

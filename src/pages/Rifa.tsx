@@ -884,10 +884,10 @@ const RifaPage = () => {
             {myNumbers.length > 0 && (
               <div className="bg-card p-5" style={primaryBox}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-pixel text-xs text-primary uppercase tracking-wider flex items-center gap-2">
+                  <h2 className="font-pixel text-xs text-primary uppercase tracking-wider flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5" />
                     Meus Bilhetes ({myNumbers.length})
-                  </h3>
+                  </h2>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {myNumbers.map((n) => (

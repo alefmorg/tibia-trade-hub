@@ -209,7 +209,7 @@ const Index = () => {
                       <Flame className="h-3.5 w-3.5 text-warning" />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h3>
+                      <h2 className="text-sm font-bold text-foreground tracking-tight">Itens em Destaque</h2>
                       <p className="text-[10px] text-muted-foreground/80">Anúncios promovidos pelos vendedores</p>
                     </div>
                   </div>

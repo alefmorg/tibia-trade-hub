@@ -84,10 +84,10 @@ const Mensagens = () => {
         {/* Conversations list */}
         <aside className={`w-full md:w-80 shrink-0 md:border-r border-border flex flex-col ${selectedConvId ? "hidden md:flex" : "flex"}`}>
           <div className="p-3 border-b border-border">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <h1 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-primary" />
               Mensagens
-            </h2>
+            </h1>
           </div>
           <div className="flex-1 overflow-y-auto">
             {convsLoading ? (
