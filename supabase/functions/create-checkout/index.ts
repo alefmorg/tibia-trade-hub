@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
       ui_mode: "embedded_page",
       return_url: returnUrl,
       customer: customerId,
-      payment_method_types: ["card", "pix"],
+      payment_method_types: ["card"],
       payment_intent_data: {
         description: pkg.label,
         metadata: { userId: user.id, coins: String(pkg.coins), priceId },
