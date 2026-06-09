@@ -323,12 +323,23 @@ function StatCard({ icon, label, value, tone, active, onClick }: { icon: React.R
   );
 }
 
-function InfoRow({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent?: boolean }) {
+function InfoRow({ icon, label, value, accent, onCopy, openHref }: { icon: React.ReactNode; label: string; value: string; accent?: boolean; onCopy?: () => void; openHref?: string }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/40">
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}:</span>
-      <span className={cn("text-xs font-medium truncate", accent ? "text-primary" : "text-foreground")}>{value}</span>
+    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/40 group">
+      <span className="text-muted-foreground shrink-0">{icon}</span>
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">{label}:</span>
+      <span className={cn("text-xs font-medium truncate flex-1", accent ? "text-primary" : "text-foreground")}>{value}</span>
+      {openHref && (
+        <a href={openHref} target="_blank" rel="noopener noreferrer" className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-opacity" title="Abrir">
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
+      {onCopy && (
+        <button onClick={onCopy} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-opacity" title="Copiar">
+          <Copy className="h-3 w-3" />
+        </button>
+      )}
     </div>
   );
 }
+
