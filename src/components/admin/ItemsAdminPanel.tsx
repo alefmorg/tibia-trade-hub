@@ -397,12 +397,33 @@ const ItemsAdminPanel = () => {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileRef.current?.click()}>
+                <Button type="button" variant="outline" size="sm" className="border-border h-8" onClick={() => fileRef.current?.click()}>
                   <Upload className="h-3.5 w-3.5 mr-1" /> {imageFile ? "Trocar" : "Upload"}
                 </Button>
-                {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
+                {activeSource === "tibia" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={fandomLoading || !name.trim()}
+                    onClick={fetchFandom}
+                    className="border-primary/40 text-primary hover:bg-primary/10 h-8"
+                    title="Buscar imagem oficial no Tibia Fandom"
+                  >
+                    {fandomLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Wand2 className="h-3.5 w-3.5 mr-1" />}
+                    Fandom
+                  </Button>
+                )}
+                {imagePreview && (
+                  <div className="relative">
+                    <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border bg-secondary/40" />
+                    {fandomUrl && !imageFile && (
+                      <Sparkles className="h-3 w-3 text-primary absolute -top-1 -right-1" />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-end">
