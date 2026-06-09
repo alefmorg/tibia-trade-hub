@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Coins, ChevronDown, Handshake, Heart, Crown } from "lucide-react";
+import { Coins, ChevronDown, Handshake, Heart, Crown, CreditCard } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import { useWallet } from "@/hooks/useWallet";
 import { useCreateIntermediation, useDonate } from "@/hooks/useUserActions";
 import { useVipSettings, usePurchaseVip, useMyVipStatus } from "@/hooks/useVip";
 import { FEATURES } from "@/lib/feature-flags";
+import StripeDonationDialog from "@/components/StripeDonationDialog";
 
 const WalletActionsMenu = () => {
   const { data: wallet } = useWallet();
   const [interOpen, setInterOpen] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
+  const [stripeDonateOpen, setStripeDonateOpen] = useState(false);
   const [vipOpen, setVipOpen] = useState(false);
   const { data: vipSettings } = useVipSettings();
   const { data: myVip } = useMyVipStatus();
@@ -87,15 +89,26 @@ const WalletActionsMenu = () => {
               </div>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => setDonateOpen(true)} className="cursor-pointer">
-            <Heart className="h-4 w-4 mr-2 text-destructive" />
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Apoiar o site</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setStripeDonateOpen(true)} className="cursor-pointer">
+            <CreditCard className="h-4 w-4 mr-2 text-destructive" />
             <div className="flex flex-col">
-              <span className="text-xs font-semibold">Apoiar o site</span>
+              <span className="text-xs font-semibold">Doar com cartão / PIX</span>
+              <span className="text-[10px] text-muted-foreground">Pagamento seguro via Stripe</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDonateOpen(true)} className="cursor-pointer">
+            <Heart className="h-4 w-4 mr-2 text-warning" />
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold">Doar RT Coins</span>
               <span className="text-[10px] text-muted-foreground">Doe coins do seu saldo</span>
             </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <StripeDonationDialog open={stripeDonateOpen} onOpenChange={setStripeDonateOpen} />
 
       {/* VIP Dialog */}
       <Dialog open={vipOpen} onOpenChange={setVipOpen}>
