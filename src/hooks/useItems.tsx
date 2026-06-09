@@ -39,17 +39,19 @@ export const useCreateItem = () => {
     mutationFn: async ({
       name,
       imageFile,
+      imageUrl,
       tier,
       category,
       source,
     }: {
       name: string;
       imageFile?: File;
+      imageUrl?: string;
       tier?: number | null;
       category?: string;
       source?: ItemSource;
     }) => {
-      let image_url: string | null = null;
+      let image_url: string | null = imageUrl || null;
       const db = supabase as any;
 
       if (imageFile) {

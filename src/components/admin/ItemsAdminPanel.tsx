@@ -20,8 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem as SItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { GripVertical, ImagePlus, Plus, Search, Trash2, Upload, Image as ImageIcon, Check, X, Pencil } from "lucide-react";
+import { GripVertical, ImagePlus, Plus, Search, Trash2, Upload, Image as ImageIcon, Check, X, Pencil, Sparkles, Loader2, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase-client";
+import { toast } from "sonner";
 
 type Mode = "single" | "bulk";
 
@@ -120,6 +122,8 @@ const ItemsAdminPanel = () => {
   // tier removido do form de criação — só configurável no edit
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [fandomUrl, setFandomUrl] = useState<string | null>(null);
+  const [fandomLoading, setFandomLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Bulk
@@ -127,6 +131,8 @@ const ItemsAdminPanel = () => {
   const [bulkCategory, setBulkCategory] = useState("Geral");
   const [bulkNewCategoryInput, setBulkNewCategoryInput] = useState("");
   const [bulkImages, setBulkImages] = useState<Record<number, File>>({});
+  const [bulkFandomUrls, setBulkFandomUrls] = useState<Record<number, string>>({});
+  const [bulkFandomLoading, setBulkFandomLoading] = useState(false);
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   // Edit dialog state (inline)
@@ -175,6 +181,34 @@ const ItemsAdminPanel = () => {
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
+      setFandomUrl(null);
+    }
+  };
+
+  const fetchFandom = async () => {
+    if (!name.trim()) {
+      toast.error("Digite o nome do item primeiro");
+      return;
+    }
+    setFandomLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tibia-image", {
+        body: { name: name.trim() },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setFandomUrl(data.url);
+        setImagePreview(data.url);
+        setImageFile(null);
+        if (fileRef.current) fileRef.current.value = "";
+        toast.success(`Imagem encontrada: ${data.title || name.trim()}`);
+      } else {
+        toast.error("Nenhuma imagem encontrada no Tibia Fandom");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao buscar");
+    } finally {
+      setFandomLoading(false);
     }
   };
 
@@ -184,6 +218,7 @@ const ItemsAdminPanel = () => {
     await createItem.mutateAsync({
       name: name.trim(),
       imageFile: imageFile || undefined,
+      imageUrl: !imageFile && fandomUrl ? fandomUrl : undefined,
       category: finalCat,
       source: activeSource,
       tier: null,
@@ -191,9 +226,33 @@ const ItemsAdminPanel = () => {
     setName("");
     setImageFile(null);
     setImagePreview(null);
+    setFandomUrl(null);
     setCategory("Geral");
     setNewCategoryInput("");
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const fetchBulkFandom = async () => {
+    const names = bulkNames.split("\n").map((n) => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    setBulkFandomLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tibia-image", {
+        body: { names },
+      });
+      if (error) throw error;
+      const map: Record<number, string> = {};
+      let found = 0;
+      (data?.results || []).forEach((r: any, i: number) => {
+        if (r?.url) { map[i] = r.url; found++; }
+      });
+      setBulkFandomUrls(map);
+      toast.success(`${found}/${names.length} imagens encontradas no Fandom`);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao buscar");
+    } finally {
+      setBulkFandomLoading(false);
+    }
   };
 
   const handleBulkAdd = async () => {
@@ -204,12 +263,14 @@ const ItemsAdminPanel = () => {
       await createItem.mutateAsync({
         name: names[i],
         imageFile: bulkImages[i] || undefined,
+        imageUrl: !bulkImages[i] && bulkFandomUrls[i] ? bulkFandomUrls[i] : undefined,
         category: finalCat,
         source: activeSource,
       });
     }
     setBulkNames("");
     setBulkImages({});
+    setBulkFandomUrls({});
     setBulkCategory("Geral");
     setBulkNewCategoryInput("");
   };
@@ -336,12 +397,33 @@ const ItemsAdminPanel = () => {
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground font-body">Imagem</Label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                <Button type="button" variant="outline" size="sm" className="border-border" onClick={() => fileRef.current?.click()}>
+                <Button type="button" variant="outline" size="sm" className="border-border h-8" onClick={() => fileRef.current?.click()}>
                   <Upload className="h-3.5 w-3.5 mr-1" /> {imageFile ? "Trocar" : "Upload"}
                 </Button>
-                {imagePreview && <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border" />}
+                {activeSource === "tibia" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={fandomLoading || !name.trim()}
+                    onClick={fetchFandom}
+                    className="border-primary/40 text-primary hover:bg-primary/10 h-8"
+                    title="Buscar imagem oficial no Tibia Fandom"
+                  >
+                    {fandomLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Wand2 className="h-3.5 w-3.5 mr-1" />}
+                    Fandom
+                  </Button>
+                )}
+                {imagePreview && (
+                  <div className="relative">
+                    <img src={imagePreview} alt="" className="h-8 w-8 object-contain rounded border border-border bg-secondary/40" />
+                    {fandomUrl && !imageFile && (
+                      <Sparkles className="h-3 w-3 text-primary absolute -top-1 -right-1" />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-end">
@@ -394,33 +476,62 @@ const ItemsAdminPanel = () => {
             </div>
             {bulkNames.split("\n").filter((n) => n.trim()).length > 0 && (
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Imagens (opcional)</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Imagens (opcional)</Label>
+                  {activeSource === "tibia" && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={bulkFandomLoading}
+                      onClick={fetchBulkFandom}
+                      className="border-primary/40 text-primary hover:bg-primary/10 h-7 text-xs"
+                    >
+                      {bulkFandomLoading ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Wand2 className="h-3 w-3 mr-1" />}
+                      Buscar todas no Fandom
+                    </Button>
+                  )}
+                </div>
                 {bulkNames
                   .split("\n")
                   .filter((n) => n.trim())
-                  .map((n, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-6 text-right">{idx + 1}.</span>
-                      <span className="text-foreground truncate flex-1">{n.trim()}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        ref={(el) => {
-                          bulkFileRefs.current[idx] = el;
-                        }}
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) setBulkImages((p) => ({ ...p, [idx]: f }));
-                        }}
-                      />
-                      <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
-                        <ImagePlus className="h-3 w-3 mr-1" />
-                        {bulkImages[idx] ? "Trocar" : "Img"}
-                      </Button>
-                      {bulkImages[idx] && <img src={URL.createObjectURL(bulkImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border" />}
-                    </div>
-                  ))}
+                  .map((n, idx) => {
+                    const fandomImg = bulkFandomUrls[idx];
+                    const hasImg = bulkImages[idx] || fandomImg;
+                    return (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-6 text-right">{idx + 1}.</span>
+                        <span className="text-foreground truncate flex-1">{n.trim()}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={(el) => {
+                            bulkFileRefs.current[idx] = el;
+                          }}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              setBulkImages((p) => ({ ...p, [idx]: f }));
+                              setBulkFandomUrls((p) => { const c = { ...p }; delete c[idx]; return c; });
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
+                          <ImagePlus className="h-3 w-3 mr-1" />
+                          {hasImg ? "Trocar" : "Img"}
+                        </Button>
+                        {bulkImages[idx] ? (
+                          <img src={URL.createObjectURL(bulkImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border bg-secondary/40" />
+                        ) : fandomImg ? (
+                          <div className="relative">
+                            <img src={fandomImg} alt="" className="h-7 w-7 object-contain rounded border border-primary/40 bg-secondary/40" />
+                            <Sparkles className="h-2.5 w-2.5 text-primary absolute -top-1 -right-1" />
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
               </div>
             )}
             <Button onClick={handleBulkAdd} disabled={createItem.isPending || !bulkNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
