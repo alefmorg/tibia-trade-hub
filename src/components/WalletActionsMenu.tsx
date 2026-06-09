@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { Coins, ChevronDown, Handshake, Heart, Crown, CreditCard } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Coins, ChevronDown, Handshake, Heart, Crown, CreditCard, ShoppingCart, Tag, Repeat, Shield, Sparkles, MessageCircle, Phone, Instagram, Gamepad2, Info, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useWallet } from "@/hooks/useWallet";
 import { useCreateIntermediation, useDonate } from "@/hooks/useUserActions";
 import { useVipSettings, usePurchaseVip, useMyVipStatus } from "@/hooks/useVip";
 import { FEATURES } from "@/lib/feature-flags";
 import StripeDonationDialog from "@/components/StripeDonationDialog";
+import { cn } from "@/lib/utils";
 
 const WalletActionsMenu = () => {
   const { data: wallet } = useWallet();
