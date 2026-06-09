@@ -476,33 +476,62 @@ const ItemsAdminPanel = () => {
             </div>
             {bulkNames.split("\n").filter((n) => n.trim()).length > 0 && (
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Imagens (opcional)</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Imagens (opcional)</Label>
+                  {activeSource === "tibia" && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={bulkFandomLoading}
+                      onClick={fetchBulkFandom}
+                      className="border-primary/40 text-primary hover:bg-primary/10 h-7 text-xs"
+                    >
+                      {bulkFandomLoading ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Wand2 className="h-3 w-3 mr-1" />}
+                      Buscar todas no Fandom
+                    </Button>
+                  )}
+                </div>
                 {bulkNames
                   .split("\n")
                   .filter((n) => n.trim())
-                  .map((n, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground w-6 text-right">{idx + 1}.</span>
-                      <span className="text-foreground truncate flex-1">{n.trim()}</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        ref={(el) => {
-                          bulkFileRefs.current[idx] = el;
-                        }}
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) setBulkImages((p) => ({ ...p, [idx]: f }));
-                        }}
-                      />
-                      <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
-                        <ImagePlus className="h-3 w-3 mr-1" />
-                        {bulkImages[idx] ? "Trocar" : "Img"}
-                      </Button>
-                      {bulkImages[idx] && <img src={URL.createObjectURL(bulkImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border" />}
-                    </div>
-                  ))}
+                  .map((n, idx) => {
+                    const fandomImg = bulkFandomUrls[idx];
+                    const hasImg = bulkImages[idx] || fandomImg;
+                    return (
+                      <div key={idx} className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground w-6 text-right">{idx + 1}.</span>
+                        <span className="text-foreground truncate flex-1">{n.trim()}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          ref={(el) => {
+                            bulkFileRefs.current[idx] = el;
+                          }}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) {
+                              setBulkImages((p) => ({ ...p, [idx]: f }));
+                              setBulkFandomUrls((p) => { const c = { ...p }; delete c[idx]; return c; });
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => bulkFileRefs.current[idx]?.click()}>
+                          <ImagePlus className="h-3 w-3 mr-1" />
+                          {hasImg ? "Trocar" : "Img"}
+                        </Button>
+                        {bulkImages[idx] ? (
+                          <img src={URL.createObjectURL(bulkImages[idx])} alt="" className="h-7 w-7 object-contain rounded border border-border bg-secondary/40" />
+                        ) : fandomImg ? (
+                          <div className="relative">
+                            <img src={fandomImg} alt="" className="h-7 w-7 object-contain rounded border border-primary/40 bg-secondary/40" />
+                            <Sparkles className="h-2.5 w-2.5 text-primary absolute -top-1 -right-1" />
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
               </div>
             )}
             <Button onClick={handleBulkAdd} disabled={createItem.isPending || !bulkNames.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
