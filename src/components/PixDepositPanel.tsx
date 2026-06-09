@@ -71,7 +71,7 @@ export function PixDepositPanel({ walletBalance }: { walletBalance: number }) {
                 <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-warning font-bold">
                   <CreditCard className="h-3 w-3" /> Depósito por Cartão
                 </div>
-                <h2 className="mt-2 text-2xl font-bold text-foreground">Recarregue seus Rubini Coins</h2>
+                <h2 className="mt-2 text-2xl font-bold text-foreground">Recarregue seus RT Coin</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Pagamento por cartão de crédito/débito. Crédito automático.
                 </p>

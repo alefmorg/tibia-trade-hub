@@ -23,7 +23,7 @@ const ACTIONS: Record<ResetKey, {
     desc: "Coloca o saldo de TODOS os usuários em 0, registra a transação no histórico e notifica cada um.",
     icon: Coins, color: "warning",
     action: "resetAllWallets",
-    warning: "Todos os saldos de Rubini Coins serão perdidos. As transações ficam no histórico.",
+    warning: "Todos os saldos de RT Coin serão perdidos. As transações ficam no histórico.",
   },
   conversations: {
     title: "Encerrar todas as conversas",

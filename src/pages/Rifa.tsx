@@ -1119,7 +1119,7 @@ const RifaPage = () => {
               </h3>
               <ol className="space-y-2.5">
                 {[
-                  { n: "1", text: "Tenha Rubini Coins na carteira" },
+                  { n: "1", text: "Tenha RT Coin na carteira" },
                   { n: "2", text: "Compre seus bilhetes da sorte" },
                   { n: "3", text: "Aguarde o sorteio da Loteria Federal" },
                   { n: "4", text: "Confira o resultado e receba seu prêmio!" },
