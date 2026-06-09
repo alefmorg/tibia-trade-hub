@@ -491,4 +491,13 @@ const WalletActionsMenu = () => {
   );
 };
 
+function Row({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={cn("font-semibold truncate max-w-[60%] text-right", accent ? "text-warning" : "text-foreground")}>{value}</span>
+    </div>
+  );
+}
+
 export default WalletActionsMenu;
