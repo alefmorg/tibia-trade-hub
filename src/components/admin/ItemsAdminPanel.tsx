@@ -184,12 +184,40 @@ const ItemsAdminPanel = () => {
     }
   };
 
+  const fetchFandom = async () => {
+    if (!name.trim()) {
+      toast.error("Digite o nome do item primeiro");
+      return;
+    }
+    setFandomLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tibia-image", {
+        body: { name: name.trim() },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setFandomUrl(data.url);
+        setImagePreview(data.url);
+        setImageFile(null);
+        if (fileRef.current) fileRef.current.value = "";
+        toast.success(`Imagem encontrada: ${data.title || name.trim()}`);
+      } else {
+        toast.error("Nenhuma imagem encontrada no Tibia Fandom");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao buscar");
+    } finally {
+      setFandomLoading(false);
+    }
+  };
+
   const handleAdd = async () => {
     if (!name.trim()) return;
     const finalCat = category === "__new" ? newCategoryInput.trim() || "Geral" : category;
     await createItem.mutateAsync({
       name: name.trim(),
       imageFile: imageFile || undefined,
+      imageUrl: !imageFile && fandomUrl ? fandomUrl : undefined,
       category: finalCat,
       source: activeSource,
       tier: null,
@@ -197,9 +225,33 @@ const ItemsAdminPanel = () => {
     setName("");
     setImageFile(null);
     setImagePreview(null);
+    setFandomUrl(null);
     setCategory("Geral");
     setNewCategoryInput("");
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const fetchBulkFandom = async () => {
+    const names = bulkNames.split("\n").map((n) => n.trim()).filter(Boolean);
+    if (names.length === 0) return;
+    setBulkFandomLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tibia-image", {
+        body: { names },
+      });
+      if (error) throw error;
+      const map: Record<number, string> = {};
+      let found = 0;
+      (data?.results || []).forEach((r: any, i: number) => {
+        if (r?.url) { map[i] = r.url; found++; }
+      });
+      setBulkFandomUrls(map);
+      toast.success(`${found}/${names.length} imagens encontradas no Fandom`);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao buscar");
+    } finally {
+      setBulkFandomLoading(false);
+    }
   };
 
   const handleBulkAdd = async () => {
@@ -210,12 +262,14 @@ const ItemsAdminPanel = () => {
       await createItem.mutateAsync({
         name: names[i],
         imageFile: bulkImages[i] || undefined,
+        imageUrl: !bulkImages[i] && bulkFandomUrls[i] ? bulkFandomUrls[i] : undefined,
         category: finalCat,
         source: activeSource,
       });
     }
     setBulkNames("");
     setBulkImages({});
+    setBulkFandomUrls({});
     setBulkCategory("Geral");
     setBulkNewCategoryInput("");
   };
