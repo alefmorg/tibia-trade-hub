@@ -122,6 +122,8 @@ const ItemsAdminPanel = () => {
   // tier removido do form de criação — só configurável no edit
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [fandomUrl, setFandomUrl] = useState<string | null>(null);
+  const [fandomLoading, setFandomLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Bulk
@@ -129,6 +131,8 @@ const ItemsAdminPanel = () => {
   const [bulkCategory, setBulkCategory] = useState("Geral");
   const [bulkNewCategoryInput, setBulkNewCategoryInput] = useState("");
   const [bulkImages, setBulkImages] = useState<Record<number, File>>({});
+  const [bulkFandomUrls, setBulkFandomUrls] = useState<Record<number, string>>({});
+  const [bulkFandomLoading, setBulkFandomLoading] = useState(false);
   const bulkFileRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   // Edit dialog state (inline)
