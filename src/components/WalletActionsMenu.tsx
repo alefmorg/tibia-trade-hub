@@ -24,12 +24,33 @@ const WalletActionsMenu = () => {
   const purchaseVip = usePurchaseVip();
 
   // Intermédio
+  const [step, setStep] = useState(1);
   const [type, setType] = useState<"buy" | "sell" | "trade">("buy");
   const [itemDesc, setItemDesc] = useState("");
   const [estValue, setEstValue] = useState("");
-  const [contact, setContact] = useState("");
+  const [contactPlatform, setContactPlatform] = useState<"discord" | "whatsapp" | "instagram" | "char">("discord");
+  const [contactHandle, setContactHandle] = useState("");
   const [notes, setNotes] = useState("");
+  const [agree, setAgree] = useState(false);
   const createInter = useCreateIntermediation();
+
+  const contactInfo = useMemo(() => {
+    const prefix: Record<string, string> = { discord: "Discord: ", whatsapp: "WhatsApp: ", instagram: "@", char: "Char: " };
+    return contactHandle.trim() ? `${prefix[contactPlatform]}${contactHandle.trim().replace(/^@/, "")}` : "";
+  }, [contactPlatform, contactHandle]);
+
+  const feeEstimate = useMemo(() => {
+    const v = estValue.toLowerCase().replace(/[^0-9.kk]/g, "");
+    const num = parseFloat(v) * (v.includes("kk") ? 1000 : v.includes("k") ? 1 : 0.001);
+    if (!num || isNaN(num)) return null;
+    const pct = num < 50 ? 5 : num < 200 ? 4 : num < 1000 ? 3 : 2;
+    return { pct, fee: Math.round(num * pct) / 100 };
+  }, [estValue]);
+
+  const resetInter = () => {
+    setStep(1); setType("buy"); setItemDesc(""); setEstValue("");
+    setContactPlatform("discord"); setContactHandle(""); setNotes(""); setAgree(false);
+  };
 
   // Doação
   const [donateAmount, setDonateAmount] = useState(50);
@@ -37,13 +58,13 @@ const WalletActionsMenu = () => {
   const donate = useDonate();
 
   const submitInter = () => {
-    if (!itemDesc.trim() || !contact.trim()) return;
+    if (!itemDesc.trim() || !contactInfo) return;
     createInter.mutate(
-      { type, item_description: itemDesc.trim(), estimated_value: estValue.trim() || undefined, contact_info: contact.trim(), notes: notes.trim() || undefined },
+      { type, item_description: itemDesc.trim(), estimated_value: estValue.trim() || undefined, contact_info: contactInfo, notes: notes.trim() || undefined },
       {
         onSuccess: () => {
           setInterOpen(false);
-          setItemDesc(""); setEstValue(""); setContact(""); setNotes("");
+          resetInter();
         },
       }
     );
