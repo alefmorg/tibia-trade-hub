@@ -1,285 +1,149 @@
 import { useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 /**
- * Pixel-art avatar picker no estilo Tibia.
- * Renderiza presets como SVG (rects) e permite escolher cor primária.
- * Retorna um data URL SVG via onChange para salvar em profiles.avatar_url.
+ * Modern circular avatar picker.
+ * Uses DiceBear (free public API) to render polished SVG avatars
+ * that fit perfectly inside circular Avatar components.
+ *
+ * URL persisted: full DiceBear SVG URL — works as <img src> directly.
  */
 
-// Cada arte: matriz 12x12 — caracteres:
-// '.'  = transparente
-// 'X'  = cor primária (escolhida)
-// 'O'  = contorno escuro
-// 'S'  = pele clara
-// 'L'  = highlight (clarear primária)
-// 'D'  = sombra (escurecer primária)
-
-const ART_SIZE = 12;
-
-const PRESETS: { id: string; label: string; grid: string[] }[] = [
-  {
-    id: "knight",
-    label: "Knight",
-    grid: [
-      "....OOOO....",
-      "...OXXXXO...",
-      "..OXLLXXXO..",
-      ".OXLLXXXXXO.",
-      ".OXOXXXXOXO.",
-      ".OXOSSSSOXO.",
-      ".OXXSSSSXXO.",
-      ".OXXSSSSXXO.",
-      "..OXXSSXXO..",
-      "...OOXXOO...",
-      "....OXXO....",
-      "....OOOO....",
-    ],
-  },
-  {
-    id: "paladin",
-    label: "Paladin",
-    grid: [
-      "....OOOO....",
-      "...OLXXLO...",
-      "..OLXXXXLO..",
-      ".OXXSSSSXXO.",
-      ".OXSSDDSSXO.",
-      ".OXSSSSSSXO.",
-      "..OXSSSSXO..",
-      "...OXXXXO...",
-      "..OXLXXLXO..",
-      ".OXXXOOXXXO.",
-      ".OXXO..OXXO.",
-      ".OOO....OOO.",
-    ],
-  },
-  {
-    id: "sorcerer",
-    label: "Sorcerer",
-    grid: [
-      ".....OO.....",
-      "....OXXO....",
-      "...OXLXXO...",
-      "..OXXLXXXO..",
-      ".OXXXXXXXXO.",
-      "..OSSSSSSO..",
-      ".OSSDSSDSSO.",
-      ".OSSSSSSSSO.",
-      ".OXSSSSSSXO.",
-      "..OXXXXXXO..",
-      "...OOOOOO...",
-      "............",
-    ],
-  },
-  {
-    id: "druid",
-    label: "Druid",
-    grid: [
-      "....OOOO....",
-      "...OXLLXO...",
-      "..OXXLXXXO..",
-      ".OXXXLXXXXO.",
-      "OXXOOSSOOXXO",
-      "OXXSSSSSSXXO",
-      ".OSSDSSDSSO.",
-      ".OSSSSSSSSO.",
-      "..OSSSSSSO..",
-      "...OXXXXO...",
-      "...OXXXXO...",
-      "....OOOO....",
-    ],
-  },
-  {
-    id: "monk",
-    label: "Monk",
-    grid: [
-      "....SSSS....",
-      "...SSSSSS...",
-      "..SSDSSDSS..",
-      "..SSSSSSSS..",
-      "..SSDOODSS..",
-      "...SSSSSS...",
-      "....OOOO....",
-      "...OXXXXO...",
-      "..OXXLLXXO..",
-      ".OXXXXXXXXO.",
-      ".OXXOOOOXXO.",
-      ".OOO....OOO.",
-    ],
-  },
-  {
-    id: "rogue",
-    label: "Rogue",
-    grid: [
-      "....OOOO....",
-      "...OXXXXO...",
-      "..OXXLLXXO..",
-      ".OXXXXXXXXO.",
-      ".OXOSSSSOXO.",
-      ".OXOSSSSOXO.",
-      "..OSSSSSSO..",
-      "...OSDDSO...",
-      "..OXXXXXXO..",
-      ".OXXOXXOXXO.",
-      ".OXO.OO.OXO.",
-      ".OO........O",
-    ],
-  },
-  {
-    id: "warlord",
-    label: "Warlord",
-    grid: [
-      "...OOOOOO...",
-      "..OXXLLXXO..",
-      ".OXLXXXXLXO.",
-      ".OXXOOOOXXO.",
-      ".OXOSSSSOXO.",
-      ".OXOSDDSOXO.",
-      "..OXSSSSXO..",
-      "..OXXSSXXO..",
-      ".OXXXXXXXXO.",
-      "OXXOOXXOOXXO",
-      "OOO..OO..OOO",
-      ".....OO.....",
-    ],
-  },
-  {
-    id: "mage",
-    label: "Arch Mage",
-    grid: [
-      "......O.....",
-      ".....OXO....",
-      "....OXLXO...",
-      "...OXXXXXO..",
-      "..OXXLXXXXO.",
-      ".OXXXXXXXXXO",
-      "..OOSSSSSOO.",
-      "...OSDSDSO..",
-      "...OSSSSSO..",
-      "...OXSSSXO..",
-      "..OXXXXXXXO.",
-      "..OOOOOOOOO.",
-    ],
-  },
+const STYLES: { id: string; label: string }[] = [
+  { id: "adventurer", label: "Aventureiro" },
+  { id: "lorelei", label: "Lorelei" },
+  { id: "notionists", label: "Notion" },
+  { id: "personas", label: "Personas" },
+  { id: "fun-emoji", label: "Emoji" },
+  { id: "bottts-neutral", label: "Robôs" },
+  { id: "thumbs", label: "Polegares" },
+  { id: "pixel-art", label: "Pixel" },
 ];
 
-const COLORS = [
-  "#22c55e", // verde tibia
-  "#10b981", // emerald
-  "#06b6d4", // cyan
-  "#3b82f6", // blue
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-  "#f59e0b", // amber
-  "#ef4444", // red
-  "#a16207", // brown
-  "#94a3b8", // silver
+// Curated seeds — produce visually distinct, friendly results.
+const SEEDS = [
+  "Atlas", "Nova", "Luna", "Rio", "Sage", "Echo", "Iris", "Kai",
+  "Mira", "Orion", "Zara", "Finn", "Juno", "Leo", "Vale", "Wren",
 ];
 
-const adjust = (hex: string, amt: number) => {
-  const h = hex.replace("#", "");
-  const num = parseInt(h, 16);
-  const r = Math.max(0, Math.min(255, ((num >> 16) & 255) + amt));
-  const g = Math.max(0, Math.min(255, ((num >> 8) & 255) + amt));
-  const b = Math.max(0, Math.min(255, (num & 255) + amt));
-  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
-};
+const BG_COLORS = [
+  "fbbf24", // amber (warning)
+  "f97316", // orange
+  "ef4444", // red
+  "ec4899", // pink
+  "a855f7", // violet
+  "3b82f6", // blue
+  "06b6d4", // cyan
+  "10b981", // emerald
+  "84cc16", // lime
+  "64748b", // slate
+];
 
-const buildSvg = (grid: string[], color: string) => {
-  const px = 4; // pixel size in svg units
-  const size = ART_SIZE * px;
-  const colors: Record<string, string> = {
-    X: color,
-    L: adjust(color, 50),
-    D: adjust(color, -45),
-    O: "#0b0b0b",
-    S: "#f1d3a8",
-  };
-  const rects: string[] = [];
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      const ch = grid[y][x];
-      if (ch === "." || !colors[ch]) continue;
-      rects.push(
-        `<rect x="${x * px}" y="${y * px}" width="${px}" height="${px}" fill="${colors[ch]}"/>`
-      );
-    }
-  }
-  // Background: subtle dark stone
-  const bg = `<rect width="${size}" height="${size}" fill="#181818"/>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges">${bg}${rects.join("")}</svg>`;
-};
+const dicebearUrl = (style: string, seed: string, bg: string) =>
+  `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=${bg}&radius=50&size=160`;
 
-export const buildAvatarDataUrl = (presetId: string, color: string) => {
-  const p = PRESETS.find((x) => x.id === presetId) || PRESETS[0];
-  const svg = buildSvg(p.grid, color);
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
+export const buildAvatarDataUrl = (style: string, seed: string, bg = BG_COLORS[0]) =>
+  dicebearUrl(style || STYLES[0].id, seed || SEEDS[0], bg);
 
 interface PixelAvatarPickerProps {
-  value?: string | null; // current data url
-  onChange: (dataUrl: string, meta: { presetId: string; color: string }) => void;
+  value?: string | null;
+  onChange: (url: string, meta: { style: string; seed: string; bg: string }) => void;
 }
 
 const PixelAvatarPicker = ({ value, onChange }: PixelAvatarPickerProps) => {
-  const [presetId, setPresetId] = useState<string>(PRESETS[0].id);
-  const [color, setColor] = useState<string>(COLORS[0]);
+  const [style, setStyle] = useState<string>(STYLES[0].id);
+  const [seed, setSeed] = useState<string>(SEEDS[0]);
+  const [bg, setBg] = useState<string>(BG_COLORS[0]);
 
-  const previewUrl = useMemo(() => buildAvatarDataUrl(presetId, color), [presetId, color]);
+  const previewUrl = useMemo(() => dicebearUrl(style, seed, bg), [style, seed, bg]);
 
-  const apply = (nextPreset = presetId, nextColor = color) => {
-    const url = buildAvatarDataUrl(nextPreset, nextColor);
-    onChange(url, { presetId: nextPreset, color: nextColor });
+  const apply = (nextStyle = style, nextSeed = seed, nextBg = bg) => {
+    const url = dicebearUrl(nextStyle, nextSeed, nextBg);
+    onChange(url, { style: nextStyle, seed: nextSeed, bg: nextBg });
+  };
+
+  const randomize = () => {
+    const s = STYLES[Math.floor(Math.random() * STYLES.length)].id;
+    const sd = Math.random().toString(36).slice(2, 10);
+    const b = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+    setStyle(s); setSeed(sd); setBg(b);
+    apply(s, sd, b);
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       {/* Preview */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4 rounded-2xl border border-border/60 bg-gradient-to-br from-card/60 to-card/30 p-4">
         <div
-          className="h-20 w-20 shrink-0 overflow-hidden"
-          style={{
-            borderRadius: 4,
-            boxShadow: "0 0 0 2px hsl(var(--border)), inset 0 0 0 2px #0b0b0b",
-            imageRendering: "pixelated",
-          }}
+          className="h-24 w-24 shrink-0 rounded-full overflow-hidden ring-2 ring-warning/40 shadow-[0_8px_24px_-8px_hsl(var(--warning)/0.45)]"
+          style={{ background: `#${bg}` }}
         >
-          <img src={previewUrl} alt="Preview" className="h-full w-full" style={{ imageRendering: "pixelated" }} />
+          <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-pixel">
-            Pré-visualização
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+            Seu avatar
           </p>
-          <p className="text-xs text-foreground/80 mt-1">
-            Escolha um sprite e uma cor para o seu avatar pixel art.
+          <p className="text-sm text-foreground/90 mt-1 leading-snug">
+            Personalize com estilo, variação e cor de fundo. Tudo encaixa perfeitamente no círculo do seu perfil.
           </p>
+          <Button type="button" size="sm" variant="outline" className="mt-2 h-7 text-xs" onClick={randomize}>
+            <Shuffle className="h-3 w-3 mr-1.5" /> Sortear
+          </Button>
         </div>
       </div>
 
-      {/* Sprites */}
+      {/* Styles */}
       <div>
-        <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-pixel mb-2">Sprites</p>
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-          {PRESETS.map((p) => {
-            const url = buildAvatarDataUrl(p.id, color);
-            const active = p.id === presetId;
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Estilo</p>
+        <div className="flex flex-wrap gap-1.5">
+          {STYLES.map((s) => {
+            const active = s.id === style;
             return (
               <button
-                key={p.id}
+                key={s.id}
                 type="button"
-                onClick={() => { setPresetId(p.id); apply(p.id, color); }}
+                onClick={() => { setStyle(s.id); apply(s.id, seed, bg); }}
                 className={cn(
-                  "relative aspect-square overflow-hidden transition-all",
-                  active ? "ring-2 ring-warning" : "ring-1 ring-border hover:ring-foreground/40"
+                  "px-3 py-1.5 rounded-full text-xs font-medium transition-all border",
+                  active
+                    ? "bg-warning text-warning-foreground border-warning shadow-sm"
+                    : "bg-card/60 text-muted-foreground border-border hover:border-warning/40 hover:text-foreground"
                 )}
-                style={{ borderRadius: 3 }}
-                title={p.label}
               >
-                <img src={url} alt={p.label} className="h-full w-full" style={{ imageRendering: "pixelated" }} />
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Variations (seeds) */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Variações</p>
+        <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
+          {SEEDS.map((sd) => {
+            const url = dicebearUrl(style, sd, bg);
+            const active = sd === seed;
+            return (
+              <button
+                key={sd}
+                type="button"
+                onClick={() => { setSeed(sd); apply(style, sd, bg); }}
+                className={cn(
+                  "relative aspect-square rounded-full overflow-hidden transition-all",
+                  active
+                    ? "ring-2 ring-warning ring-offset-2 ring-offset-background scale-105"
+                    : "ring-1 ring-border hover:ring-warning/50 hover:scale-105"
+                )}
+                style={{ background: `#${bg}` }}
+                title={sd}
+              >
+                <img src={url} alt={sd} className="h-full w-full object-cover" loading="lazy" />
                 {active && (
-                  <span className="absolute top-0.5 right-0.5 inline-flex h-3.5 w-3.5 items-center justify-center bg-warning text-warning-foreground" style={{ borderRadius: 2 }}>
+                  <span className="absolute -top-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-warning text-warning-foreground shadow">
                     <Check className="h-2.5 w-2.5" strokeWidth={3} />
                   </span>
                 )}
@@ -289,25 +153,27 @@ const PixelAvatarPicker = ({ value, onChange }: PixelAvatarPickerProps) => {
         </div>
       </div>
 
-      {/* Colors */}
+      {/* Background colors */}
       <div>
-        <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-pixel mb-2">Cor</p>
-        <div className="flex flex-wrap gap-1.5">
-          {COLORS.map((c) => {
-            const active = c === color;
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Cor de fundo</p>
+        <div className="flex flex-wrap gap-2">
+          {BG_COLORS.map((c) => {
+            const active = c === bg;
             return (
               <button
                 key={c}
                 type="button"
-                onClick={() => { setColor(c); apply(presetId, c); }}
+                onClick={() => { setBg(c); apply(style, seed, c); }}
                 className={cn(
-                  "h-7 w-7 transition-all relative",
-                  active ? "ring-2 ring-warning ring-offset-2 ring-offset-background" : "ring-1 ring-border hover:scale-110"
+                  "h-8 w-8 rounded-full transition-all relative",
+                  active
+                    ? "ring-2 ring-warning ring-offset-2 ring-offset-background scale-110"
+                    : "ring-1 ring-border hover:scale-110"
                 )}
-                style={{ background: c, borderRadius: 3, boxShadow: "inset 0 0 0 2px rgba(0,0,0,0.35)" }}
-                title={c}
+                style={{ background: `#${c}` }}
+                title={`#${c}`}
               >
-                {active && <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto" strokeWidth={3} />}
+                {active && <Check className="h-4 w-4 text-white absolute inset-0 m-auto drop-shadow" strokeWidth={3} />}
               </button>
             );
           })}

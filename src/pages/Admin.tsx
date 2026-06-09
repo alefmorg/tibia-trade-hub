@@ -1118,7 +1118,7 @@ const Admin = () => {
                   <Table>
                     <TableHeader><TableRow className="border-border/60">
                       <TableHead className="text-muted-foreground text-xs">Usuário</TableHead>
-                      <TableHead className="text-muted-foreground text-xs">Saldo (Rubini Coins)</TableHead>
+                      <TableHead className="text-muted-foreground text-xs">Saldo (RT Coin)</TableHead>
                       <TableHead className="text-muted-foreground text-xs">Atualizado</TableHead>
                     </TableRow></TableHeader>
                     <TableBody>
