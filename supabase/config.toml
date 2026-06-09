@@ -11,3 +11,5 @@ project_id = "ysfinsdtmqasbkapaeqe"
     verify_jwt = false
   [functions.fetch-tibia-image]
     verify_jwt = false
+  [functions.create-donation-checkout]
+    verify_jwt = false
