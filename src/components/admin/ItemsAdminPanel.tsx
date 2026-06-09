@@ -20,8 +20,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem as SItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { GripVertical, ImagePlus, Plus, Search, Trash2, Upload, Image as ImageIcon, Check, X, Pencil } from "lucide-react";
+import { GripVertical, ImagePlus, Plus, Search, Trash2, Upload, Image as ImageIcon, Check, X, Pencil, Sparkles, Loader2, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase-client";
+import { toast } from "sonner";
 
 type Mode = "single" | "bulk";
 
