@@ -13,31 +13,33 @@ import { Button } from "@/components/ui/button";
 
 const STYLES: { id: string; label: string }[] = [
   { id: "pixel-art", label: "Pixel Hero" },
-  { id: "adventurer", label: "Aventureiro" },
+  { id: "pixel-art-neutral", label: "Pixel Neutro" },
   { id: "bottts", label: "Criatura" },
+  { id: "adventurer", label: "Aventureiro" },
   { id: "big-ears", label: "Goblin" },
   { id: "micah", label: "Bardo" },
-  { id: "open-peeps", label: "Vilarejo" },
 ];
 
-// Nomes de personagens estilo Tibia/RPG — geram sprites únicos.
+// Classes e personagens icônicos de Tibia/RPG — geram sprites únicos por seed.
 const SEEDS = [
+  "Knight", "EliteKnight", "RoyalPaladin", "MasterSorcerer", "ElderDruid",
   "Bozol", "Ferumbras", "Morgaroth", "Ghazbaran", "Orshabaal",
-  "Zulazza", "Urgith", "Drakon", "Eldrin", "Kaelar",
-  "Mythras", "Valdor", "Throgar", "Naelis", "Sylvar", "Brakon",
+  "Zulazza", "Urgith", "Drakon", "Demon", "Hydra",
+  "Necromancer",
 ];
 
+// Paleta medieval/Tibia: pergaminho, sangue, bronze, esmeralda, royal blue, púrpura mística, dourado, terra.
 const BG_COLORS = [
-  "fbbf24", // amber (warning)
-  "f97316", // orange
-  "ef4444", // red
-  "ec4899", // pink
-  "a855f7", // violet
-  "3b82f6", // blue
-  "06b6d4", // cyan
-  "10b981", // emerald
-  "84cc16", // lime
-  "64748b", // slate
+  "5b3a1e", // brown leather
+  "8b5a2b", // bronze
+  "a8323a", // blood red
+  "c98a3a", // gold
+  "3a5f3a", // forest green
+  "2f4858", // steel blue
+  "4b2e83", // mystic purple
+  "1f2937", // shadow
+  "d4b27a", // parchment
+  "0f766e", // emerald
 ];
 
 const dicebearUrl = (style: string, seed: string, bg: string) =>

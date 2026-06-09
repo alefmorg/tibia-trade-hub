@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { ArrowRightLeft, Check, X, Trash2, Clock, MessageSquare, ShoppingCart, Tag, Repeat, User, Phone, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRightLeft, Check, X, Trash2, Clock, MessageSquare, ShoppingCart, Tag, Repeat, User, Phone, FileText, Loader2, CheckCircle2, Copy, Search, ArrowUpDown, Flame, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useAllIntermediations, useUpdateIntermediation, useDeleteIntermediation } from "@/hooks/useUserActions";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const STATUS_META: Record<string, { label: string; chip: string; dot: string; ring: string }> = {
   pending:     { label: "Pendente",     chip: "bg-warning/10 text-warning border-warning/30",                  dot: "bg-warning",       ring: "ring-warning/30" },
@@ -28,6 +30,8 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
   const [noteFor, setNoteFor] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [search, setSearch] = useState("");
+  const [sortDesc, setSortDesc] = useState(true);
 
   const counts = {
     all: requests?.length || 0,
@@ -37,7 +41,44 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
     rejected: requests?.filter((r) => r.status === "rejected").length || 0,
   };
 
-  const filtered = (requests || []).filter((r) => filter === "all" || r.status === filter);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = (requests || [])
+      .filter((r) => filter === "all" || r.status === filter)
+      .filter((r) => {
+        if (!q) return true;
+        const name = getProfileName(r.user_id).toLowerCase();
+        return (
+          name.includes(q) ||
+          r.item_description?.toLowerCase().includes(q) ||
+          r.contact_info?.toLowerCase().includes(q) ||
+          r.estimated_value?.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const da = new Date(a.created_at).getTime();
+        const db = new Date(b.created_at).getTime();
+        return sortDesc ? db - da : da - db;
+      });
+    return list;
+  }, [requests, filter, search, sortDesc, getProfileName]);
+
+  const copy = async (text: string, label = "Copiado") => {
+    try { await navigator.clipboard.writeText(text); toast.success(label); }
+    catch { toast.error("Falha ao copiar"); }
+  };
+
+  const ageDays = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+
+  const contactLink = (raw: string): string | null => {
+    const v = raw.trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    if (/^\d{10,15}$/.test(v.replace(/\D/g, "")) && v.replace(/\D/g, "").length >= 10) {
+      return `https://wa.me/${v.replace(/\D/g, "")}`;
+    }
+    if (/^@?[\w.]+$/.test(v) && v.includes(".")) return `https://instagram.com/${v.replace("@", "")}`;
+    return null;
+  };
 
   return (
     <div className="space-y-5">
@@ -79,7 +120,7 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
 
       {/* LIST */}
       <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-card/80 to-card/40 overflow-hidden">
-        <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between gap-3 bg-gradient-to-r from-primary/[0.06] to-transparent">
+        <div className="px-5 py-4 border-b border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-primary/[0.06] to-transparent">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
               <ArrowRightLeft className="h-4 w-4 text-primary" />
@@ -87,15 +128,30 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
             <div>
               <h3 className="text-sm font-semibold text-foreground">Intermediações</h3>
               <p className="text-[11px] text-muted-foreground">
-                {filter === "all" ? `${counts.all} solicitações` : `${filtered.length} filtradas`}
+                {filter === "all" && !search ? `${counts.all} solicitações` : `${filtered.length} resultados`}
               </p>
             </div>
           </div>
-          {filter !== "all" && (
-            <Button size="sm" variant="ghost" className="text-xs h-7" onClick={() => setFilter("all")}>
-              Limpar filtro
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar item, user, contato..."
+                className="h-8 pl-8 text-xs"
+              />
+            </div>
+            <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5 shrink-0" onClick={() => setSortDesc(!sortDesc)} title="Ordenar por data">
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              {sortDesc ? "Recentes" : "Antigos"}
             </Button>
-          )}
+            {(filter !== "all" || search) && (
+              <Button size="sm" variant="ghost" className="text-xs h-8" onClick={() => { setFilter("all"); setSearch(""); }}>
+                Limpar
+              </Button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -117,9 +173,11 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
             {filtered.map((r) => {
               const status = STATUS_META[r.status] || STATUS_META.pending;
               const type = TYPE_META[r.type] || TYPE_META.trade;
+              const days = ageDays(r.created_at);
+              const isUrgent = (r.status === "pending" || r.status === "in_progress") && days >= 2;
+              const link = contactLink(r.contact_info);
               return (
-                <div key={r.id} className={cn("p-5 hover:bg-secondary/10 transition-colors relative")}>
-                  {/* status accent bar */}
+                <div key={r.id} className={cn("p-5 hover:bg-secondary/10 transition-colors relative", isUrgent && "bg-warning/[0.03]")}>
                   <div className={cn("absolute left-0 top-0 bottom-0 w-1", status.dot)} />
 
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -131,6 +189,11 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
                       <span className={cn("inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border", type.cls)}>
                         {type.icon} {type.label}
                       </span>
+                      {isUrgent && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border bg-orange-500/10 text-orange-400 border-orange-500/30 animate-pulse">
+                          <Flame className="h-3 w-3" /> {days}d sem resposta
+                        </span>
+                      )}
                     </div>
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
                       <Clock className="h-3 w-3" />
@@ -143,16 +206,28 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
                       <User className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{getProfileName(r.user_id)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{getProfileName(r.user_id)}</p>
+                        <button onClick={() => copy(r.user_id, "ID copiado")} className="text-[10px] text-muted-foreground hover:text-primary" title="Copiar user id">
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      </div>
                       <p className="text-sm text-foreground/90 mt-0.5 leading-snug">{r.item_description}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                     {r.estimated_value && (
-                      <InfoRow icon={<Tag className="h-3 w-3" />} label="Valor estimado" value={r.estimated_value} />
+                      <InfoRow icon={<Tag className="h-3 w-3" />} label="Valor" value={r.estimated_value} onCopy={() => copy(r.estimated_value!)} />
                     )}
-                    <InfoRow icon={<Phone className="h-3 w-3" />} label="Contato" value={r.contact_info} accent />
+                    <InfoRow
+                      icon={<Phone className="h-3 w-3" />}
+                      label="Contato"
+                      value={r.contact_info}
+                      accent
+                      onCopy={() => copy(r.contact_info)}
+                      openHref={link || undefined}
+                    />
                   </div>
 
                   {r.notes && (
@@ -248,12 +323,23 @@ function StatCard({ icon, label, value, tone, active, onClick }: { icon: React.R
   );
 }
 
-function InfoRow({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent?: boolean }) {
+function InfoRow({ icon, label, value, accent, onCopy, openHref }: { icon: React.ReactNode; label: string; value: string; accent?: boolean; onCopy?: () => void; openHref?: string }) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/40">
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}:</span>
-      <span className={cn("text-xs font-medium truncate", accent ? "text-primary" : "text-foreground")}>{value}</span>
+    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary/30 border border-border/40 group">
+      <span className="text-muted-foreground shrink-0">{icon}</span>
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">{label}:</span>
+      <span className={cn("text-xs font-medium truncate flex-1", accent ? "text-primary" : "text-foreground")}>{value}</span>
+      {openHref && (
+        <a href={openHref} target="_blank" rel="noopener noreferrer" className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-opacity" title="Abrir">
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
+      {onCopy && (
+        <button onClick={onCopy} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary transition-opacity" title="Copiar">
+          <Copy className="h-3 w-3" />
+        </button>
+      )}
     </div>
   );
 }
+
