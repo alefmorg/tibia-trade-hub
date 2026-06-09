@@ -12,20 +12,19 @@ import { Button } from "@/components/ui/button";
  */
 
 const STYLES: { id: string; label: string }[] = [
+  { id: "pixel-art", label: "Pixel Hero" },
   { id: "adventurer", label: "Aventureiro" },
-  { id: "lorelei", label: "Lorelei" },
-  { id: "notionists", label: "Notion" },
-  { id: "personas", label: "Personas" },
-  { id: "fun-emoji", label: "Emoji" },
-  { id: "bottts-neutral", label: "Robôs" },
-  { id: "thumbs", label: "Polegares" },
-  { id: "pixel-art", label: "Pixel" },
+  { id: "bottts", label: "Criatura" },
+  { id: "big-ears", label: "Goblin" },
+  { id: "micah", label: "Bardo" },
+  { id: "open-peeps", label: "Vilarejo" },
 ];
 
-// Curated seeds — produce visually distinct, friendly results.
+// Nomes de personagens estilo Tibia/RPG — geram sprites únicos.
 const SEEDS = [
-  "Atlas", "Nova", "Luna", "Rio", "Sage", "Echo", "Iris", "Kai",
-  "Mira", "Orion", "Zara", "Finn", "Juno", "Leo", "Vale", "Wren",
+  "Bozol", "Ferumbras", "Morgaroth", "Ghazbaran", "Orshabaal",
+  "Zulazza", "Urgith", "Drakon", "Eldrin", "Kaelar",
+  "Mythras", "Valdor", "Throgar", "Naelis", "Sylvar", "Brakon",
 ];
 
 const BG_COLORS = [
