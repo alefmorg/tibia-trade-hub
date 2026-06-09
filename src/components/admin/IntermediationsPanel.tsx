@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { ArrowRightLeft, Check, X, Trash2, Clock, MessageSquare, ShoppingCart, Tag, Repeat, User, Phone, FileText, Loader2, CheckCircle2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRightLeft, Check, X, Trash2, Clock, MessageSquare, ShoppingCart, Tag, Repeat, User, Phone, FileText, Loader2, CheckCircle2, Copy, Search, ArrowUpDown, Flame, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useAllIntermediations, useUpdateIntermediation, useDeleteIntermediation } from "@/hooks/useUserActions";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const STATUS_META: Record<string, { label: string; chip: string; dot: string; ring: string }> = {
   pending:     { label: "Pendente",     chip: "bg-warning/10 text-warning border-warning/30",                  dot: "bg-warning",       ring: "ring-warning/30" },
@@ -28,6 +30,8 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
   const [noteFor, setNoteFor] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [search, setSearch] = useState("");
+  const [sortDesc, setSortDesc] = useState(true);
 
   const counts = {
     all: requests?.length || 0,
@@ -37,7 +41,44 @@ export default function IntermediationsPanel({ getProfileName }: { getProfileNam
     rejected: requests?.filter((r) => r.status === "rejected").length || 0,
   };
 
-  const filtered = (requests || []).filter((r) => filter === "all" || r.status === filter);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = (requests || [])
+      .filter((r) => filter === "all" || r.status === filter)
+      .filter((r) => {
+        if (!q) return true;
+        const name = getProfileName(r.user_id).toLowerCase();
+        return (
+          name.includes(q) ||
+          r.item_description?.toLowerCase().includes(q) ||
+          r.contact_info?.toLowerCase().includes(q) ||
+          r.estimated_value?.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => {
+        const da = new Date(a.created_at).getTime();
+        const db = new Date(b.created_at).getTime();
+        return sortDesc ? db - da : da - db;
+      });
+    return list;
+  }, [requests, filter, search, sortDesc, getProfileName]);
+
+  const copy = async (text: string, label = "Copiado") => {
+    try { await navigator.clipboard.writeText(text); toast.success(label); }
+    catch { toast.error("Falha ao copiar"); }
+  };
+
+  const ageDays = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+
+  const contactLink = (raw: string): string | null => {
+    const v = raw.trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    if (/^\d{10,15}$/.test(v.replace(/\D/g, "")) && v.replace(/\D/g, "").length >= 10) {
+      return `https://wa.me/${v.replace(/\D/g, "")}`;
+    }
+    if (/^@?[\w.]+$/.test(v) && v.includes(".")) return `https://instagram.com/${v.replace("@", "")}`;
+    return null;
+  };
 
   return (
     <div className="space-y-5">
