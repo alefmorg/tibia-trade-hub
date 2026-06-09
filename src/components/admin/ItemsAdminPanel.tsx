@@ -181,6 +181,7 @@ const ItemsAdminPanel = () => {
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
+      setFandomUrl(null);
     }
   };
 
