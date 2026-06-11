@@ -1,4 +1,4 @@
-import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Home } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Home, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
@@ -6,6 +6,7 @@ import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { formatDisplayPrice } from "@/lib/price-utils";
+import { useEffect, useState } from "react";
 
 interface TradeCardProps {
   id?: string;
@@ -23,7 +24,21 @@ interface TradeCardProps {
   featured?: boolean;
   tier?: number | null;
   category?: string;
+  expiresAt?: string | null;
+  featuredUntil?: string | null;
   profiles?: { username: string; avatar_url: string | null };
+}
+
+function formatRemaining(ms: number): string {
+  if (ms <= 0) return "Expirado";
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `${s}s`;
 }
 
 const TradeCard = ({
