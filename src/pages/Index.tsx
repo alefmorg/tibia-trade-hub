@@ -242,6 +242,8 @@ const Index = () => {
                           profiles={ad.profiles}
                           userId={ad.user_id}
                           category={ad.category}
+                          expiresAt={(ad as any).expires_at}
+                          featuredUntil={(ad as any).featured_until}
                         />
                       );
                     }
@@ -504,7 +506,7 @@ const Index = () => {
                     </div>
                     <div className="trade-card-list-featured">
                       {featuredAds.map((ad) => (
-                        <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
+                        <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} featured tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} expiresAt={(ad as any).expires_at} featuredUntil={(ad as any).featured_until} />
                       ))}
                     </div>
                   </div>
@@ -512,7 +514,7 @@ const Index = () => {
                 {regularAds.length > 0 ? (
                   <div className="trade-card-list">
                     {regularAds.map((ad) => (
-                      <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} />
+                      <TradeCard key={ad.id} id={ad.id} title={ad.title} type={ad.type as "selling" | "buying"} price={ad.price} currency={ad.currency} world={ad.world} pvpType={ad.pvp_type} date={ad.created_at} imageUrl={ad.image_url} likes={ad.likes_count} tier={(ad as any).tier} profiles={ad.profiles} userId={ad.user_id} category={ad.category} expiresAt={(ad as any).expires_at} featuredUntil={(ad as any).featured_until} />
                     ))}
                   </div>
                 ) : featuredAds.length === 0 ? (

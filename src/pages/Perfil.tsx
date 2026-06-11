@@ -719,6 +719,8 @@ const Perfil = () => {
                             profiles={ad.profiles}
                             userId={ad.user_id}
                             category={(ad as any).category}
+                            expiresAt={(ad as any).expires_at}
+                            featuredUntil={(ad as any).featured_until}
                           />
                           {isOwnProfile && !ad.featured && activePlans.length > 0 && (
                             <button
@@ -784,6 +786,8 @@ const Perfil = () => {
                         profiles={ad.profiles}
                         userId={ad.user_id}
                         category={(ad as any).category}
+                        expiresAt={(ad as any).expires_at}
+                        featuredUntil={(ad as any).featured_until}
                       />
                     ))}
                   </div>

@@ -1,4 +1,4 @@
-import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Home } from "lucide-react";
+import { Heart, Calendar, User, MessageCircle, Trash2, HandCoins, Home, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { useToggleFavorite, useUserFavorites, useDeleteAd } from "@/hooks/useAds";
@@ -6,6 +6,7 @@ import { useStartConversation } from "@/hooks/useMessages";
 import { useAuth } from "@/hooks/useAuth";
 import { useSiteAssets } from "@/hooks/useSiteAssets";
 import { formatDisplayPrice } from "@/lib/price-utils";
+import { useEffect, useState } from "react";
 
 interface TradeCardProps {
   id?: string;
@@ -23,7 +24,21 @@ interface TradeCardProps {
   featured?: boolean;
   tier?: number | null;
   category?: string;
+  expiresAt?: string | null;
+  featuredUntil?: string | null;
   profiles?: { username: string; avatar_url: string | null };
+}
+
+function formatRemaining(ms: number): string {
+  if (ms <= 0) return "Expirado";
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `${s}s`;
 }
 
 const TradeCard = ({
@@ -42,6 +57,8 @@ const TradeCard = ({
   featured,
   tier,
   category,
+  expiresAt,
+  featuredUntil,
   profiles
 }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
@@ -62,6 +79,24 @@ const TradeCard = ({
     hour: "2-digit",
     minute: "2-digit"
   });
+
+  // Determina o alvo do contador: destaque tem prioridade sobre a expiração normal
+  const featuredUntilMs = featuredUntil ? new Date(featuredUntil).getTime() : 0;
+  const isFeaturedActive = featured && featuredUntilMs > Date.now();
+  const normalExpiresMs = expiresAt
+    ? new Date(expiresAt).getTime()
+    : new Date(date).getTime() + 7 * 24 * 60 * 60 * 1000;
+  const targetMs = isFeaturedActive ? featuredUntilMs : normalExpiresMs;
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const i = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(i);
+  }, []);
+  const remainingMs = targetMs - now;
+  const remainingLabel = formatRemaining(remainingMs);
+  const isUrgent = remainingMs > 0 && remainingMs < 24 * 60 * 60 * 1000;
+  const isExpired = remainingMs <= 0;
 
   const isAcceptingOffers = !price || price === "Aceita ofertas";
   const isOwnAd = user && userId === user.id;
@@ -117,10 +152,28 @@ const TradeCard = ({
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
 
-        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
-          <Calendar className="h-3 w-3 shrink-0" />
-          {displayDate}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
+            <Calendar className="h-3 w-3 shrink-0" />
+            {displayDate}
+          </span>
+          <span
+            className={cn(
+              "text-[10px] font-semibold flex items-center gap-1 whitespace-nowrap px-1.5 py-0.5 rounded border",
+              isExpired
+                ? "border-destructive/40 bg-destructive/10 text-destructive"
+                : isFeaturedActive
+                  ? "border-warning/40 bg-warning/10 text-warning"
+                  : isUrgent
+                    ? "border-destructive/40 bg-destructive/10 text-destructive"
+                    : "border-primary/30 bg-primary/10 text-primary"
+            )}
+            title={isFeaturedActive ? "Tempo restante de destaque" : "Tempo restante do anúncio"}
+          >
+            {isFeaturedActive ? <Star className="h-3 w-3 shrink-0" /> : <Clock className="h-3 w-3 shrink-0" />}
+            {isExpired ? "Expirado" : `${isFeaturedActive ? "Destaque " : ""}${remainingLabel}`}
+          </span>
+        </div>
       </div>
 
       <div className="px-4 pt-6 pb-4 text-center flex flex-col items-center justify-center min-h-[188px] relative z-10">
