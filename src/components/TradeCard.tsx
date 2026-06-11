@@ -152,10 +152,28 @@ const TradeCard = ({
           {type === "selling" ? "Vendendo" : "Comprando"}
         </span>
 
-        <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
-          <Calendar className="h-3 w-3 shrink-0" />
-          {displayDate}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-[10px] text-foreground/80 flex items-center gap-1 whitespace-nowrap">
+            <Calendar className="h-3 w-3 shrink-0" />
+            {displayDate}
+          </span>
+          <span
+            className={cn(
+              "text-[10px] font-semibold flex items-center gap-1 whitespace-nowrap px-1.5 py-0.5 rounded border",
+              isExpired
+                ? "border-destructive/40 bg-destructive/10 text-destructive"
+                : isFeaturedActive
+                  ? "border-warning/40 bg-warning/10 text-warning"
+                  : isUrgent
+                    ? "border-destructive/40 bg-destructive/10 text-destructive"
+                    : "border-primary/30 bg-primary/10 text-primary"
+            )}
+            title={isFeaturedActive ? "Tempo restante de destaque" : "Tempo restante do anúncio"}
+          >
+            {isFeaturedActive ? <Star className="h-3 w-3 shrink-0" /> : <Clock className="h-3 w-3 shrink-0" />}
+            {isExpired ? "Expirado" : `${isFeaturedActive ? "Destaque " : ""}${remainingLabel}`}
+          </span>
+        </div>
       </div>
 
       <div className="px-4 pt-6 pb-4 text-center flex flex-col items-center justify-center min-h-[188px] relative z-10">
