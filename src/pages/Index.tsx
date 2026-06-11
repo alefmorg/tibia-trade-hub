@@ -242,6 +242,8 @@ const Index = () => {
                           profiles={ad.profiles}
                           userId={ad.user_id}
                           category={ad.category}
+                          expiresAt={(ad as any).expires_at}
+                          featuredUntil={(ad as any).featured_until}
                         />
                       );
                     }
