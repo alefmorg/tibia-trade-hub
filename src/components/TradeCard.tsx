@@ -57,6 +57,8 @@ const TradeCard = ({
   featured,
   tier,
   category,
+  expiresAt,
+  featuredUntil,
   profiles
 }: TradeCardProps) => {
   const toggleFavorite = useToggleFavorite();
@@ -77,6 +79,24 @@ const TradeCard = ({
     hour: "2-digit",
     minute: "2-digit"
   });
+
+  // Determina o alvo do contador: destaque tem prioridade sobre a expiração normal
+  const featuredUntilMs = featuredUntil ? new Date(featuredUntil).getTime() : 0;
+  const isFeaturedActive = featured && featuredUntilMs > Date.now();
+  const normalExpiresMs = expiresAt
+    ? new Date(expiresAt).getTime()
+    : new Date(date).getTime() + 7 * 24 * 60 * 60 * 1000;
+  const targetMs = isFeaturedActive ? featuredUntilMs : normalExpiresMs;
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const i = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(i);
+  }, []);
+  const remainingMs = targetMs - now;
+  const remainingLabel = formatRemaining(remainingMs);
+  const isUrgent = remainingMs > 0 && remainingMs < 24 * 60 * 60 * 1000;
+  const isExpired = remainingMs <= 0;
 
   const isAcceptingOffers = !price || price === "Aceita ofertas";
   const isOwnAd = user && userId === user.id;
