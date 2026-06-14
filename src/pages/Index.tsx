@@ -388,7 +388,37 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="container py-6">
+      {/* Toggle Itens vs Houses */}
+      <div className="border-b border-border/60">
+        <div className="container py-3 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setKindFilter("item")}
+            className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all ${
+              kindFilter === "item"
+                ? "bg-primary/15 border-primary/40 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                : "bg-secondary/60 border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🗡️ Itens
+          </button>
+          <button
+            onClick={() => setKindFilter("house")}
+            className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all ${
+              kindFilter === "house"
+                ? "bg-warning/15 border-warning/40 text-warning shadow-[0_0_12px_hsl(var(--warning)/0.15)]"
+                : "bg-secondary/60 border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🏠 Houses
+          </button>
+          <Link
+            to="/houses"
+            className="text-[10px] text-muted-foreground hover:text-primary ml-2 underline-offset-2 hover:underline"
+          >
+            ver página completa →
+          </Link>
+        </div>
+      </div>
         <div className="flex gap-6 items-start">
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 space-y-5 sticky top-20">
