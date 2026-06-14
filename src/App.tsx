@@ -70,6 +70,7 @@ const App = () => (
                 <Route path="/suporte" element={<Suporte />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/go/:slug" element={<AffiliateRedirect />} />
+                <Route path="/houses" element={<Houses />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
