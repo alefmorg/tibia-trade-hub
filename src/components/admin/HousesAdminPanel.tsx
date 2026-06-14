@@ -1,13 +1,14 @@
 import { useState, useMemo } from "react";
-import { useHouses, useImportHouses, useDeleteHouse } from "@/hooks/useHouses";
+import { useHouses, useImportHouses, useDeleteHouse, useBackfillHouseImages } from "@/hooks/useHouses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Trash2, Home, Search, Loader2, ExternalLink } from "lucide-react";
+import { Download, Trash2, Home, Search, Loader2, ExternalLink, Image as ImageIcon } from "lucide-react";
 import { safeHref } from "@/lib/safe-url";
 
 export default function HousesAdminPanel() {
   const { data: houses, isLoading } = useHouses();
   const importMut = useImportHouses();
+  const backfillMut = useBackfillHouseImages();
   const del = useDeleteHouse();
   const [search, setSearch] = useState("");
 
@@ -41,14 +42,26 @@ export default function HousesAdminPanel() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => importMut.mutate()}
-          disabled={importMut.isPending}
-          className="gap-2"
-        >
-          {importMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Importar da TibiaWiki
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            onClick={() => backfillMut.mutate()}
+            disabled={backfillMut.isPending}
+            variant="outline"
+            className="gap-2"
+            title="Busca thumbnails no Tibia Fandom para houses sem imagem (lotes de 80)"
+          >
+            {backfillMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+            Buscar imagens (Fandom)
+          </Button>
+          <Button
+            onClick={() => importMut.mutate()}
+            disabled={importMut.isPending}
+            className="gap-2"
+          >
+            {importMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Importar da TibiaWiki
+          </Button>
+        </div>
       </div>
 
       <div className="relative">
@@ -80,6 +93,13 @@ export default function HousesAdminPanel() {
                     key={h.id}
                     className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/60 p-2.5 text-xs"
                   >
+                    <div className="h-9 w-9 rounded-md bg-secondary border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                      {h.image_url ? (
+                        <img src={h.image_url} alt={h.name} className="h-8 w-8 object-contain" loading="lazy" />
+                      ) : (
+                        <Home className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate">{h.name}</p>
                       <p className="text-[10px] text-muted-foreground">

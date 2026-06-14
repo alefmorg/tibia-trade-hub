@@ -24,6 +24,7 @@ const RifaPage = lazy(() => import("./pages/Rifa"));
 const Suporte = lazy(() => import("./pages/Suporte"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
+const Houses = lazy(() => import("./pages/Houses"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +70,7 @@ const App = () => (
                 <Route path="/suporte" element={<Suporte />} />
                 <Route path="/privacidade" element={<Privacidade />} />
                 <Route path="/go/:slug" element={<AffiliateRedirect />} />
+                <Route path="/houses" element={<Houses />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

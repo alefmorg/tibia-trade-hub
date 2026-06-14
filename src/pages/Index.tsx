@@ -55,6 +55,7 @@ const Index = () => {
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
   const [categoryFilterId, setCategoryFilterId] = useState<string | undefined>();
+  const [kindFilter, setKindFilter] = useState<"item" | "house">("item");
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
@@ -87,7 +88,7 @@ const Index = () => {
   // Reset à página 1 quando filtros/busca mudam
   useEffect(() => {
     setPage(1);
-  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, onlyWithPrice, sortBy]);
+  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, kindFilter, onlyWithPrice, sortBy]);
 
   const {
     data: pagedData,
@@ -99,7 +100,8 @@ const Index = () => {
       type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
       pvpType: pvpFilter,
       world: worldFilter,
-      itemIds,
+      category: kindFilter,
+      itemIds: kindFilter === "item" ? itemIds : undefined,
       onlyWithPrice,
       sortBy,
     },
@@ -383,6 +385,38 @@ const Index = () => {
             <Plus className="h-4 w-4 mr-2" />
             Criar anúncio
           </Button>
+        </div>
+      </div>
+
+      {/* Toggle Itens vs Houses */}
+      <div className="border-b border-border/60">
+        <div className="container py-3 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setKindFilter("item")}
+            className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all ${
+              kindFilter === "item"
+                ? "bg-primary/15 border-primary/40 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+                : "bg-secondary/60 border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🗡️ Itens
+          </button>
+          <button
+            onClick={() => setKindFilter("house")}
+            className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all ${
+              kindFilter === "house"
+                ? "bg-warning/15 border-warning/40 text-warning shadow-[0_0_12px_hsl(var(--warning)/0.15)]"
+                : "bg-secondary/60 border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            🏠 Houses
+          </button>
+          <Link
+            to="/houses"
+            className="text-[10px] text-muted-foreground hover:text-primary ml-2 underline-offset-2 hover:underline"
+          >
+            ver página completa →
+          </Link>
         </div>
       </div>
 
