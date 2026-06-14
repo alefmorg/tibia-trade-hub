@@ -24,6 +24,7 @@ const RifaPage = lazy(() => import("./pages/Rifa"));
 const Suporte = lazy(() => import("./pages/Suporte"));
 const Privacidade = lazy(() => import("./pages/Privacidade"));
 const AffiliateRedirect = lazy(() => import("./pages/AffiliateRedirect"));
+const Houses = lazy(() => import("./pages/Houses"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
