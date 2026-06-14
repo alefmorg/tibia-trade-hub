@@ -88,7 +88,7 @@ const Index = () => {
   // Reset à página 1 quando filtros/busca mudam
   useEffect(() => {
     setPage(1);
-  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, onlyWithPrice, sortBy]);
+  }, [search, typeFilter, pvpFilter, worldFilter, categoryFilterId, kindFilter, onlyWithPrice, sortBy]);
 
   const {
     data: pagedData,
@@ -100,7 +100,8 @@ const Index = () => {
       type: typeFilter === "Vendendo" ? "selling" : typeFilter === "Comprando" ? "buying" : undefined,
       pvpType: pvpFilter,
       world: worldFilter,
-      itemIds,
+      category: kindFilter,
+      itemIds: kindFilter === "item" ? itemIds : undefined,
       onlyWithPrice,
       sortBy,
     },
