@@ -42,14 +42,26 @@ export default function HousesAdminPanel() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => importMut.mutate()}
-          disabled={importMut.isPending}
-          className="gap-2"
-        >
-          {importMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Importar da TibiaWiki
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            onClick={() => backfillMut.mutate()}
+            disabled={backfillMut.isPending}
+            variant="outline"
+            className="gap-2"
+            title="Busca thumbnails no Tibia Fandom para houses sem imagem (lotes de 80)"
+          >
+            {backfillMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+            Buscar imagens (Fandom)
+          </Button>
+          <Button
+            onClick={() => importMut.mutate()}
+            disabled={importMut.isPending}
+            className="gap-2"
+          >
+            {importMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Importar da TibiaWiki
+          </Button>
+        </div>
       </div>
 
       <div className="relative">
