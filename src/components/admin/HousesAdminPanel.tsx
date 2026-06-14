@@ -93,6 +93,13 @@ export default function HousesAdminPanel() {
                     key={h.id}
                     className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/60 p-2.5 text-xs"
                   >
+                    <div className="h-9 w-9 rounded-md bg-secondary border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                      {h.image_url ? (
+                        <img src={h.image_url} alt={h.name} className="h-8 w-8 object-contain" loading="lazy" />
+                      ) : (
+                        <Home className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate">{h.name}</p>
                       <p className="text-[10px] text-muted-foreground">
