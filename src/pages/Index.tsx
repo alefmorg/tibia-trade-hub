@@ -419,6 +419,8 @@ const Index = () => {
           </Link>
         </div>
       </div>
+
+      <div className="container py-6">
         <div className="flex gap-6 items-start">
           {/* Sidebar */}
           <aside className="hidden lg:block w-64 shrink-0 space-y-5 sticky top-20">
