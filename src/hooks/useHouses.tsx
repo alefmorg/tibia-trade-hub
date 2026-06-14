@@ -47,6 +47,50 @@ export const useImportHouses = () => {
   });
 };
 
+// Busca imagens (thumbnail) no Tibia Fandom para houses sem image_url
+export const useBackfillHouseImages = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data: rows, error } = await supabase
+        .from("houses")
+        .select("id,name")
+        .is("image_url", null)
+        .limit(80);
+      if (error) throw error;
+      const houses = (rows || []) as { id: string; name: string }[];
+      if (houses.length === 0) return { updated: 0, processed: 0 };
+
+      let updated = 0;
+      // processa em lotes de 8 para não estourar a edge function
+      for (let i = 0; i < houses.length; i += 8) {
+        const slice = houses.slice(i, i + 8);
+        const { data, error: fnErr } = await supabase.functions.invoke("fetch-tibia-image", {
+          body: { names: slice.map((h) => h.name) },
+        });
+        if (fnErr) continue;
+        const results = (data as any)?.results || [];
+        for (let j = 0; j < slice.length; j++) {
+          const url = results[j]?.url;
+          if (!url) continue;
+          const { error: upErr } = await supabase
+            .from("houses")
+            .update({ image_url: url })
+            .eq("id", slice[j].id);
+          if (!upErr) updated++;
+        }
+      }
+      return { updated, processed: houses.length };
+    },
+    onSuccess: (d) => {
+      toast.success(`Imagens atualizadas: ${d.updated}/${d.processed}`);
+      qc.invalidateQueries({ queryKey: ["houses"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Falha ao buscar imagens"),
+  });
+};
+
+
 export const useDeleteHouse = () => {
   const qc = useQueryClient();
   return useMutation({
