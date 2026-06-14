@@ -55,6 +55,7 @@ const Index = () => {
   const [pvpFilter, setPvpFilter] = useState<string | undefined>();
   const [worldFilter, setWorldFilter] = useState<string | undefined>();
   const [categoryFilterId, setCategoryFilterId] = useState<string | undefined>();
+  const [kindFilter, setKindFilter] = useState<"item" | "house">("item");
   const [onlyWithPrice, setOnlyWithPrice] = useState(false);
   const [sortBy, setSortBy] = useState("most_liked");
   const { user } = useAuth();
