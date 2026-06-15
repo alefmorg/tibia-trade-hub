@@ -476,7 +476,7 @@ const Index = () => {
                 </div>
               </div>
 
-              {(filterOptions && filterOptions.length > 0) && (
+              {kindFilter === "item" && (filterOptions && filterOptions.length > 0) && (
                 <div className="space-y-2">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categorias</h4>
                   <div className="flex flex-wrap gap-1.5">
