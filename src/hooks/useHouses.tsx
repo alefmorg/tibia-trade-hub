@@ -77,7 +77,11 @@ export const useBackfillHouseImages = () => {
             .from("houses")
             .update({ image_url: url })
             .eq("id", slice[j].id);
-          if (!upErr) updated++;
+          if (!upErr) {
+            updated++;
+            // propaga imagem para anúncios já vinculados a essa house
+            await supabase.from("ads").update({ image_url: url }).eq("house_id", slice[j].id);
+          }
         }
       }
       return { updated, processed: houses.length };
