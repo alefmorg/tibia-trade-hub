@@ -28,9 +28,9 @@ async function findImageForName(rawName: string): Promise<{ url: string | null; 
     for (const k of Object.keys(pages)) {
       const p = pages[k];
       if (p?.thumbnail?.source) {
-        // remove sufixo /revision/.../scale-to-width-down/256
-        const clean = p.thumbnail.source.replace(/\/revision\/.*$/, "");
-        return { url: clean, title: p.title || name };
+        // Mantém a URL completa do thumbnail (com /revision/.../?cb=...) — o CDN
+        // do Fandom retorna 404 se o sufixo for removido.
+        return { url: p.thumbnail.source, title: p.title || name };
       }
     }
   } catch (_) {}
