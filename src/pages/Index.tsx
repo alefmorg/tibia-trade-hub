@@ -402,7 +402,7 @@ const Index = () => {
             🗡️ Itens
           </button>
           <button
-            onClick={() => setKindFilter("house")}
+            onClick={() => { setKindFilter("house"); setCategoryFilterId(undefined); }}
             className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl border transition-all ${
               kindFilter === "house"
                 ? "bg-warning/15 border-warning/40 text-warning shadow-[0_0_12px_hsl(var(--warning)/0.15)]"
