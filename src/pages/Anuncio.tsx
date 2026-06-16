@@ -119,9 +119,9 @@ const Anuncio = () => {
           <div className="lg:col-span-2 space-y-4">
             <div className="bg-card/80 border border-border/60 rounded-2xl overflow-hidden">
               {/* Image */}
-              <div className="relative h-64 bg-secondary/50 flex items-center justify-center">
+              <div className={`relative ${ad.category === "house" ? "aspect-square" : "h-64"} bg-secondary/50 flex items-center justify-center`}>
                 {ad.image_url ? (
-                  <img src={ad.image_url} alt={ad.title} className="h-full w-full object-contain p-4" />
+                  <img src={ad.image_url} alt={ad.title} className={ad.category === "house" ? "h-full w-full object-cover" : "h-full w-full object-contain p-4"} />
                 ) : (
                   <Flame className="h-16 w-16 text-muted-foreground/20" />
                 )}
