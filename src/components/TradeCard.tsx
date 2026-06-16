@@ -181,15 +181,26 @@ const TradeCard = ({
         <div className="relative mb-4">
           <div
             className={cn(
-              "trade-card-item-orb",
-              featured && "trade-card-item-orb-featured"
+              category === "house"
+                ? cn(
+                    "h-24 w-24 rounded-xl border border-border/60 bg-secondary/40 flex items-center justify-center overflow-hidden shadow-md",
+                    featured && "border-warning/50 shadow-[0_0_24px_hsl(var(--warning)/0.25)]"
+                  )
+                : cn(
+                    "trade-card-item-orb",
+                    featured && "trade-card-item-orb-featured"
+                  )
             )}
           >
             {imageUrl ? (
               <img
                 src={imageUrl}
                 alt={title}
-                className="h-14 w-14 object-contain pixelated drop-shadow-[0_4px_10px_hsl(0_0%_0%/0.6)]"
+                className={
+                  category === "house"
+                    ? "h-full w-full object-cover"
+                    : "h-14 w-14 object-contain pixelated drop-shadow-[0_4px_10px_hsl(0_0%_0%/0.6)]"
+                }
                 loading="lazy"
               />
             ) : category === "house" ? (
