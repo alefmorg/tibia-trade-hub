@@ -3,22 +3,19 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase-client";
 import { toast } from "sonner";
 
+type Membership = { tenant_id: string; role: string; permissions: Record<string, boolean> };
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  isAdmin: boolean;
-  isBanned: boolean;
-  profile: { username: string; avatar_url: string | null } | null;
-  signUp: (email: string, password: string, username: string) => Promise<void>;
+  isSuperAdmin: boolean;
+  memberships: Membership[];
+  refresh: () => Promise<void>;
+  signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
-
-type ProfileUpdatedDetail = {
-  username?: string;
-  avatar_url?: string | null;
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -26,108 +23,79 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isBanned, setIsBanned] = useState(false);
-  const [profile, setProfile] = useState<{ username: string; avatar_url: string | null } | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
 
-  const fetchUserData = async (userId: string) => {
-    const [{ data: profileData }, { data: roleData }, { data: flagsData }] = await Promise.all([
-      supabase.from("profiles").select("username, avatar_url").eq("user_id", userId).single(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
-      (supabase as any).rpc("get_my_account_flags").maybeSingle(),
+  const loadContext = async (userId: string) => {
+    const [{ data: roles }, { data: members }] = await Promise.all([
+      supabase.from("user_roles" as any).select("role").eq("user_id", userId),
+      supabase.from("tenant_members" as any).select("tenant_id, role, permissions").eq("user_id", userId),
     ]);
-
-    const banned = (flagsData as any)?.banned === true;
-    setIsBanned(banned);
-    setProfile(profileData ? { username: profileData.username, avatar_url: profileData.avatar_url } : null);
-    setIsAdmin(!!roleData);
-
-    if (banned) {
-      toast.error("Sua conta foi banida. Contate o administrador.");
-      await supabase.auth.signOut();
-    }
+    setIsSuperAdmin(((roles as any[]) || []).some((r) => r.role === "admin"));
+    setMemberships(((members as any[]) || []) as Membership[]);
   };
 
   useEffect(() => {
-    let mounted = true;
-
-    const applySession = async (nextSession: Session | null) => {
-      if (!mounted) return;
-      setLoading(true);
-      setSession(nextSession);
-      const nextUser = nextSession?.user ?? null;
-      setUser(nextUser);
-
-      if (nextUser) {
-        await fetchUserData(nextUser.id);
-      } else {
-        setProfile(null);
-        setIsAdmin(false);
-        setIsBanned(false);
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) setTimeout(() => loadContext(s.user.id), 0);
+      else {
+        setIsSuperAdmin(false);
+        setMemberships([]);
       }
-
-      if (mounted) setLoading(false);
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      void applySession(nextSession);
+      setLoading(false);
     });
 
-    const handleProfileUpdated = (event: Event) => {
-      const customEvent = event as CustomEvent<ProfileUpdatedDetail>;
-      setProfile((current) => ({
-        username: customEvent.detail?.username ?? current?.username ?? "",
-        avatar_url: customEvent.detail?.avatar_url ?? current?.avatar_url ?? null,
-      }));
-    };
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setUser(s?.user ?? null);
+      if (s?.user) loadContext(s.user.id);
+      setLoading(false);
+    });
 
-    window.addEventListener("profile-updated", handleProfileUpdated as EventListener);
-
-    void supabase.auth.getSession().then(({ data: { session } }) => applySession(session));
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-      window.removeEventListener("profile-updated", handleProfileUpdated as EventListener);
-    };
+    return () => sub.subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const refresh = async () => {
+    if (user) await loadContext(user.id);
+  };
+
+  const signUp = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { username }, emailRedirectTo: window.location.origin },
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { full_name: fullName },
+      },
     });
     if (error) throw error;
-    toast.success("Conta criada com sucesso!");
+    toast.success("Conta criada! Você já pode entrar.");
   };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    toast.success("Login realizado com sucesso!");
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setProfile(null);
-    setIsAdmin(false);
-    setIsBanned(false);
-    toast.info("Você saiu da conta.");
+    setIsSuperAdmin(false);
+    setMemberships([]);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, isBanned, profile, signUp, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, isSuperAdmin, memberships, refresh, signUp, signIn, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-const defaultContext: AuthContextType = {
-  user: null, session: null, loading: true, isAdmin: false, isBanned: false,
-  profile: null, signUp: async () => {}, signIn: async () => {}, signOut: async () => {},
-};
-
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  return context ?? defaultContext;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
